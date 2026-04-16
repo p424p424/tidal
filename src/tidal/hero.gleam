@@ -2,12 +2,12 @@
 ///
 /// ```gleam
 /// import tidal/hero
-/// import lustre/attribute
+/// import lustre/element/html
 ///
 /// hero.new()
-/// |> hero.attrs([attribute.class("bg-base-200 min-h-screen")])
-/// |> hero.children([
-///   hero.content([attribute.class("text-center")], [
+/// |> hero.min_h_screen
+/// |> hero.content([
+///   html.div([attribute.class("text-center")], [
 ///     html.h1([attribute.class("text-5xl font-bold")], [html.text("Hello")]),
 ///   ]),
 /// ])
@@ -25,45 +25,48 @@ pub opaque type Hero(msg) {
   Hero(
     bg_image: Option(String),
     overlay: Bool,
+    min_h_screen: Bool,
     styles: List(Style),
     attrs: List(Attribute(msg)),
-    children: List(Element(msg)),
+    content: List(Element(msg)),
   )
 }
 
+/// Create a new hero section — renders `<div class="hero">`.
 pub fn new() -> Hero(msg) {
-  Hero(bg_image: None, overlay: False, styles: [], attrs: [], children: [])
+  Hero(bg_image: None, overlay: False, min_h_screen: False, styles: [], attrs: [], content: [])
 }
 
+/// Sets a background image URL — `style="background-image: url(…)"`.
 pub fn bg_image(h: Hero(msg), url: String) -> Hero(msg) {
   Hero(..h, bg_image: Some(url))
 }
 
+/// Adds a dark overlay over the background image — `hero-overlay`.
 pub fn overlay(h: Hero(msg)) -> Hero(msg) { Hero(..h, overlay: True) }
 
+/// Makes the hero fill the full viewport height — `min-h-screen`.
+pub fn min_h_screen(h: Hero(msg)) -> Hero(msg) { Hero(..h, min_h_screen: True) }
+
+/// Sets the main hero content — wraps `els` in `<div class="hero-content">`.
+pub fn content(h: Hero(msg), els: List(Element(msg))) -> Hero(msg) {
+  let wrapped = html.div([attribute.class("hero-content")], els)
+  Hero(..h, content: list.append(h.content, [wrapped]))
+}
+
+/// Appends Tailwind utility styles.
 pub fn style(h: Hero(msg), s: List(Style)) -> Hero(msg) {
   Hero(..h, styles: list.append(h.styles, s))
 }
 
+/// Appends HTML attributes.
 pub fn attrs(h: Hero(msg), a: List(Attribute(msg))) -> Hero(msg) {
   Hero(..h, attrs: list.append(h.attrs, a))
 }
 
-pub fn children(h: Hero(msg), c: List(Element(msg))) -> Hero(msg) {
-  Hero(..h, children: c)
-}
-
-/// Renders `<div class="hero-content" …attrs>children</div>`.
-pub fn content(
-  attrs: List(Attribute(msg)),
-  children: List(Element(msg)),
-) -> Element(msg) {
-  html.div([attribute.class("hero-content"), ..attrs], children)
-}
-
 pub fn build(h: Hero(msg)) -> Element(msg) {
   let bg_attr = case h.bg_image {
-    Some(url) -> [attribute.attribute("style", "background-image: " <> url <> ";")]
+    Some(url) -> [attribute.attribute("style", "background-image: url(" <> url <> ");")]
     None -> []
   }
   let overlay_el = case h.overlay {
@@ -71,12 +74,12 @@ pub fn build(h: Hero(msg)) -> Element(msg) {
     False -> []
   }
   let extra_class = to_class_string(h.styles)
-  let class = case extra_class {
-    "" -> "hero"
-    c -> "hero " <> c
-  }
+  let class =
+    "hero"
+    <> case h.min_h_screen { True -> " min-h-screen" False -> "" }
+    <> case extra_class { "" -> "" c -> " " <> c }
   html.div(
     [attribute.class(class), ..list.append(bg_attr, h.attrs)],
-    list.append(overlay_el, h.children),
+    list.append(overlay_el, h.content),
   )
 }

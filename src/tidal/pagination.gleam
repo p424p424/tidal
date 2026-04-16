@@ -4,8 +4,10 @@
 /// import tidal/pagination
 ///
 /// pagination.new()
-/// |> pagination.current(3)
-/// |> pagination.total(10)
+/// |> pagination.current_page(3)
+/// |> pagination.total_pages(10)
+/// |> pagination.show_prev
+/// |> pagination.show_next
 /// |> pagination.on_page(UserChangedPage)
 /// |> pagination.build
 /// ```
@@ -14,9 +16,11 @@
 ///
 /// ```gleam
 /// pagination.new()
-/// |> pagination.current(5)
-/// |> pagination.total(50)
+/// |> pagination.current_page(5)
+/// |> pagination.total_pages(50)
 /// |> pagination.window(5)
+/// |> pagination.show_prev
+/// |> pagination.show_next
 /// |> pagination.on_page(UserChangedPage)
 /// |> pagination.build
 /// ```
@@ -28,6 +32,7 @@ import lustre/attribute
 import lustre/element.{type Element}
 import lustre/element/html
 import lustre/event
+import tidal/size.{type Size}
 import tidal/style.{type Style}
 
 // ---------------------------------------------------------------------------
@@ -39,7 +44,9 @@ pub opaque type Pagination(msg) {
     current: Int,
     total: Int,
     window: Int,
-    show_prev_next: Bool,
+    show_prev: Bool,
+    show_next: Bool,
+    size: Option(Size),
     on_page: Option(fn(Int) -> msg),
     styles: List(Style),
     attrs: List(attribute.Attribute(msg)),
@@ -55,7 +62,9 @@ pub fn new() -> Pagination(msg) {
     current: 1,
     total: 1,
     window: 7,
-    show_prev_next: True,
+    show_prev: False,
+    show_next: False,
+    size: None,
     on_page: None,
     styles: [],
     attrs: [],
@@ -63,12 +72,12 @@ pub fn new() -> Pagination(msg) {
 }
 
 /// Sets the currently active page (1-based).
-pub fn current(p: Pagination(msg), n: Int) -> Pagination(msg) {
+pub fn current_page(p: Pagination(msg), n: Int) -> Pagination(msg) {
   Pagination(..p, current: n)
 }
 
 /// Sets the total number of pages.
-pub fn total(p: Pagination(msg), n: Int) -> Pagination(msg) {
+pub fn total_pages(p: Pagination(msg), n: Int) -> Pagination(msg) {
   Pagination(..p, total: n)
 }
 
@@ -78,9 +87,19 @@ pub fn window(p: Pagination(msg), n: Int) -> Pagination(msg) {
   Pagination(..p, window: n)
 }
 
-/// Hides the previous/next arrow buttons.
-pub fn hide_prev_next(p: Pagination(msg)) -> Pagination(msg) {
-  Pagination(..p, show_prev_next: False)
+/// Includes a "«" previous button.
+pub fn show_prev(p: Pagination(msg)) -> Pagination(msg) {
+  Pagination(..p, show_prev: True)
+}
+
+/// Includes a "»" next button.
+pub fn show_next(p: Pagination(msg)) -> Pagination(msg) {
+  Pagination(..p, show_next: True)
+}
+
+/// Sets the size of all page buttons.
+pub fn size(p: Pagination(msg), s: Size) -> Pagination(msg) {
+  Pagination(..p, size: Some(s))
 }
 
 /// Registers a callback receiving the selected page number.
@@ -105,16 +124,29 @@ pub fn attrs(
 // Build helpers
 // ---------------------------------------------------------------------------
 
+fn size_class(s: Option(Size)) -> String {
+  case s {
+    None -> ""
+    Some(size.Xs) -> " btn-xs"
+    Some(size.Sm) -> " btn-sm"
+    Some(size.Md) -> ""
+    Some(size.Lg) -> " btn-lg"
+    Some(size.Xl) -> " btn-xl"
+  }
+}
+
 fn page_btn(
   label: String,
   page: Int,
   active: Bool,
   disabled: Bool,
   handler: Option(fn(Int) -> msg),
+  sz: Option(Size),
 ) -> Element(msg) {
+  let sz_cls = size_class(sz)
   let cls = case active {
-    True -> "join-item btn btn-active"
-    False -> "join-item btn"
+    True -> "join-item btn btn-active" <> sz_cls
+    False -> "join-item btn" <> sz_cls
   }
   let click_attrs = case disabled, handler {
     True, _ -> [attribute.disabled(True)]
@@ -124,8 +156,9 @@ fn page_btn(
   html.button([attribute.class(cls), ..click_attrs], [element.text(label)])
 }
 
-fn ellipsis() -> Element(msg) {
-  html.button([attribute.class("join-item btn btn-disabled")], [
+fn ellipsis(sz: Option(Size)) -> Element(msg) {
+  let sz_cls = size_class(sz)
+  html.button([attribute.class("join-item btn btn-disabled" <> sz_cls)], [
     element.text("…"),
   ])
 }
@@ -138,11 +171,11 @@ fn int_range(from: Int, to: Int) -> List(Int) {
   }
 }
 
-fn visible_pages(current: Int, total: Int, window: Int) -> List(Int) {
-  let half = window / 2
+fn visible_pages(current: Int, total: Int, win: Int) -> List(Int) {
+  let half = win / 2
   let start = int.max(1, current - half)
-  let last = int.min(total, start + window - 1)
-  let start = int.max(1, last - window + 1)
+  let last = int.min(total, start + win - 1)
+  let start = int.max(1, last - win + 1)
   int_range(start, last)
 }
 
@@ -162,38 +195,38 @@ pub fn build(p: Pagination(msg)) -> Element(msg) {
     Error(_) -> p.total
   }
 
-  let prev_btn = case p.show_prev_next {
+  let prev_btn = case p.show_prev {
     False -> []
-    True -> [page_btn("«", int.max(1, p.current - 1), False, p.current == 1, p.on_page)]
+    True -> [page_btn("«", int.max(1, p.current - 1), False, p.current == 1, p.on_page, p.size)]
   }
 
   let leading_ellipsis = case first_page > 1 {
     False -> []
     True ->
       list.flatten([
-        [page_btn("1", 1, False, False, p.on_page)],
-        case first_page > 2 { True -> [ellipsis()] False -> [] },
+        [page_btn("1", 1, False, False, p.on_page, p.size)],
+        case first_page > 2 { True -> [ellipsis(p.size)] False -> [] },
       ])
   }
 
   let page_btns =
     list.map(pages, fn(n) {
-      page_btn(int.to_string(n), n, n == p.current, False, p.on_page)
+      page_btn(int.to_string(n), n, n == p.current, False, p.on_page, p.size)
     })
 
   let trailing_ellipsis = case last_page < p.total {
     False -> []
     True ->
       list.flatten([
-        case last_page < p.total - 1 { True -> [ellipsis()] False -> [] },
-        [page_btn(int.to_string(p.total), p.total, False, False, p.on_page)],
+        case last_page < p.total - 1 { True -> [ellipsis(p.size)] False -> [] },
+        [page_btn(int.to_string(p.total), p.total, False, False, p.on_page, p.size)],
       ])
   }
 
-  let next_btn = case p.show_prev_next {
+  let next_btn = case p.show_next {
     False -> []
     True -> [
-      page_btn("»", int.min(p.total, p.current + 1), False, p.current == p.total, p.on_page),
+      page_btn("»", int.min(p.total, p.current + 1), False, p.current == p.total, p.on_page, p.size),
     ]
   }
 

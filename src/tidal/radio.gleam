@@ -1,136 +1,88 @@
-/// Radio button component — renders as `<input type="radio">` with DaisyUI `radio` classes.
+/// Radio button — `<input type="radio" class="radio">`.
 ///
 /// Group multiple radio buttons with the same `name` to make them mutually exclusive.
 ///
 /// ```gleam
 /// import tidal/radio
-/// import tidal/variant
 ///
 /// radio.new()
-/// |> radio.name("theme")
-/// |> radio.value("dark")
-/// |> radio.variant(variant.Primary)
-/// |> radio.on_check(fn(_) { UserSelectedDark })
+/// |> radio.name("plan")
+/// |> radio.value("pro")
+/// |> radio.primary
+/// |> radio.checked(model.plan == "pro")
+/// |> radio.on_check(UserSelectedPlan)
 /// |> radio.build
 /// ```
 
 import gleam/list
 import gleam/option.{type Option, None, Some}
 import gleam/string
-import lustre/attribute
+import lustre/attribute.{type Attribute}
 import lustre/element.{type Element}
 import lustre/element/html
 import lustre/event
 import tidal/size.{type Size}
 import tidal/style.{type Style}
-import tidal/variant.{type Variant}
-
-// ---------------------------------------------------------------------------
-// Type
-// ---------------------------------------------------------------------------
 
 pub opaque type Radio(msg) {
   Radio(
     name: String,
     value: String,
     checked: Bool,
-    variant: Option(Variant),
+    color: Option(String),
     size: Option(Size),
     disabled: Bool,
     styles: List(Style),
-    attrs: List(attribute.Attribute(msg)),
+    attrs: List(Attribute(msg)),
   )
 }
-
-// ---------------------------------------------------------------------------
-// Builder
-// ---------------------------------------------------------------------------
 
 pub fn new() -> Radio(msg) {
-  Radio(
-    name: "",
-    value: "",
-    checked: False,
-    variant: None,
-    size: None,
-    disabled: False,
-    styles: [],
-    attrs: [],
-  )
+  Radio(name: "", value: "", checked: False, color: None, size: None, disabled: False, styles: [], attrs: [])
 }
 
-/// Sets the radio group name. All radios sharing a name are mutually exclusive.
-pub fn name(r: Radio(msg), n: String) -> Radio(msg) {
-  Radio(..r, name: n)
-}
+/// Radio group name — all radios sharing a name are mutually exclusive.
+pub fn name(r: Radio(msg), n: String) -> Radio(msg) { Radio(..r, name: n) }
 
-/// Sets the value submitted when this radio is selected.
-pub fn value(r: Radio(msg), v: String) -> Radio(msg) {
-  Radio(..r, value: v)
-}
+/// Value submitted when this radio is selected.
+pub fn value(r: Radio(msg), v: String) -> Radio(msg) { Radio(..r, value: v) }
 
-/// Marks this radio as the selected option.
-pub fn checked(r: Radio(msg)) -> Radio(msg) {
-  Radio(..r, checked: True)
-}
+/// Sets the checked state (controlled).
+pub fn checked(r: Radio(msg), b: Bool) -> Radio(msg) { Radio(..r, checked: b) }
 
-/// Sets the variant (colour role).
-pub fn variant(r: Radio(msg), v: Variant) -> Radio(msg) {
-  Radio(..r, variant: Some(v))
-}
+pub fn primary(r: Radio(msg)) -> Radio(msg) { Radio(..r, color: Some("radio-primary")) }
+pub fn secondary(r: Radio(msg)) -> Radio(msg) { Radio(..r, color: Some("radio-secondary")) }
+pub fn accent(r: Radio(msg)) -> Radio(msg) { Radio(..r, color: Some("radio-accent")) }
+pub fn neutral(r: Radio(msg)) -> Radio(msg) { Radio(..r, color: Some("radio-neutral")) }
+pub fn info(r: Radio(msg)) -> Radio(msg) { Radio(..r, color: Some("radio-info")) }
+pub fn success(r: Radio(msg)) -> Radio(msg) { Radio(..r, color: Some("radio-success")) }
+pub fn warning(r: Radio(msg)) -> Radio(msg) { Radio(..r, color: Some("radio-warning")) }
+pub fn error(r: Radio(msg)) -> Radio(msg) { Radio(..r, color: Some("radio-error")) }
 
-/// Sets the size. Defaults to `Md` (no extra class).
-pub fn size(r: Radio(msg), s: Size) -> Radio(msg) {
-  Radio(..r, size: Some(s))
-}
+/// Sets the radio size.
+pub fn size(r: Radio(msg), s: Size) -> Radio(msg) { Radio(..r, size: Some(s)) }
 
 /// Marks the radio as disabled.
-pub fn disabled(r: Radio(msg)) -> Radio(msg) {
-  Radio(..r, disabled: True)
-}
+pub fn disabled(r: Radio(msg)) -> Radio(msg) { Radio(..r, disabled: True) }
 
-/// Appends presentation styles. May be called multiple times.
+/// Appends Tailwind utility styles.
 pub fn style(r: Radio(msg), s: List(Style)) -> Radio(msg) {
   Radio(..r, styles: list.append(r.styles, s))
 }
 
-/// Appends HTML attributes. May be called multiple times.
-pub fn attrs(r: Radio(msg), a: List(attribute.Attribute(msg))) -> Radio(msg) {
+/// Appends HTML attributes.
+pub fn attrs(r: Radio(msg), a: List(Attribute(msg))) -> Radio(msg) {
   Radio(..r, attrs: list.append(r.attrs, a))
 }
 
-// ---------------------------------------------------------------------------
-// Events
-// ---------------------------------------------------------------------------
-
-pub fn on_check(r: Radio(msg), msg: fn(Bool) -> msg) -> Radio(msg) {
-  Radio(..r, attrs: list.append(r.attrs, [event.on_check(msg)]))
+pub fn on_check(r: Radio(msg), f: fn(Bool) -> msg) -> Radio(msg) {
+  Radio(..r, attrs: list.append(r.attrs, [event.on_check(f)]))
 }
-
 pub fn on_focus(r: Radio(msg), msg: msg) -> Radio(msg) {
   Radio(..r, attrs: list.append(r.attrs, [event.on_focus(msg)]))
 }
-
 pub fn on_blur(r: Radio(msg), msg: msg) -> Radio(msg) {
   Radio(..r, attrs: list.append(r.attrs, [event.on_blur(msg)]))
-}
-
-// ---------------------------------------------------------------------------
-// Build
-// ---------------------------------------------------------------------------
-
-fn variant_class(v: Variant) -> String {
-  case v {
-    variant.Primary -> "radio-primary"
-    variant.Secondary -> "radio-secondary"
-    variant.Accent -> "radio-accent"
-    variant.Neutral -> "radio-neutral"
-    variant.Info -> "radio-info"
-    variant.Success -> "radio-success"
-    variant.Warning -> "radio-warning"
-    variant.Error -> "radio-error"
-    variant.Ghost | variant.Link | variant.Outline -> ""
-  }
 }
 
 fn size_class(s: Size) -> String {
@@ -147,17 +99,13 @@ pub fn build(r: Radio(msg)) -> Element(msg) {
   let classes =
     [
       Some("radio"),
-      option.map(r.variant, variant_class),
+      r.color,
       option.map(r.size, size_class),
-      case style.to_class_string(r.styles) {
-        "" -> None
-        s -> Some(s)
-      },
+      case style.to_class_string(r.styles) { "" -> None s -> Some(s) },
     ]
-    |> option.values
+    |> list.filter_map(fn(x) { option.to_result(x, Nil) })
     |> list.filter(fn(c) { c != "" })
     |> string.join(" ")
-
   html.input([
     attribute.class(classes),
     attribute.type_("radio"),

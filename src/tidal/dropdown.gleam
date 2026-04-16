@@ -4,21 +4,21 @@
 /// import tidal/dropdown
 /// import tidal/button
 /// import tidal/menu
-/// import tidal/variant
 ///
 /// dropdown.new()
 /// |> dropdown.trigger(
-///   button.new("Options") |> button.variant(variant.Ghost) |> button.build,
+///   button.new() |> button.label("Options") |> button.ghost |> button.build,
 /// )
 /// |> dropdown.content([
 ///   menu.new()
 ///   |> menu.items([
-///     menu.link("Edit", "/edit", False),
-///     menu.link("Delete", "/delete", False),
+///     menu.item_link("Edit", "/edit"),
+///     menu.item_link("Delete", "/delete"),
 ///   ])
 ///   |> menu.build,
 /// ])
-/// |> dropdown.position(dropdown.End)
+/// |> dropdown.bottom
+/// |> dropdown.align_end
 /// |> dropdown.build
 /// ```
 
@@ -34,30 +34,14 @@ import tidal/style.{type Style}
 // Types
 // ---------------------------------------------------------------------------
 
-pub type DropdownPosition {
-  Start
-  End
-  Top
-  TopStart
-  TopEnd
-  Bottom
-  BottomStart
-  BottomEnd
-  Left
-  LeftStart
-  LeftEnd
-  Right
-  RightStart
-  RightEnd
-}
-
 pub opaque type Dropdown(msg) {
   Dropdown(
     trigger: Option(Element(msg)),
     content: List(Element(msg)),
-    position: Option(DropdownPosition),
+    placement: Option(String),
+    alignment: Option(String),
     hover: Bool,
-    open: Bool,
+    force: Option(String),
     styles: List(Style),
     attrs: List(attribute.Attribute(msg)),
   )
@@ -71,9 +55,10 @@ pub fn new() -> Dropdown(msg) {
   Dropdown(
     trigger: None,
     content: [],
-    position: None,
+    placement: None,
+    alignment: None,
     hover: False,
-    open: False,
+    force: None,
     styles: [],
     attrs: [],
   )
@@ -89,20 +74,29 @@ pub fn content(d: Dropdown(msg), els: List(Element(msg))) -> Dropdown(msg) {
   Dropdown(..d, content: list.append(d.content, els))
 }
 
-/// Sets the opening direction.
-pub fn position(d: Dropdown(msg), p: DropdownPosition) -> Dropdown(msg) {
-  Dropdown(..d, position: Some(p))
-}
+/// Places dropdown above the trigger — `dropdown-top`.
+pub fn top(d: Dropdown(msg)) -> Dropdown(msg) { Dropdown(..d, placement: Some("dropdown-top")) }
+/// Places dropdown below the trigger — `dropdown-bottom`.
+pub fn bottom(d: Dropdown(msg)) -> Dropdown(msg) { Dropdown(..d, placement: Some("dropdown-bottom")) }
+/// Places dropdown to the left — `dropdown-left`.
+pub fn left(d: Dropdown(msg)) -> Dropdown(msg) { Dropdown(..d, placement: Some("dropdown-left")) }
+/// Places dropdown to the right — `dropdown-right`.
+pub fn right(d: Dropdown(msg)) -> Dropdown(msg) { Dropdown(..d, placement: Some("dropdown-right")) }
+
+/// Aligns dropdown to the start — `dropdown-start`.
+pub fn align_start(d: Dropdown(msg)) -> Dropdown(msg) { Dropdown(..d, alignment: Some("dropdown-start")) }
+/// Aligns dropdown to the end — `dropdown-end`.
+pub fn align_end(d: Dropdown(msg)) -> Dropdown(msg) { Dropdown(..d, alignment: Some("dropdown-end")) }
+/// Centers the dropdown — `dropdown-center`.
+pub fn align_center(d: Dropdown(msg)) -> Dropdown(msg) { Dropdown(..d, alignment: Some("dropdown-center")) }
 
 /// Opens the dropdown on hover instead of click.
-pub fn hover(d: Dropdown(msg)) -> Dropdown(msg) {
-  Dropdown(..d, hover: True)
-}
+pub fn hover(d: Dropdown(msg)) -> Dropdown(msg) { Dropdown(..d, hover: True) }
 
-/// Forces the dropdown open.
-pub fn open(d: Dropdown(msg)) -> Dropdown(msg) {
-  Dropdown(..d, open: True)
-}
+/// Forces the dropdown open — `dropdown-open`.
+pub fn force_open(d: Dropdown(msg)) -> Dropdown(msg) { Dropdown(..d, force: Some("dropdown-open")) }
+/// Forces the dropdown closed — `dropdown-close`.
+pub fn force_close(d: Dropdown(msg)) -> Dropdown(msg) { Dropdown(..d, force: Some("dropdown-close")) }
 
 /// Appends presentation styles. May be called multiple times.
 pub fn style(d: Dropdown(msg), s: List(Style)) -> Dropdown(msg) {
@@ -121,32 +115,14 @@ pub fn attrs(
 // Build
 // ---------------------------------------------------------------------------
 
-fn position_class(p: DropdownPosition) -> String {
-  case p {
-    Start -> "dropdown-start"
-    End -> "dropdown-end"
-    Top -> "dropdown-top"
-    TopStart -> "dropdown-top dropdown-start"
-    TopEnd -> "dropdown-top dropdown-end"
-    Bottom -> "dropdown-bottom"
-    BottomStart -> "dropdown-bottom dropdown-start"
-    BottomEnd -> "dropdown-bottom dropdown-end"
-    Left -> "dropdown-left"
-    LeftStart -> "dropdown-left dropdown-start"
-    LeftEnd -> "dropdown-left dropdown-end"
-    Right -> "dropdown-right"
-    RightStart -> "dropdown-right dropdown-start"
-    RightEnd -> "dropdown-right dropdown-end"
-  }
-}
-
 pub fn build(d: Dropdown(msg)) -> Element(msg) {
   let classes =
     [
       Some("dropdown"),
-      option.map(d.position, position_class),
+      d.placement,
+      d.alignment,
       case d.hover { True -> Some("dropdown-hover") False -> None },
-      case d.open { True -> Some("dropdown-open") False -> None },
+      d.force,
       case style.to_class_string(d.styles) {
         "" -> None
         s -> Some(s)

@@ -3,15 +3,14 @@
 /// ```gleam
 /// import tidal/toast
 /// import tidal/alert
-/// import tidal/variant
 ///
 /// toast.new()
 /// |> toast.top
 /// |> toast.end_
 /// |> toast.children([
 ///   alert.new()
-///   |> alert.message("Saved!")
-///   |> alert.variant(variant.Success)
+///   |> alert.success
+///   |> alert.text("Saved!")
 ///   |> alert.build,
 /// ])
 /// |> toast.build
@@ -56,7 +55,7 @@ pub fn attrs(t: Toast(msg), a: List(Attribute(msg))) -> Toast(msg) {
 }
 
 pub fn children(t: Toast(msg), c: List(Element(msg))) -> Toast(msg) {
-  Toast(..t, children: c)
+  Toast(..t, children: list.append(t.children, c))
 }
 
 pub fn build(t: Toast(msg)) -> Element(msg) {

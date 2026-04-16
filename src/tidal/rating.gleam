@@ -1,12 +1,15 @@
-/// Rating — star/heart rating input.
+/// Star rating input — a group of radio inputs styled as stars.
 ///
 /// ```gleam
 /// import tidal/rating
 /// import tidal/size
 ///
 /// rating.new()
+/// |> rating.name("product-rating")
+/// |> rating.value(model.stars)
+/// |> rating.max(5)
 /// |> rating.size(size.Lg)
-/// |> rating.stars("product-rating", 5, 3, "mask-star-2", "bg-orange-400")
+/// |> rating.on_change(UserRated)
 /// |> rating.build
 /// ```
 
@@ -16,96 +19,126 @@ import gleam/string
 import lustre/attribute.{type Attribute}
 import lustre/element.{type Element}
 import lustre/element/html
+import lustre/event
 import tidal/size.{type Size}
+import tidal/style.{type Style}
 
 pub opaque type Rating(msg) {
   Rating(
-    size: Option(String),
+    name: String,
+    value: Int,
+    max: Int,
     half: Bool,
-    gap: Bool,
+    allow_clear: Bool,
+    size: Option(String),
+    on_change: Option(fn(Int) -> msg),
+    styles: List(Style),
     attrs: List(Attribute(msg)),
-    children: List(Element(msg)),
   )
 }
 
 pub fn new() -> Rating(msg) {
-  Rating(size: None, half: False, gap: False, attrs: [], children: [])
+  Rating(
+    name: "rating",
+    value: 0,
+    max: 5,
+    half: False,
+    allow_clear: False,
+    size: None,
+    on_change: None,
+    styles: [],
+    attrs: [],
+  )
 }
 
-pub fn size(r: Rating(msg), s: Size) -> Rating(msg) {
-  let cls = case s {
-    size.Xs -> Some("rating-xs")
-    size.Sm -> Some("rating-sm")
-    size.Md -> Some("rating-md")
-    size.Lg -> Some("rating-lg")
-    size.Xl -> Some("rating-xl")
-  }
-  Rating(..r, size: cls)
-}
+/// Radio group name — required when multiple ratings appear on the same page.
+pub fn name(r: Rating(msg), n: String) -> Rating(msg) { Rating(..r, name: n) }
 
-/// Enable half-star mode.
+/// Currently selected star (1-based; 0 = none selected).
+pub fn value(r: Rating(msg), n: Int) -> Rating(msg) { Rating(..r, value: n) }
+
+/// Total number of stars. Defaults to 5.
+pub fn max(r: Rating(msg), n: Int) -> Rating(msg) { Rating(..r, max: n) }
+
+/// Enable half-star ratings (adds `rating-half` class).
 pub fn half(r: Rating(msg)) -> Rating(msg) { Rating(..r, half: True) }
 
-/// Add `gap-1` spacing between items.
-pub fn gap(r: Rating(msg)) -> Rating(msg) { Rating(..r, gap: True) }
+/// Add a hidden first radio that allows the rating to be cleared.
+pub fn allow_clear(r: Rating(msg)) -> Rating(msg) { Rating(..r, allow_clear: True) }
 
+/// Sets the rating size.
+pub fn size(r: Rating(msg), s: Size) -> Rating(msg) {
+  let cls = case s {
+    size.Xs -> "rating-xs"
+    size.Sm -> "rating-sm"
+    size.Md -> "rating-md"
+    size.Lg -> "rating-lg"
+    size.Xl -> "rating-xl"
+  }
+  Rating(..r, size: Some(cls))
+}
+
+/// Fires when the selected star changes. Receives the 1-based star index.
+pub fn on_change(r: Rating(msg), f: fn(Int) -> msg) -> Rating(msg) {
+  Rating(..r, on_change: Some(f))
+}
+
+/// Appends Tailwind utility styles.
+pub fn style(r: Rating(msg), s: List(Style)) -> Rating(msg) {
+  Rating(..r, styles: list.append(r.styles, s))
+}
+
+/// Appends HTML attributes.
 pub fn attrs(r: Rating(msg), a: List(Attribute(msg))) -> Rating(msg) {
   Rating(..r, attrs: list.append(r.attrs, a))
 }
 
-/// Generate `count` uniform star inputs sharing `name`.
-/// `checked_index` is 1-based (0 = none checked).
-/// `mask_class` e.g. `"mask-star-2"`, `color_class` e.g. `"bg-orange-400"`.
-pub fn stars(
-  r: Rating(msg),
-  name: String,
-  count: Int,
-  checked_index: Int,
-  mask_class: String,
-  color_class: String,
-) -> Rating(msg) {
-  let inputs =
-    int_range(1, count)
-    |> list.map(fn(i) {
-      let extra = case color_class {
-        "" -> mask_class
-        c -> mask_class <> " " <> c
-      }
-      let base_attrs = [
-        attribute.type_("radio"),
-        attribute.name(name),
-        attribute.class("mask " <> extra),
-      ]
-      let all_attrs = case i == checked_index {
-        True -> list.append(base_attrs, [attribute.checked(True)])
-        False -> base_attrs
-      }
-      html.input(all_attrs)
-    })
-  Rating(..r, children: inputs)
-}
-
-pub fn build(r: Rating(msg)) -> Element(msg) {
-  let class =
-    [
-      Some("rating"),
-      r.size,
-      case r.half { True -> Some("rating-half") False -> None },
-      case r.gap { True -> Some("gap-1") False -> None },
-    ]
-    |> list.filter_map(fn(x) { option.to_result(x, Nil) })
-    |> string.join(" ")
-  html.div([attribute.class(class), ..r.attrs], r.children)
-}
-
 fn int_range(from: Int, to: Int) -> List(Int) {
-  int_range_acc(from, to, [])
-}
-
-fn int_range_acc(from: Int, to: Int, acc: List(Int)) -> List(Int) {
   case from > to {
-    True -> list.reverse(acc)
-    False -> int_range_acc(from + 1, to, [from, ..acc])
+    True -> []
+    False -> [from, ..int_range(from + 1, to)]
   }
 }
 
+pub fn build(r: Rating(msg)) -> Element(msg) {
+  let base_class =
+    [
+      Some("rating"),
+      case r.half { True -> Some("rating-half") False -> None },
+      r.size,
+      case style.to_class_string(r.styles) { "" -> None s -> Some(s) },
+    ]
+    |> list.filter_map(fn(x) { option.to_result(x, Nil) })
+    |> list.filter(fn(c) { c != "" })
+    |> string.join(" ")
+
+  let clear_el = case r.allow_clear {
+    False -> []
+    True -> [
+      html.input([
+        attribute.type_("radio"),
+        attribute.name(r.name),
+        attribute.class("rating-hidden"),
+        attribute.checked(r.value == 0),
+      ]),
+    ]
+  }
+
+  let star_els =
+    int_range(1, r.max)
+    |> list.map(fn(i) {
+      let click_attrs = case r.on_change {
+        None -> []
+        Some(f) -> [event.on_click(f(i))]
+      }
+      let base = [
+        attribute.type_("radio"),
+        attribute.name(r.name),
+        attribute.class("mask mask-star-2 bg-orange-400"),
+        attribute.checked(i == r.value),
+      ]
+      html.input(list.append(base, click_attrs))
+    })
+
+  html.div([attribute.class(base_class), ..r.attrs], list.append(clear_el, star_els))
+}

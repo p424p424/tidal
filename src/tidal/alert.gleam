@@ -1,139 +1,129 @@
-/// Alert component — renders a DaisyUI `alert` with an optional icon and actions.
+/// Alert banner — `<div role="alert" class="alert">`.
 ///
 /// ```gleam
 /// import tidal/alert
-/// import tidal/variant
 ///
 /// alert.new()
-/// |> alert.message("Your changes have been saved.")
-/// |> alert.variant(variant.Success)
+/// |> alert.info
+/// |> alert.title("Heads up")
+/// |> alert.text("Your session expires in 5 minutes.")
 /// |> alert.build
 /// ```
 ///
-/// With an icon and action:
-///
-/// ```gleam
-/// alert.new()
-/// |> alert.message("Are you sure you want to delete this?")
-/// |> alert.variant(variant.Warning)
-/// |> alert.icon(warning_icon_el)
-/// |> alert.actions([confirm_button, cancel_button])
-/// |> alert.build
-/// ```
+/// Alert supports only `info`, `success`, `warning`, `error` — no primary/secondary.
 
 import gleam/list
 import gleam/option.{type Option, None, Some}
 import gleam/string
-import lustre/attribute
+import lustre/attribute.{type Attribute}
 import lustre/element.{type Element}
 import lustre/element/html
 import tidal/style.{type Style}
-import tidal/variant.{type Variant}
-
-// ---------------------------------------------------------------------------
-// Type
-// ---------------------------------------------------------------------------
 
 pub opaque type Alert(msg) {
   Alert(
-    message: String,
-    variant: Option(Variant),
+    color: Option(String),
+    style_variant: Option(String),
+    layout: Option(String),
     icon: Option(Element(msg)),
+    title: Option(String),
+    text: Option(String),
+    children: List(Element(msg)),
     actions: List(Element(msg)),
     styles: List(Style),
-    attrs: List(attribute.Attribute(msg)),
+    attrs: List(Attribute(msg)),
   )
 }
 
-// ---------------------------------------------------------------------------
-// Builder
-// ---------------------------------------------------------------------------
-
 pub fn new() -> Alert(msg) {
   Alert(
-    message: "",
-    variant: None,
+    color: None,
+    style_variant: None,
+    layout: None,
     icon: None,
+    title: None,
+    text: None,
+    children: [],
     actions: [],
     styles: [],
     attrs: [],
   )
 }
 
-/// Sets the alert message text.
-pub fn message(a: Alert(msg), text: String) -> Alert(msg) {
-  Alert(..a, message: text)
+pub fn info(a: Alert(msg)) -> Alert(msg) { Alert(..a, color: Some("alert-info")) }
+pub fn success(a: Alert(msg)) -> Alert(msg) { Alert(..a, color: Some("alert-success")) }
+pub fn warning(a: Alert(msg)) -> Alert(msg) { Alert(..a, color: Some("alert-warning")) }
+pub fn error(a: Alert(msg)) -> Alert(msg) { Alert(..a, color: Some("alert-error")) }
+
+/// Outlined border, no fill.
+pub fn outline(a: Alert(msg)) -> Alert(msg) { Alert(..a, style_variant: Some("alert-outline")) }
+/// Dashed border.
+pub fn dash(a: Alert(msg)) -> Alert(msg) { Alert(..a, style_variant: Some("alert-dash")) }
+/// Soft/muted background.
+pub fn soft(a: Alert(msg)) -> Alert(msg) { Alert(..a, style_variant: Some("alert-soft")) }
+
+/// Arrange content horizontally (default on wider viewports).
+pub fn horizontal(a: Alert(msg)) -> Alert(msg) { Alert(..a, layout: Some("alert-horizontal")) }
+/// Stack content vertically.
+pub fn vertical(a: Alert(msg)) -> Alert(msg) { Alert(..a, layout: Some("alert-vertical")) }
+
+/// Optional leading icon element.
+pub fn icon(a: Alert(msg), el: Element(msg)) -> Alert(msg) { Alert(..a, icon: Some(el)) }
+
+/// Bold alert heading.
+pub fn title(a: Alert(msg), t: String) -> Alert(msg) { Alert(..a, title: Some(t)) }
+
+/// Alert body text.
+pub fn text(a: Alert(msg), t: String) -> Alert(msg) { Alert(..a, text: Some(t)) }
+
+/// Full custom content — replaces title/text.
+pub fn children(a: Alert(msg), els: List(Element(msg))) -> Alert(msg) {
+  Alert(..a, children: list.append(a.children, els))
 }
 
-/// Sets the variant (colour role): `Info`, `Success`, `Warning`, or `Error`.
-pub fn variant(a: Alert(msg), v: Variant) -> Alert(msg) {
-  Alert(..a, variant: Some(v))
-}
-
-/// Adds an icon element displayed before the message.
-pub fn icon(a: Alert(msg), el: Element(msg)) -> Alert(msg) {
-  Alert(..a, icon: Some(el))
-}
-
-/// Adds action elements (e.g. buttons) displayed after the message.
-/// May be called multiple times — actions accumulate.
+/// Action elements (buttons etc.) shown after the message.
 pub fn actions(a: Alert(msg), els: List(Element(msg))) -> Alert(msg) {
   Alert(..a, actions: list.append(a.actions, els))
 }
 
-/// Appends presentation styles. May be called multiple times.
+/// Appends Tailwind utility styles.
 pub fn style(a: Alert(msg), s: List(Style)) -> Alert(msg) {
   Alert(..a, styles: list.append(a.styles, s))
 }
 
-/// Appends HTML attributes. May be called multiple times.
-pub fn attrs(a: Alert(msg), at: List(attribute.Attribute(msg))) -> Alert(msg) {
+/// Appends HTML attributes.
+pub fn attrs(a: Alert(msg), at: List(Attribute(msg))) -> Alert(msg) {
   Alert(..a, attrs: list.append(a.attrs, at))
-}
-
-// ---------------------------------------------------------------------------
-// Build
-// ---------------------------------------------------------------------------
-
-fn variant_class(v: Variant) -> String {
-  case v {
-    variant.Info -> "alert-info"
-    variant.Success -> "alert-success"
-    variant.Warning -> "alert-warning"
-    variant.Error -> "alert-error"
-    variant.Primary -> "alert-primary"
-    variant.Secondary -> "alert-secondary"
-    variant.Accent -> "alert-accent"
-    variant.Neutral | variant.Ghost | variant.Link | variant.Outline -> ""
-  }
 }
 
 pub fn build(a: Alert(msg)) -> Element(msg) {
   let classes =
     [
       Some("alert"),
-      option.map(a.variant, variant_class),
-      case style.to_class_string(a.styles) {
-        "" -> None
-        s -> Some(s)
-      },
+      a.color,
+      a.style_variant,
+      a.layout,
+      case style.to_class_string(a.styles) { "" -> None s -> Some(s) },
     ]
-    |> option.values
+    |> list.filter_map(fn(x) { option.to_result(x, Nil) })
     |> list.filter(fn(c) { c != "" })
     |> string.join(" ")
 
-  let icon_els = case a.icon {
-    None -> []
-    Some(el) -> [el]
+  let icon_els = case a.icon { None -> [] Some(el) -> [el] }
+  let body_els = case a.children {
+    [_, ..] -> a.children
+    [] ->
+      list.flatten([
+        case a.title { None -> [] Some(t) -> [html.h4([attribute.class("font-bold")], [html.text(t)])] },
+        case a.text { None -> [] Some(t) -> [html.span([], [html.text(t)])] },
+      ])
   }
-
   let action_els = case a.actions {
     [] -> []
     els -> [html.div([attribute.class("alert-actions")], els)]
   }
-
   html.div(
     [attribute.class(classes), attribute.attribute("role", "alert"), ..a.attrs],
-    list.flatten([icon_els, [html.span([], [element.text(a.message)])], action_els]),
+    list.flatten([icon_els, body_els, action_els]),
   )
 }

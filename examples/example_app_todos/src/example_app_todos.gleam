@@ -23,7 +23,6 @@ import tidal/spacer
 
 
 import tidal/text
-import tidal/variant
 import tidal/styling as s
 
 pub fn main() {
@@ -177,12 +176,14 @@ fn view_header(active_count: Int, done_count: Int) -> Element(Message) {
     row.new()
       |> row.style([s.mt(1), s.gap(2)])
       |> row.children([
-        badge.new(count_label(active_count) <> " left")
+        badge.new()
+          |> badge.label(count_label(active_count) <> " left")
           |> badge.attrs([attribute.class("badge-ghost opacity-80")])
           |> badge.build,
         case done_count > 0 {
           True ->
-            badge.new(count_label(done_count) <> " done")
+            badge.new()
+            |> badge.label(count_label(done_count) <> " done")
             |> badge.attrs([attribute.class("badge-ghost opacity-60")])
             |> badge.build
           False -> element.none()
@@ -210,8 +211,9 @@ fn view_input(current: String) -> Element(Message) {
         }
       })
       |> input.build,
-    button.new("Add")
-      |> button.variant(variant.Primary)
+    button.new()
+      |> button.label("Add")
+      |> button.primary
       |> button.on_click(UserSubmitted)
       |> button.build,
   ])
@@ -232,13 +234,14 @@ fn view_filter_bar(current: Filter) -> Element(Message) {
 
 fn filter_tab(label: String, f: Filter, current: Filter) -> Element(Message) {
   let is_active = f == current
-  button.new(label)
-  |> button.size(size.Sm)
-  |> button.variant(case is_active {
-    True -> variant.Primary
-    False -> variant.Ghost
-  })
-  |> button.on_click(UserSetFilter(f))
+  let b = button.new()
+    |> button.label(label)
+    |> button.size(size.Sm)
+    |> button.on_click(UserSetFilter(f))
+  case is_active {
+    True -> b |> button.primary
+    False -> b |> button.ghost
+  }
   |> button.build
 }
 
@@ -277,11 +280,6 @@ fn view_empty_state() -> Element(Message) {
 }
 
 fn view_todo_item(item: Todo) -> Element(Message) {
-  let toggle = case item.done {
-    True -> checkbox.checked
-    False -> fn(c) { c }
-  }
-
   row.new()
   |> row.style([
     s.px(4),
@@ -292,8 +290,8 @@ fn view_todo_item(item: Todo) -> Element(Message) {
   |> row.attrs([attribute.class("border-b border-base-200 last:border-0")])
   |> row.children([
     checkbox.new()
-      |> checkbox.variant(variant.Primary)
-      |> toggle
+      |> checkbox.primary
+      |> checkbox.checked(item.done)
       |> checkbox.on_check(fn(v) { UserToggledTodo(item.id, v) })
       |> checkbox.build,
     text.new(item.label)
@@ -353,9 +351,10 @@ fn view_footer(done_count: Int) -> Element(Message) {
       |> row.style([s.p(4), s.justify_end()])
       |> row.attrs([attribute.class("border-t border-base-200")])
       |> row.children([
-        button.new("Clear completed")
+        button.new()
+        |> button.label("Clear completed")
         |> button.size(size.Sm)
-        |> button.variant(variant.Ghost)
+        |> button.ghost
         |> button.on_click(UserClearedDone)
         |> button.build,
       ])

@@ -40,7 +40,7 @@ pub fn attrs(l: ListDisplay(msg), a: List(Attribute(msg))) -> ListDisplay(msg) {
 }
 
 pub fn items(l: ListDisplay(msg), i: List(Element(msg))) -> ListDisplay(msg) {
-  ListDisplay(..l, items: i)
+  ListDisplay(..l, items: list.append(l.items, i))
 }
 
 /// A single list row.

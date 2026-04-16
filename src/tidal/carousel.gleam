@@ -7,10 +7,9 @@
 ///
 /// carousel.new()
 /// |> carousel.vertical
-/// |> carousel.full_width
 /// |> carousel.items([
-///   carousel.item([html.img([attribute.src("/img/1.jpg")])]),
-///   carousel.item([html.img([attribute.src("/img/2.jpg")])]),
+///   carousel.slide(html.img([attribute.src("/img/1.jpg")])),
+///   carousel.slide(html.img([attribute.src("/img/2.jpg")])),
 /// ])
 /// |> carousel.build
 /// ```
@@ -27,57 +26,50 @@ pub opaque type Carousel(msg) {
   Carousel(
     vertical: Bool,
     snap: Option(String),
-    full: Bool,
     styles: List(Style),
     attrs: List(Attribute(msg)),
     items: List(Element(msg)),
   )
 }
 
+/// Create a new carousel — `<div class="carousel">`.
+/// Default snap is to the start of each slide.
 pub fn new() -> Carousel(msg) {
-  Carousel(vertical: False, snap: None, full: False, styles: [], attrs: [], items: [])
+  Carousel(vertical: False, snap: None, styles: [], attrs: [], items: [])
 }
 
+/// Vertical scrolling carousel — `carousel-vertical`.
 pub fn vertical(c: Carousel(msg)) -> Carousel(msg) { Carousel(..c, vertical: True) }
 
-/// Snap items to the start (default behaviour).
-pub fn snap_start(c: Carousel(msg)) -> Carousel(msg) {
-  Carousel(..c, snap: Some("carousel-center"))
-}
+/// Snap slides to the center — `carousel-center`.
+pub fn center(c: Carousel(msg)) -> Carousel(msg) { Carousel(..c, snap: Some("carousel-center")) }
 
-/// Snap items to the centre.
-pub fn snap_center(c: Carousel(msg)) -> Carousel(msg) {
-  Carousel(..c, snap: Some("carousel-center"))
-}
+/// Snap slides to the end — `carousel-end`.
+pub fn end_(c: Carousel(msg)) -> Carousel(msg) { Carousel(..c, snap: Some("carousel-end")) }
 
-/// Snap items to the end.
-pub fn snap_end(c: Carousel(msg)) -> Carousel(msg) {
-  Carousel(..c, snap: Some("carousel-end"))
-}
-
-/// Each slide takes 100% width of the container.
-pub fn full_width(c: Carousel(msg)) -> Carousel(msg) { Carousel(..c, full: True) }
-
+/// Appends Tailwind utility styles.
 pub fn style(c: Carousel(msg), s: List(Style)) -> Carousel(msg) {
   Carousel(..c, styles: list.append(c.styles, s))
 }
 
+/// Appends HTML attributes.
 pub fn attrs(c: Carousel(msg), a: List(Attribute(msg))) -> Carousel(msg) {
   Carousel(..c, attrs: list.append(c.attrs, a))
 }
 
+/// Appends carousel slide elements.
 pub fn items(c: Carousel(msg), i: List(Element(msg))) -> Carousel(msg) {
-  Carousel(..c, items: i)
+  Carousel(..c, items: list.append(c.items, i))
 }
 
-/// Wraps children in a `<div class="carousel-item">`.
-pub fn item(children: List(Element(msg))) -> Element(msg) {
-  html.div([attribute.class("carousel-item")], children)
+/// Wraps a single element in `<div class="carousel-item">`.
+pub fn slide(el: Element(msg)) -> Element(msg) {
+  html.div([attribute.class("carousel-item")], [el])
 }
 
-/// Like `item` but stretched to fill the container width.
-pub fn item_full(children: List(Element(msg))) -> Element(msg) {
-  html.div([attribute.class("carousel-item w-full")], children)
+/// Named slide — `<div class="carousel-item" id="{id}">` for anchor-link navigation.
+pub fn slide_id(id: String, el: Element(msg)) -> Element(msg) {
+  html.div([attribute.class("carousel-item"), attribute.id(id)], [el])
 }
 
 pub fn build(c: Carousel(msg)) -> Element(msg) {

@@ -48,6 +48,7 @@ pub opaque type Collapse(msg) {
     body: List(Element(msg)),
     style_: CollapseStyle,
     open: Bool,
+    force: Option(String),
     accordion: Option(String),
     styles: List(Style),
     attrs: List(attribute.Attribute(msg)),
@@ -58,12 +59,14 @@ pub opaque type Collapse(msg) {
 // Builder
 // ---------------------------------------------------------------------------
 
+/// Create a new collapse — `<div class="collapse">`.
 pub fn new() -> Collapse(msg) {
   Collapse(
     title: "",
     body: [],
     style_: Default,
     open: False,
+    force: None,
     accordion: None,
     styles: [],
     attrs: [],
@@ -90,10 +93,15 @@ pub fn plus(c: Collapse(msg)) -> Collapse(msg) {
   Collapse(..c, style_: Plus)
 }
 
-/// Controls the open/closed state directly.
+/// Controls the checkbox open/closed state (standard toggle approach).
 pub fn open(c: Collapse(msg), is_open: Bool) -> Collapse(msg) {
   Collapse(..c, open: is_open)
 }
+
+/// Permanently expand via `collapse-open` CSS class (no checkbox needed).
+pub fn force_open(c: Collapse(msg)) -> Collapse(msg) { Collapse(..c, force: Some("collapse-open")) }
+/// Permanently collapse via `collapse-close` CSS class (no checkbox needed).
+pub fn force_close(c: Collapse(msg)) -> Collapse(msg) { Collapse(..c, force: Some("collapse-close")) }
 
 /// Groups this collapse into a radio-button accordion with the given name.
 /// Only one collapse in the group will be open at a time.
@@ -127,14 +135,9 @@ pub fn build(c: Collapse(msg)) -> Element(msg) {
   let classes =
     [
       Some("collapse"),
-      case style_class(c.style_) {
-        "" -> None
-        s -> Some(s)
-      },
-      case style.to_class_string(c.styles) {
-        "" -> None
-        s -> Some(s)
-      },
+      case style_class(c.style_) { "" -> None s -> Some(s) },
+      c.force,
+      case style.to_class_string(c.styles) { "" -> None s -> Some(s) },
     ]
     |> option.values
     |> list.filter(fn(cl) { cl != "" })

@@ -1,26 +1,66 @@
 /// Skeleton — animated loading placeholder.
 ///
+/// Call `new()` to start a block skeleton or `text_mode` for inline text shimmer.
+///
 /// ```gleam
 /// import tidal/skeleton
-/// import lustre/attribute
+/// import tidal/style as s
 ///
-/// skeleton.box([attribute.class("h-32 w-full")])
-/// skeleton.box([attribute.class("h-16 w-16 rounded-full")])
-/// skeleton.text("Loading…")
+/// // Block skeleton (e.g. image placeholder)
+/// skeleton.new()
+/// |> skeleton.style([s.h(32), s.w_full, s.rounded_full])
+/// |> skeleton.build
+///
+/// // Text shimmer
+/// skeleton.new()
+/// |> skeleton.text_mode
+/// |> skeleton.build
 /// ```
 
+import gleam/list
 import lustre/attribute.{type Attribute}
 import lustre/element.{type Element}
 import lustre/element/html
+import tidal/style.{type Style}
 
-/// Renders `<div class="skeleton" …attrs></div>`.
-/// Pass sizing and shape via attrs, e.g. `attribute.class("h-32 w-full")`.
-pub fn box(attrs: List(Attribute(msg))) -> Element(msg) {
-  html.div([attribute.class("skeleton"), ..attrs], [])
+pub opaque type Skeleton(msg) {
+  Skeleton(
+    text_mode: Bool,
+    styles: List(Style),
+    attrs: List(Attribute(msg)),
+  )
 }
 
-/// Renders `<span class="skeleton skeleton-text">content</span>`.
-/// Animates text with a shimmer gradient.
-pub fn text(content: String) -> Element(msg) {
-  html.span([attribute.class("skeleton skeleton-text")], [html.text(content)])
+/// Create a new skeleton placeholder.
+/// By default renders a block `<div class="skeleton">`.
+/// Combine with `style([s.h(32), s.w_full])` to control sizing.
+pub fn new() -> Skeleton(msg) {
+  Skeleton(text_mode: False, styles: [], attrs: [])
+}
+
+/// Switch to inline text shimmer — renders `<span>` with `skeleton` class.
+pub fn text(sk: Skeleton(msg)) -> Skeleton(msg) {
+  Skeleton(..sk, text_mode: True)
+}
+
+/// Appends Tailwind utility styles for sizing and shape.
+pub fn style(sk: Skeleton(msg), s: List(Style)) -> Skeleton(msg) {
+  Skeleton(..sk, styles: list.append(sk.styles, s))
+}
+
+/// Appends HTML attributes.
+pub fn attrs(sk: Skeleton(msg), a: List(Attribute(msg))) -> Skeleton(msg) {
+  Skeleton(..sk, attrs: list.append(sk.attrs, a))
+}
+
+pub fn build(sk: Skeleton(msg)) -> Element(msg) {
+  let extra = style.to_class_string(sk.styles)
+  let classes = case extra {
+    "" -> "skeleton"
+    s -> "skeleton " <> s
+  }
+  case sk.text_mode {
+    True -> html.span([attribute.class(classes), ..sk.attrs], [])
+    False -> html.div([attribute.class(classes), ..sk.attrs], [])
+  }
 }

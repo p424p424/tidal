@@ -1,35 +1,28 @@
-/// Card component — renders a DaisyUI `card` with optional image, title, body, and actions.
+/// Card — content container with optional image, title, body, and actions.
 ///
 /// ```gleam
 /// import tidal/card
-/// import tidal/button
-/// import tidal/variant
+/// import tidal/size
 ///
 /// card.new()
-/// |> card.image("/images/hero.jpg", "Hero image")
-/// |> card.title("Hello, Tidal!")
-/// |> card.body([
-///   text.new("A simple card example.") |> text.build,
-/// ])
-/// |> card.actions([
-///   button.new("Buy Now") |> button.variant(variant.Primary) |> button.build,
-/// ])
+/// |> card.image("/hero.jpg", "Product photo")
+/// |> card.title("Product name")
+/// |> card.body([html.p([], [html.text("Description")])])
+/// |> card.actions([buy_btn])
+/// |> card.border
+/// |> card.size(size.Md)
 /// |> card.build
 /// ```
 
 import gleam/list
 import gleam/option.{type Option, None, Some}
 import gleam/string
-import lustre/attribute
+import lustre/attribute.{type Attribute}
 import lustre/element.{type Element}
 import lustre/element/html
 import lustre/event
+import tidal/size.{type Size}
 import tidal/style.{type Style}
-import tidal/variant.{type Variant}
-
-// ---------------------------------------------------------------------------
-// Type
-// ---------------------------------------------------------------------------
 
 pub opaque type Card(msg) {
   Card(
@@ -39,18 +32,15 @@ pub opaque type Card(msg) {
     image_src: Option(String),
     image_alt: String,
     image_full: Bool,
-    bordered: Bool,
-    compact: Bool,
+    border: Bool,
+    dash: Bool,
     side: Bool,
-    variant: Option(Variant),
+    size: Option(Size),
+    color: Option(String),
     styles: List(Style),
-    attrs: List(attribute.Attribute(msg)),
+    attrs: List(Attribute(msg)),
   )
 }
-
-// ---------------------------------------------------------------------------
-// Builder
-// ---------------------------------------------------------------------------
 
 pub fn new() -> Card(msg) {
   Card(
@@ -60,102 +50,85 @@ pub fn new() -> Card(msg) {
     image_src: None,
     image_alt: "",
     image_full: False,
-    bordered: False,
-    compact: False,
+    border: False,
+    dash: False,
     side: False,
-    variant: None,
+    size: None,
+    color: None,
     styles: [],
     attrs: [],
   )
 }
 
-/// Sets the card title rendered as an `<h2>` inside the card body.
-pub fn title(c: Card(msg), text: String) -> Card(msg) {
-  Card(..c, title: Some(text))
-}
+/// Card heading text rendered as `<h2 class="card-title">`.
+pub fn title(c: Card(msg), text: String) -> Card(msg) { Card(..c, title: Some(text)) }
 
-/// Sets the card body content. May be called multiple times — content accumulates.
+/// Card body content. May be called multiple times — accumulates.
 pub fn body(c: Card(msg), els: List(Element(msg))) -> Card(msg) {
   Card(..c, body: list.append(c.body, els))
 }
 
-/// Adds action elements (e.g. buttons) in the card footer area.
-/// May be called multiple times — actions accumulate.
+/// Action elements (e.g. buttons) in the card footer.
 pub fn actions(c: Card(msg), els: List(Element(msg))) -> Card(msg) {
   Card(..c, actions: list.append(c.actions, els))
 }
 
-/// Adds a top image (`<figure>`) with the given src and alt text.
+/// Top image (`<figure>`).
 pub fn image(c: Card(msg), src: String, alt: String) -> Card(msg) {
   Card(..c, image_src: Some(src), image_alt: alt)
 }
 
-/// Applies `image-full` so the image extends to fill the entire card.
-pub fn image_full(c: Card(msg)) -> Card(msg) {
-  Card(..c, image_full: True)
-}
+/// Image fills the full card as a background.
+pub fn image_full(c: Card(msg)) -> Card(msg) { Card(..c, image_full: True) }
 
-/// Adds a visible border around the card.
-pub fn bordered(c: Card(msg)) -> Card(msg) {
-  Card(..c, bordered: True)
-}
+/// Visible border around the card.
+pub fn border(c: Card(msg)) -> Card(msg) { Card(..c, border: True) }
 
-/// Uses compact padding inside the card.
-pub fn compact(c: Card(msg)) -> Card(msg) {
-  Card(..c, compact: True)
-}
+/// Dashed border.
+pub fn dash(c: Card(msg)) -> Card(msg) { Card(..c, dash: True) }
 
-/// Switches to a horizontal (side-by-side) card layout.
-pub fn side(c: Card(msg)) -> Card(msg) {
-  Card(..c, side: True)
-}
+/// Horizontal (side-by-side) card layout.
+pub fn side(c: Card(msg)) -> Card(msg) { Card(..c, side: True) }
 
-/// Sets a background colour role for the card.
-pub fn variant(c: Card(msg), v: Variant) -> Card(msg) {
-  Card(..c, variant: Some(v))
-}
+/// Sets card padding/size.
+pub fn size(c: Card(msg), s: Size) -> Card(msg) { Card(..c, size: Some(s)) }
 
-/// Appends presentation styles. May be called multiple times.
+pub fn primary(c: Card(msg)) -> Card(msg) { Card(..c, color: Some("bg-primary text-primary-content")) }
+pub fn secondary(c: Card(msg)) -> Card(msg) { Card(..c, color: Some("bg-secondary text-secondary-content")) }
+pub fn accent(c: Card(msg)) -> Card(msg) { Card(..c, color: Some("bg-accent text-accent-content")) }
+pub fn neutral(c: Card(msg)) -> Card(msg) { Card(..c, color: Some("bg-neutral text-neutral-content")) }
+pub fn info(c: Card(msg)) -> Card(msg) { Card(..c, color: Some("bg-info text-info-content")) }
+pub fn success(c: Card(msg)) -> Card(msg) { Card(..c, color: Some("bg-success text-success-content")) }
+pub fn warning(c: Card(msg)) -> Card(msg) { Card(..c, color: Some("bg-warning text-warning-content")) }
+pub fn error(c: Card(msg)) -> Card(msg) { Card(..c, color: Some("bg-error text-error-content")) }
+
+/// Appends Tailwind utility styles.
 pub fn style(c: Card(msg), s: List(Style)) -> Card(msg) {
   Card(..c, styles: list.append(c.styles, s))
 }
 
-/// Appends HTML attributes. May be called multiple times.
-pub fn attrs(c: Card(msg), a: List(attribute.Attribute(msg))) -> Card(msg) {
+/// Appends HTML attributes.
+pub fn attrs(c: Card(msg), a: List(Attribute(msg))) -> Card(msg) {
   Card(..c, attrs: list.append(c.attrs, a))
 }
-
-// ---------------------------------------------------------------------------
-// Events
-// ---------------------------------------------------------------------------
 
 pub fn on_click(c: Card(msg), msg: msg) -> Card(msg) {
   Card(..c, attrs: list.append(c.attrs, [event.on_click(msg)]))
 }
-
 pub fn on_mouse_enter(c: Card(msg), msg: msg) -> Card(msg) {
   Card(..c, attrs: list.append(c.attrs, [event.on_mouse_enter(msg)]))
 }
-
 pub fn on_mouse_leave(c: Card(msg), msg: msg) -> Card(msg) {
   Card(..c, attrs: list.append(c.attrs, [event.on_mouse_leave(msg)]))
 }
 
-// ---------------------------------------------------------------------------
-// Build
-// ---------------------------------------------------------------------------
-
-fn variant_class(v: Variant) -> String {
-  case v {
-    variant.Primary -> "bg-primary text-primary-content"
-    variant.Secondary -> "bg-secondary text-secondary-content"
-    variant.Accent -> "bg-accent text-accent-content"
-    variant.Neutral -> "bg-neutral text-neutral-content"
-    variant.Info -> "bg-info text-info-content"
-    variant.Success -> "bg-success text-success-content"
-    variant.Warning -> "bg-warning text-warning-content"
-    variant.Error -> "bg-error text-error-content"
-    variant.Ghost | variant.Link | variant.Outline -> ""
+fn size_class(s: Size) -> String {
+  case s {
+    size.Xs -> "card-xs"
+    size.Sm -> "card-sm"
+    size.Md -> ""
+    size.Lg -> "card-lg"
+    size.Xl -> "card-xl"
   }
 }
 
@@ -164,46 +137,29 @@ pub fn build(c: Card(msg)) -> Element(msg) {
     [
       Some("card"),
       case c.image_full { True -> Some("image-full") False -> None },
-      case c.bordered { True -> Some("card-bordered") False -> None },
-      case c.compact { True -> Some("card-compact") False -> None },
+      case c.border { True -> Some("card-border") False -> None },
+      case c.dash { True -> Some("card-dash") False -> None },
       case c.side { True -> Some("card-side") False -> None },
-      option.map(c.variant, variant_class),
-      case style.to_class_string(c.styles) {
-        "" -> None
-        s -> Some(s)
-      },
+      option.map(c.size, size_class),
+      c.color,
+      case style.to_class_string(c.styles) { "" -> None s -> Some(s) },
     ]
-    |> option.values
+    |> list.filter_map(fn(x) { option.to_result(x, Nil) })
     |> list.filter(fn(cl) { cl != "" })
     |> string.join(" ")
 
   let figure_el = case c.image_src {
     None -> []
-    Some(src) -> [
-      html.figure([], [
-        html.img([attribute.src(src), attribute.alt(c.image_alt)]),
-      ]),
-    ]
+    Some(src) -> [html.figure([], [html.img([attribute.src(src), attribute.alt(c.image_alt)])])]
   }
-
   let title_el = case c.title {
     None -> []
     Some(t) -> [html.h2([attribute.class("card-title")], [element.text(t)])]
   }
-
   let actions_el = case c.actions {
     [] -> []
     els -> [html.div([attribute.class("card-actions justify-end")], els)]
   }
-
-  let body_el =
-    html.div(
-      [attribute.class("card-body")],
-      list.flatten([title_el, c.body, actions_el]),
-    )
-
-  html.div(
-    [attribute.class(classes), ..c.attrs],
-    list.append(figure_el, [body_el]),
-  )
+  let body_el = html.div([attribute.class("card-body")], list.flatten([title_el, c.body, actions_el]))
+  html.div([attribute.class(classes), ..c.attrs], list.append(figure_el, [body_el]))
 }

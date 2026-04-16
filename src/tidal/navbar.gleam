@@ -3,15 +3,13 @@
 /// ```gleam
 /// import tidal/navbar
 /// import tidal/button
-/// import tidal/variant
-/// import tidal/text
 ///
 /// navbar.new()
 /// |> navbar.start([
-///   text.new("MyApp") |> text.style([typography.text_xl(), typography.font_bold()]) |> text.build,
+///   html.span([attribute.class("text-xl font-bold")], [html.text("MyApp")]),
 /// ])
 /// |> navbar.end_([
-///   button.new("Login") |> button.variant(variant.Ghost) |> button.build,
+///   button.new() |> button.label("Login") |> button.ghost |> button.build,
 /// ])
 /// |> navbar.build
 /// ```

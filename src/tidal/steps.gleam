@@ -38,6 +38,11 @@ pub fn step_success(s: Step(msg)) -> Step(msg) { Step(..s, color: Some("step-suc
 pub fn step_warning(s: Step(msg)) -> Step(msg) { Step(..s, color: Some("step-warning")) }
 pub fn step_error(s: Step(msg)) -> Step(msg) { Step(..s, color: Some("step-error")) }
 
+/// Custom icon/content via `data-content` attribute (e.g. `"✓"`, `"★"`).
+pub fn step_icon(s: Step(msg), content: String) -> Step(msg) {
+  Step(..s, attrs: list.append(s.attrs, [attribute.attribute("data-content", content)]))
+}
+
 pub fn step_attrs(s: Step(msg), a: List(Attribute(msg))) -> Step(msg) {
   Step(..s, attrs: list.append(s.attrs, a))
 }
@@ -75,7 +80,7 @@ pub fn attrs(s: Steps(msg), a: List(Attribute(msg))) -> Steps(msg) {
 }
 
 pub fn items(s: Steps(msg), is: List(Element(msg))) -> Steps(msg) {
-  Steps(..s, items: is)
+  Steps(..s, items: list.append(s.items, is))
 }
 
 pub fn build(s: Steps(msg)) -> Element(msg) {

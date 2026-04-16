@@ -1,18 +1,17 @@
-/// Menu component — renders a DaisyUI `menu` list.
-///
-/// Build items using the helper constructors, then pass them to `items/2`.
+/// Menu — DaisyUI `menu` vertical or horizontal navigation list.
 ///
 /// ```gleam
 /// import tidal/menu
 ///
 /// menu.new()
 /// |> menu.items([
-///   menu.link("Home", "/", False),
-///   menu.section_title("Account"),
-///   menu.link("Profile", "/profile", True),
-///   menu.link("Settings", "/settings", False),
+///   menu.item("Dashboard", UserNavigated("/"))
+///   |> menu.item_icon(home_icon),
+///   menu.title("Account"),
+///   menu.item_link("Profile", "/profile"),
+///   menu.item_link("Settings", "/settings"),
 ///   menu.divider(),
-///   menu.button("Log out", UserLoggedOut),
+///   menu.item("Log out", UserLoggedOut),
 /// ])
 /// |> menu.build
 /// ```
@@ -28,19 +27,65 @@ import tidal/size.{type Size}
 import tidal/style.{type Style}
 
 // ---------------------------------------------------------------------------
-// Types
+// MenuItem type
 // ---------------------------------------------------------------------------
 
-pub type MenuItem(msg) {
-  /// A navigational link item.
-  Link(label: String, href: String, active: Bool)
-  /// A clickable item that dispatches a message.
-  Button(label: String, on_click: msg)
-  /// A non-interactive section heading.
-  SectionTitle(label: String)
-  /// A horizontal separator line.
+pub opaque type MenuItem(msg) {
+  Item(label: String, on_click: msg, active: Bool, icon: Option(Element(msg)))
+  ItemLink(label: String, href: String, active: Bool, icon: Option(Element(msg)))
+  ItemDisabled(label: String)
+  Title(label: String)
+  Submenu(label: String, items: List(MenuItem(msg)))
   Divider
 }
+
+/// Standard clickable menu item — dispatches `msg` on click.
+pub fn item(label: String, on_click: msg) -> MenuItem(msg) {
+  Item(label: label, on_click: on_click, active: False, icon: None)
+}
+
+/// Linked menu item — renders as `<a href>`.
+pub fn item_link(label: String, href: String) -> MenuItem(msg) {
+  ItemLink(label: label, href: href, active: False, icon: None)
+}
+
+/// Active (highlighted/selected) version of `item`.
+pub fn item_active(label: String, on_click: msg) -> MenuItem(msg) {
+  Item(label: label, on_click: on_click, active: True, icon: None)
+}
+
+/// Disabled non-interactive item — `menu-disabled` on `<li>`.
+pub fn item_disabled(label: String) -> MenuItem(msg) {
+  ItemDisabled(label: label)
+}
+
+/// Add a leading icon to an `item` or `item_link`.
+pub fn item_icon(mi: MenuItem(msg), icon: Element(msg)) -> MenuItem(msg) {
+  case mi {
+    Item(l, oc, a, _) -> Item(l, oc, a, Some(icon))
+    ItemLink(l, h, a, _) -> ItemLink(l, h, a, Some(icon))
+    other -> other
+  }
+}
+
+/// Non-interactive section heading — `<li class="menu-title">`.
+pub fn title(label: String) -> MenuItem(msg) {
+  Title(label: label)
+}
+
+/// Collapsible submenu — renders as a nested `<ul>`.
+pub fn submenu(label: String, sub_items: List(MenuItem(msg))) -> MenuItem(msg) {
+  Submenu(label: label, items: sub_items)
+}
+
+/// Horizontal divider between items.
+pub fn divider() -> MenuItem(msg) {
+  Divider
+}
+
+// ---------------------------------------------------------------------------
+// Menu container
+// ---------------------------------------------------------------------------
 
 pub opaque type Menu(msg) {
   Menu(
@@ -52,65 +97,34 @@ pub opaque type Menu(msg) {
   )
 }
 
-// ---------------------------------------------------------------------------
-// Item constructors (convenience)
-// ---------------------------------------------------------------------------
-
-/// Creates a navigational link item.
-pub fn link(label: String, href: String, active: Bool) -> MenuItem(msg) {
-  Link(label: label, href: href, active: active)
-}
-
-/// Creates a clickable item that dispatches `msg` on click.
-pub fn button(label: String, on_click: msg) -> MenuItem(msg) {
-  Button(label: label, on_click: on_click)
-}
-
-/// Creates a non-interactive section heading.
-pub fn section_title(label: String) -> MenuItem(msg) {
-  SectionTitle(label: label)
-}
-
-/// Creates a horizontal divider between items.
-pub fn divider() -> MenuItem(msg) {
-  Divider
-}
-
-// ---------------------------------------------------------------------------
-// Builder
-// ---------------------------------------------------------------------------
-
+/// Create a new menu — `<ul class="menu">`.
 pub fn new() -> Menu(msg) {
   Menu(items: [], size: None, horizontal: False, styles: [], attrs: [])
 }
 
-/// Sets the menu items. May be called multiple times — items accumulate.
+/// Appends menu items.
 pub fn items(m: Menu(msg), is: List(MenuItem(msg))) -> Menu(msg) {
   Menu(..m, items: list.append(m.items, is))
 }
 
-/// Sets the menu size. Defaults to `Md` (no extra class).
-pub fn size(m: Menu(msg), s: Size) -> Menu(msg) {
-  Menu(..m, size: Some(s))
-}
+/// Horizontal layout — `menu-horizontal`.
+pub fn horizontal(m: Menu(msg)) -> Menu(msg) { Menu(..m, horizontal: True) }
 
-/// Switches to a horizontal menu layout.
-pub fn horizontal(m: Menu(msg)) -> Menu(msg) {
-  Menu(..m, horizontal: True)
-}
+/// Menu item size.
+pub fn size(m: Menu(msg), s: Size) -> Menu(msg) { Menu(..m, size: Some(s)) }
 
-/// Appends presentation styles. May be called multiple times.
+/// Appends Tailwind utility styles.
 pub fn style(m: Menu(msg), s: List(Style)) -> Menu(msg) {
   Menu(..m, styles: list.append(m.styles, s))
 }
 
-/// Appends HTML attributes. May be called multiple times.
+/// Appends HTML attributes.
 pub fn attrs(m: Menu(msg), a: List(attribute.Attribute(msg))) -> Menu(msg) {
   Menu(..m, attrs: list.append(m.attrs, a))
 }
 
 // ---------------------------------------------------------------------------
-// Build
+// Build helpers
 // ---------------------------------------------------------------------------
 
 fn size_class(s: Size) -> String {
@@ -123,18 +137,37 @@ fn size_class(s: Size) -> String {
   }
 }
 
+fn icon_children(icon: Option(Element(msg)), label: String) -> List(Element(msg)) {
+  case icon {
+    None -> [element.text(label)]
+    Some(el) -> [el, element.text(label)]
+  }
+}
+
 fn item_el(mi: MenuItem(msg)) -> Element(msg) {
   case mi {
-    Link(label, href, active) -> {
+    Item(label, msg, active, icon) -> {
       let cls = case active { True -> "active" False -> "" }
-      html.li([], [html.a([attribute.href(href), attribute.class(cls)], [element.text(label)])])
+      html.li(
+        [],
+        [html.button([event.on_click(msg), attribute.class(cls)], icon_children(icon, label))],
+      )
     }
-    Button(label, msg) ->
-      html.li([], [html.button([event.on_click(msg)], [element.text(label)])])
-    SectionTitle(label) ->
-      html.li([attribute.class("menu-title")], [element.text(label)])
-    Divider ->
-      html.li([attribute.class("divider")], [])
+    ItemDisabled(label) ->
+      html.li([attribute.class("menu-disabled")], [element.text(label)])
+    ItemLink(label, href, active, icon) -> {
+      let cls = case active { True -> "active" False -> "" }
+      html.li([], [html.a([attribute.href(href), attribute.class(cls)], icon_children(icon, label))])
+    }
+    Title(label) -> html.li([attribute.class("menu-title")], [element.text(label)])
+    Submenu(label, sub_items) ->
+      html.li([], [
+        html.details([], [
+          html.summary([], [element.text(label)]),
+          html.ul([], list.map(sub_items, item_el)),
+        ]),
+      ])
+    Divider -> html.li([attribute.class("divider")], [])
   }
 }
 
@@ -144,14 +177,10 @@ pub fn build(m: Menu(msg)) -> Element(msg) {
       Some("menu"),
       case m.horizontal { True -> Some("menu-horizontal") False -> None },
       option.map(m.size, size_class),
-      case style.to_class_string(m.styles) {
-        "" -> None
-        s -> Some(s)
-      },
+      case style.to_class_string(m.styles) { "" -> None s -> Some(s) },
     ]
     |> option.values
     |> list.filter(fn(c) { c != "" })
     |> string.join(" ")
-
   html.ul([attribute.class(classes), ..m.attrs], list.map(m.items, item_el))
 }

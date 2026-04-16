@@ -1,143 +1,85 @@
-/// Tooltip component — wraps any element with a DaisyUI `tooltip`.
+/// Tooltip wrapper — adds a hover tooltip to any element.
 ///
 /// ```gleam
 /// import tidal/tooltip
-/// import tidal/button
-/// import tidal/variant
 ///
-/// tooltip.new(button.new("Save") |> button.variant(variant.Primary) |> button.build)
-/// |> tooltip.text("Save your changes")
-/// |> tooltip.position(tooltip.Top)
+/// tooltip.new()
+/// |> tooltip.tip("Click to save")
+/// |> tooltip.top
+/// |> tooltip.primary
+/// |> tooltip.child(save_btn)
 /// |> tooltip.build
 /// ```
 
 import gleam/list
 import gleam/option.{type Option, None, Some}
 import gleam/string
-import lustre/attribute
+import lustre/attribute.{type Attribute}
 import lustre/element.{type Element}
 import lustre/element/html
 import tidal/style.{type Style}
-import tidal/variant.{type Variant}
-
-// ---------------------------------------------------------------------------
-// Types
-// ---------------------------------------------------------------------------
-
-pub type Position {
-  Top
-  Bottom
-  Left
-  Right
-}
 
 pub opaque type Tooltip(msg) {
   Tooltip(
-    child: Element(msg),
-    text: String,
-    position: Option(Position),
-    variant: Option(Variant),
+    child: Option(Element(msg)),
+    tip: String,
+    position: Option(String),
+    color: Option(String),
     open: Bool,
     styles: List(Style),
-    attrs: List(attribute.Attribute(msg)),
+    attrs: List(Attribute(msg)),
   )
 }
 
-// ---------------------------------------------------------------------------
-// Builder
-// ---------------------------------------------------------------------------
-
-/// Creates a new tooltip wrapping the given child element.
-pub fn new(child: Element(msg)) -> Tooltip(msg) {
-  Tooltip(
-    child: child,
-    text: "",
-    position: None,
-    variant: None,
-    open: False,
-    styles: [],
-    attrs: [],
-  )
+pub fn new() -> Tooltip(msg) {
+  Tooltip(child: None, tip: "", position: None, color: None, open: False, styles: [], attrs: [])
 }
 
-/// Sets the tooltip text shown on hover.
-pub fn text(t: Tooltip(msg), tip: String) -> Tooltip(msg) {
-  Tooltip(..t, text: tip)
-}
+/// The tooltip text shown on hover.
+pub fn tip(t: Tooltip(msg), text: String) -> Tooltip(msg) { Tooltip(..t, tip: text) }
 
-/// Sets the tooltip position relative to the child. Defaults to `Top`.
-pub fn position(t: Tooltip(msg), p: Position) -> Tooltip(msg) {
-  Tooltip(..t, position: Some(p))
-}
+/// The element the tooltip wraps (trigger).
+pub fn child(t: Tooltip(msg), el: Element(msg)) -> Tooltip(msg) { Tooltip(..t, child: Some(el)) }
 
-/// Sets the tooltip colour role.
-pub fn variant(t: Tooltip(msg), v: Variant) -> Tooltip(msg) {
-  Tooltip(..t, variant: Some(v))
-}
+pub fn top(t: Tooltip(msg)) -> Tooltip(msg) { Tooltip(..t, position: Some("tooltip-top")) }
+pub fn bottom(t: Tooltip(msg)) -> Tooltip(msg) { Tooltip(..t, position: Some("tooltip-bottom")) }
+pub fn left(t: Tooltip(msg)) -> Tooltip(msg) { Tooltip(..t, position: Some("tooltip-left")) }
+pub fn right(t: Tooltip(msg)) -> Tooltip(msg) { Tooltip(..t, position: Some("tooltip-right")) }
 
-/// Forces the tooltip open (useful for demos or testing).
-pub fn open(t: Tooltip(msg)) -> Tooltip(msg) {
-  Tooltip(..t, open: True)
-}
+/// Force the tooltip to always be visible.
+pub fn open(t: Tooltip(msg)) -> Tooltip(msg) { Tooltip(..t, open: True) }
 
-/// Appends presentation styles. May be called multiple times.
+pub fn primary(t: Tooltip(msg)) -> Tooltip(msg) { Tooltip(..t, color: Some("tooltip-primary")) }
+pub fn secondary(t: Tooltip(msg)) -> Tooltip(msg) { Tooltip(..t, color: Some("tooltip-secondary")) }
+pub fn accent(t: Tooltip(msg)) -> Tooltip(msg) { Tooltip(..t, color: Some("tooltip-accent")) }
+pub fn neutral(t: Tooltip(msg)) -> Tooltip(msg) { Tooltip(..t, color: Some("tooltip-neutral")) }
+pub fn info(t: Tooltip(msg)) -> Tooltip(msg) { Tooltip(..t, color: Some("tooltip-info")) }
+pub fn success(t: Tooltip(msg)) -> Tooltip(msg) { Tooltip(..t, color: Some("tooltip-success")) }
+pub fn warning(t: Tooltip(msg)) -> Tooltip(msg) { Tooltip(..t, color: Some("tooltip-warning")) }
+pub fn error(t: Tooltip(msg)) -> Tooltip(msg) { Tooltip(..t, color: Some("tooltip-error")) }
+
+/// Appends Tailwind utility styles.
 pub fn style(t: Tooltip(msg), s: List(Style)) -> Tooltip(msg) {
   Tooltip(..t, styles: list.append(t.styles, s))
 }
 
-/// Appends HTML attributes. May be called multiple times.
-pub fn attrs(t: Tooltip(msg), a: List(attribute.Attribute(msg))) -> Tooltip(msg) {
+/// Appends HTML attributes.
+pub fn attrs(t: Tooltip(msg), a: List(Attribute(msg))) -> Tooltip(msg) {
   Tooltip(..t, attrs: list.append(t.attrs, a))
-}
-
-// ---------------------------------------------------------------------------
-// Build
-// ---------------------------------------------------------------------------
-
-fn position_class(p: Position) -> String {
-  case p {
-    Top -> "tooltip-top"
-    Bottom -> "tooltip-bottom"
-    Left -> "tooltip-left"
-    Right -> "tooltip-right"
-  }
-}
-
-fn variant_class(v: Variant) -> String {
-  case v {
-    variant.Primary -> "tooltip-primary"
-    variant.Secondary -> "tooltip-secondary"
-    variant.Accent -> "tooltip-accent"
-    variant.Info -> "tooltip-info"
-    variant.Success -> "tooltip-success"
-    variant.Warning -> "tooltip-warning"
-    variant.Error -> "tooltip-error"
-    variant.Neutral | variant.Ghost | variant.Link | variant.Outline -> ""
-  }
 }
 
 pub fn build(t: Tooltip(msg)) -> Element(msg) {
   let classes =
     [
       Some("tooltip"),
-      option.map(t.position, position_class),
-      option.map(t.variant, variant_class),
+      t.position,
+      t.color,
       case t.open { True -> Some("tooltip-open") False -> None },
-      case style.to_class_string(t.styles) {
-        "" -> None
-        s -> Some(s)
-      },
+      case style.to_class_string(t.styles) { "" -> None s -> Some(s) },
     ]
-    |> option.values
+    |> list.filter_map(fn(x) { option.to_result(x, Nil) })
     |> list.filter(fn(c) { c != "" })
     |> string.join(" ")
-
-  html.div(
-    [
-      attribute.class(classes),
-      attribute.attribute("data-tip", t.text),
-      ..t.attrs
-    ],
-    [t.child],
-  )
+  let children = case t.child { None -> [] Some(el) -> [el] }
+  html.div([attribute.class(classes), attribute.attribute("data-tip", t.tip), ..t.attrs], children)
 }

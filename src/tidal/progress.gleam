@@ -1,124 +1,78 @@
-/// Progress bar component — renders a DaisyUI `progress` element.
+/// Progress bar — `<progress class="progress">`.
 ///
 /// ```gleam
 /// import tidal/progress
-/// import tidal/variant
 ///
 /// progress.new()
-/// |> progress.value(70)
+/// |> progress.value(model.progress)
 /// |> progress.max(100)
-/// |> progress.variant(variant.Primary)
+/// |> progress.primary
 /// |> progress.build
 /// ```
 ///
-/// Omitting `value` renders an indeterminate (animated) progress bar:
-///
-/// ```gleam
-/// progress.new()
-/// |> progress.variant(variant.Accent)
-/// |> progress.build
-/// ```
+/// Omit `value` for an indeterminate (animated) progress bar.
 
 import gleam/int
 import gleam/list
 import gleam/option.{type Option, None, Some}
 import gleam/string
-import lustre/attribute
+import lustre/attribute.{type Attribute}
 import lustre/element.{type Element}
 import lustre/element/html
 import tidal/style.{type Style}
-import tidal/variant.{type Variant}
-
-// ---------------------------------------------------------------------------
-// Type
-// ---------------------------------------------------------------------------
 
 pub opaque type Progress(msg) {
   Progress(
     value: Option(Int),
     max: Int,
-    variant: Option(Variant),
+    color: Option(String),
     styles: List(Style),
-    attrs: List(attribute.Attribute(msg)),
+    attrs: List(Attribute(msg)),
   )
 }
 
-// ---------------------------------------------------------------------------
-// Builder
-// ---------------------------------------------------------------------------
-
 pub fn new() -> Progress(msg) {
-  Progress(value: None, max: 100, variant: None, styles: [], attrs: [])
+  Progress(value: None, max: 100, color: None, styles: [], attrs: [])
 }
 
-/// Sets the current progress value. Omit for an indeterminate bar.
-pub fn value(p: Progress(msg), n: Int) -> Progress(msg) {
-  Progress(..p, value: Some(n))
-}
+/// Current progress value. Omit for an indeterminate bar.
+pub fn value(p: Progress(msg), n: Int) -> Progress(msg) { Progress(..p, value: Some(n)) }
 
-/// Sets the maximum value. Defaults to 100.
-pub fn max(p: Progress(msg), n: Int) -> Progress(msg) {
-  Progress(..p, max: n)
-}
+/// Maximum value. Defaults to 100.
+pub fn max(p: Progress(msg), n: Int) -> Progress(msg) { Progress(..p, max: n) }
 
-/// Sets the variant (colour role).
-pub fn variant(p: Progress(msg), v: Variant) -> Progress(msg) {
-  Progress(..p, variant: Some(v))
-}
+pub fn primary(p: Progress(msg)) -> Progress(msg) { Progress(..p, color: Some("progress-primary")) }
+pub fn secondary(p: Progress(msg)) -> Progress(msg) { Progress(..p, color: Some("progress-secondary")) }
+pub fn accent(p: Progress(msg)) -> Progress(msg) { Progress(..p, color: Some("progress-accent")) }
+pub fn neutral(p: Progress(msg)) -> Progress(msg) { Progress(..p, color: Some("progress-neutral")) }
+pub fn info(p: Progress(msg)) -> Progress(msg) { Progress(..p, color: Some("progress-info")) }
+pub fn success(p: Progress(msg)) -> Progress(msg) { Progress(..p, color: Some("progress-success")) }
+pub fn warning(p: Progress(msg)) -> Progress(msg) { Progress(..p, color: Some("progress-warning")) }
+pub fn error(p: Progress(msg)) -> Progress(msg) { Progress(..p, color: Some("progress-error")) }
 
-/// Appends presentation styles. May be called multiple times.
+/// Appends Tailwind utility styles.
 pub fn style(p: Progress(msg), s: List(Style)) -> Progress(msg) {
   Progress(..p, styles: list.append(p.styles, s))
 }
 
-/// Appends HTML attributes. May be called multiple times.
-pub fn attrs(p: Progress(msg), a: List(attribute.Attribute(msg))) -> Progress(msg) {
+/// Appends HTML attributes.
+pub fn attrs(p: Progress(msg), a: List(Attribute(msg))) -> Progress(msg) {
   Progress(..p, attrs: list.append(p.attrs, a))
-}
-
-// ---------------------------------------------------------------------------
-// Build
-// ---------------------------------------------------------------------------
-
-fn variant_class(v: Variant) -> String {
-  case v {
-    variant.Primary -> "progress-primary"
-    variant.Secondary -> "progress-secondary"
-    variant.Accent -> "progress-accent"
-    variant.Neutral -> "progress-neutral"
-    variant.Info -> "progress-info"
-    variant.Success -> "progress-success"
-    variant.Warning -> "progress-warning"
-    variant.Error -> "progress-error"
-    variant.Ghost | variant.Link | variant.Outline -> ""
-  }
 }
 
 pub fn build(p: Progress(msg)) -> Element(msg) {
   let classes =
     [
       Some("progress"),
-      option.map(p.variant, variant_class),
-      case style.to_class_string(p.styles) {
-        "" -> None
-        s -> Some(s)
-      },
+      p.color,
+      case style.to_class_string(p.styles) { "" -> None s -> Some(s) },
     ]
-    |> option.values
+    |> list.filter_map(fn(x) { option.to_result(x, Nil) })
     |> list.filter(fn(c) { c != "" })
     |> string.join(" ")
-
-  let value_attrs = case p.value {
-    None -> []
-    Some(v) -> [attribute.value(int.to_string(v))]
-  }
-
+  let value_attrs = case p.value { None -> [] Some(v) -> [attribute.value(int.to_string(v))] }
   html.progress(
-    [
-      attribute.class(classes),
-      attribute.max(int.to_string(p.max)),
-      ..list.append(value_attrs, p.attrs)
-    ],
+    [attribute.class(classes), attribute.max(int.to_string(p.max)), ..list.append(value_attrs, p.attrs)],
     [],
   )
 }

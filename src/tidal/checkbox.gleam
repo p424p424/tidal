@@ -1,121 +1,76 @@
-/// Checkbox component — renders as `<input type="checkbox">` with DaisyUI `checkbox` classes.
+/// Checkbox — `<input type="checkbox" class="checkbox">`.
 ///
 /// ```gleam
 /// import tidal/checkbox
-/// import tidal/variant
 ///
 /// checkbox.new()
-/// |> checkbox.variant(variant.Primary)
-/// |> checkbox.on_check(UserAgreedToTerms)
+/// |> checkbox.primary
+/// |> checkbox.checked(model.agreed)
+/// |> checkbox.on_check(UserToggledAgreement)
 /// |> checkbox.build
 /// ```
 
 import gleam/list
 import gleam/option.{type Option, None, Some}
 import gleam/string
-import lustre/attribute
+import lustre/attribute.{type Attribute}
 import lustre/element.{type Element}
 import lustre/element/html
 import lustre/event
 import tidal/size.{type Size}
 import tidal/style.{type Style}
-import tidal/variant.{type Variant}
-
-// ---------------------------------------------------------------------------
-// Type
-// ---------------------------------------------------------------------------
 
 pub opaque type Checkbox(msg) {
   Checkbox(
     checked: Bool,
-    variant: Option(Variant),
+    color: Option(String),
     size: Option(Size),
     disabled: Bool,
     styles: List(Style),
-    attrs: List(attribute.Attribute(msg)),
+    attrs: List(Attribute(msg)),
   )
 }
-
-// ---------------------------------------------------------------------------
-// Builder
-// ---------------------------------------------------------------------------
 
 pub fn new() -> Checkbox(msg) {
-  Checkbox(
-    checked: False,
-    variant: None,
-    size: None,
-    disabled: False,
-    styles: [],
-    attrs: [],
-  )
+  Checkbox(checked: False, color: None, size: None, disabled: False, styles: [], attrs: [])
 }
 
-/// Sets the checked state.
-pub fn checked(c: Checkbox(msg)) -> Checkbox(msg) {
-  Checkbox(..c, checked: True)
-}
+/// Sets the checked state (controlled).
+pub fn checked(c: Checkbox(msg), b: Bool) -> Checkbox(msg) { Checkbox(..c, checked: b) }
 
-/// Sets the variant (colour role).
-pub fn variant(c: Checkbox(msg), v: Variant) -> Checkbox(msg) {
-  Checkbox(..c, variant: Some(v))
-}
+pub fn primary(c: Checkbox(msg)) -> Checkbox(msg) { Checkbox(..c, color: Some("checkbox-primary")) }
+pub fn secondary(c: Checkbox(msg)) -> Checkbox(msg) { Checkbox(..c, color: Some("checkbox-secondary")) }
+pub fn accent(c: Checkbox(msg)) -> Checkbox(msg) { Checkbox(..c, color: Some("checkbox-accent")) }
+pub fn neutral(c: Checkbox(msg)) -> Checkbox(msg) { Checkbox(..c, color: Some("checkbox-neutral")) }
+pub fn info(c: Checkbox(msg)) -> Checkbox(msg) { Checkbox(..c, color: Some("checkbox-info")) }
+pub fn success(c: Checkbox(msg)) -> Checkbox(msg) { Checkbox(..c, color: Some("checkbox-success")) }
+pub fn warning(c: Checkbox(msg)) -> Checkbox(msg) { Checkbox(..c, color: Some("checkbox-warning")) }
+pub fn error(c: Checkbox(msg)) -> Checkbox(msg) { Checkbox(..c, color: Some("checkbox-error")) }
 
-/// Sets the size. Defaults to `Md` (no extra class).
-pub fn size(c: Checkbox(msg), s: Size) -> Checkbox(msg) {
-  Checkbox(..c, size: Some(s))
-}
+/// Sets the checkbox size.
+pub fn size(c: Checkbox(msg), s: Size) -> Checkbox(msg) { Checkbox(..c, size: Some(s)) }
 
 /// Marks the checkbox as disabled.
-pub fn disabled(c: Checkbox(msg)) -> Checkbox(msg) {
-  Checkbox(..c, disabled: True)
-}
+pub fn disabled(c: Checkbox(msg)) -> Checkbox(msg) { Checkbox(..c, disabled: True) }
 
-/// Appends presentation styles. May be called multiple times.
+/// Appends Tailwind utility styles.
 pub fn style(c: Checkbox(msg), s: List(Style)) -> Checkbox(msg) {
   Checkbox(..c, styles: list.append(c.styles, s))
 }
 
-/// Appends HTML attributes. May be called multiple times.
-pub fn attrs(
-  c: Checkbox(msg),
-  a: List(attribute.Attribute(msg)),
-) -> Checkbox(msg) {
+/// Appends HTML attributes.
+pub fn attrs(c: Checkbox(msg), a: List(Attribute(msg))) -> Checkbox(msg) {
   Checkbox(..c, attrs: list.append(c.attrs, a))
 }
 
-// ---------------------------------------------------------------------------
-// Events
-// ---------------------------------------------------------------------------
-
-pub fn on_check(c: Checkbox(msg), msg: fn(Bool) -> msg) -> Checkbox(msg) {
-  Checkbox(..c, attrs: list.append(c.attrs, [event.on_check(msg)]))
+pub fn on_check(c: Checkbox(msg), f: fn(Bool) -> msg) -> Checkbox(msg) {
+  Checkbox(..c, attrs: list.append(c.attrs, [event.on_check(f)]))
 }
-
 pub fn on_focus(c: Checkbox(msg), msg: msg) -> Checkbox(msg) {
   Checkbox(..c, attrs: list.append(c.attrs, [event.on_focus(msg)]))
 }
-
 pub fn on_blur(c: Checkbox(msg), msg: msg) -> Checkbox(msg) {
   Checkbox(..c, attrs: list.append(c.attrs, [event.on_blur(msg)]))
-}
-
-// ---------------------------------------------------------------------------
-// Build
-// ---------------------------------------------------------------------------
-
-fn variant_class(v: Variant) -> String {
-  case v {
-    variant.Primary -> "checkbox-primary"
-    variant.Secondary -> "checkbox-secondary"
-    variant.Accent -> "checkbox-accent"
-    variant.Neutral -> "checkbox-neutral"
-    variant.Info -> "checkbox-info"
-    variant.Success -> "checkbox-success"
-    variant.Warning -> "checkbox-warning"
-    variant.Error -> "checkbox-error"
-    variant.Ghost | variant.Link | variant.Outline -> ""
-  }
 }
 
 fn size_class(s: Size) -> String {
@@ -132,17 +87,13 @@ pub fn build(c: Checkbox(msg)) -> Element(msg) {
   let classes =
     [
       Some("checkbox"),
-      option.map(c.variant, variant_class),
+      c.color,
       option.map(c.size, size_class),
-      case style.to_class_string(c.styles) {
-        "" -> None
-        s -> Some(s)
-      },
+      case style.to_class_string(c.styles) { "" -> None s -> Some(s) },
     ]
-    |> option.values
+    |> list.filter_map(fn(x) { option.to_result(x, Nil) })
     |> list.filter(fn(cl) { cl != "" })
     |> string.join(" ")
-
   html.input([
     attribute.class(classes),
     attribute.type_("checkbox"),

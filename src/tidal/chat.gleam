@@ -1,4 +1,6 @@
-/// Chat bubble — conversation message display.
+/// Chat bubble — DaisyUI `chat` conversation message.
+///
+/// Default side is `start` (left-aligned). Use `end_` for sent messages.
 ///
 /// ```gleam
 /// import tidal/chat
@@ -6,7 +8,7 @@
 /// chat.new()
 /// |> chat.end_
 /// |> chat.primary
-/// |> chat.text("You underestimate my power!")
+/// |> chat.bubble("You underestimate my power!")
 /// |> chat.build
 /// ```
 
@@ -20,22 +22,23 @@ import tidal/style.{type Style, to_class_string}
 
 pub opaque type Chat(msg) {
   Chat(
-    side: Option(String),
+    side: String,
     color: Option(String),
-    image: Option(Element(msg)),
-    header: Option(Element(msg)),
-    footer: Option(Element(msg)),
+    avatar: Option(Element(msg)),
+    header: Option(String),
+    footer: Option(String),
     bubble_content: Option(Element(msg)),
     styles: List(Style),
     attrs: List(Attribute(msg)),
   )
 }
 
+/// Create a new chat bubble — defaults to left-aligned (`chat-start`).
 pub fn new() -> Chat(msg) {
   Chat(
-    side: None,
+    side: "chat-start",
     color: None,
-    image: None,
+    avatar: None,
     header: None,
     footer: None,
     bubble_content: None,
@@ -44,8 +47,10 @@ pub fn new() -> Chat(msg) {
   )
 }
 
-pub fn start(c: Chat(msg)) -> Chat(msg) { Chat(..c, side: Some("chat-start")) }
-pub fn end_(c: Chat(msg)) -> Chat(msg) { Chat(..c, side: Some("chat-end")) }
+/// Left-aligned chat bubble (default) — `chat-start`.
+pub fn start(c: Chat(msg)) -> Chat(msg) { Chat(..c, side: "chat-start") }
+/// Right-aligned chat bubble (sent messages) — `chat-end`.
+pub fn end_(c: Chat(msg)) -> Chat(msg) { Chat(..c, side: "chat-end") }
 
 pub fn primary(c: Chat(msg)) -> Chat(msg) { Chat(..c, color: Some("chat-bubble-primary")) }
 pub fn secondary(c: Chat(msg)) -> Chat(msg) { Chat(..c, color: Some("chat-bubble-secondary")) }
@@ -56,61 +61,66 @@ pub fn success(c: Chat(msg)) -> Chat(msg) { Chat(..c, color: Some("chat-bubble-s
 pub fn warning(c: Chat(msg)) -> Chat(msg) { Chat(..c, color: Some("chat-bubble-warning")) }
 pub fn error(c: Chat(msg)) -> Chat(msg) { Chat(..c, color: Some("chat-bubble-error")) }
 
-/// Simple text message content.
-pub fn text(c: Chat(msg), content: String) -> Chat(msg) {
-  Chat(..c, bubble_content: Some(html.text(content)))
+/// Text content for the chat bubble.
+pub fn bubble(c: Chat(msg), text: String) -> Chat(msg) {
+  Chat(..c, bubble_content: Some(html.text(text)))
 }
 
-/// Arbitrary element content for the bubble.
-pub fn bubble(c: Chat(msg), el: Element(msg)) -> Chat(msg) {
+/// Custom element content for the bubble (images, formatted text, etc.).
+pub fn bubble_el(c: Chat(msg), el: Element(msg)) -> Chat(msg) {
   Chat(..c, bubble_content: Some(el))
 }
 
-pub fn image_slot(c: Chat(msg), children: List(Element(msg))) -> Chat(msg) {
-  Chat(..c, image: Some(html.div([attribute.class("chat-image")], children)))
+/// Avatar element shown beside the bubble — `chat-image`.
+pub fn avatar(c: Chat(msg), el: Element(msg)) -> Chat(msg) {
+  Chat(..c, avatar: Some(html.div([attribute.class("chat-image")], [el])))
 }
 
-pub fn header_slot(c: Chat(msg), children: List(Element(msg))) -> Chat(msg) {
-  Chat(..c, header: Some(html.div([attribute.class("chat-header")], children)))
+/// Text above the bubble (name, timestamp) — `chat-header`.
+pub fn header(c: Chat(msg), text: String) -> Chat(msg) {
+  Chat(..c, header: Some(text))
 }
 
-pub fn footer_slot(c: Chat(msg), children: List(Element(msg))) -> Chat(msg) {
-  Chat(..c, footer: Some(html.div([attribute.class("chat-footer")], children)))
+/// Text below the bubble (status, timestamp) — `chat-footer`.
+pub fn footer(c: Chat(msg), text: String) -> Chat(msg) {
+  Chat(..c, footer: Some(text))
 }
 
+/// Appends Tailwind utility styles.
 pub fn style(c: Chat(msg), s: List(Style)) -> Chat(msg) {
   Chat(..c, styles: list.append(c.styles, s))
 }
 
+/// Appends HTML attributes.
 pub fn attrs(c: Chat(msg), a: List(Attribute(msg))) -> Chat(msg) {
   Chat(..c, attrs: list.append(c.attrs, a))
 }
 
 pub fn build(c: Chat(msg)) -> Element(msg) {
-  let base =
-    [Some("chat"), c.side]
-    |> list.filter_map(fn(x) { option.to_result(x, Nil) })
-    |> string.join(" ")
   let class = case to_class_string(c.styles) {
-    "" -> base
-    extra -> base <> " " <> extra
+    "" -> "chat " <> c.side
+    extra -> "chat " <> c.side <> " " <> extra
   }
-
   let bubble_class =
     [Some("chat-bubble"), c.color]
     |> list.filter_map(fn(x) { option.to_result(x, Nil) })
     |> string.join(" ")
-
   let bubble_children = case c.bubble_content {
     Some(el) -> [el]
     None -> []
   }
-
   let bubble_el = html.div([attribute.class(bubble_class)], bubble_children)
-
-  let slot_els =
-    [c.image, c.header, Some(bubble_el), c.footer]
-    |> list.filter_map(fn(x) { option.to_result(x, Nil) })
-
-  html.div([attribute.class(class), ..c.attrs], slot_els)
+  let header_el = case c.header {
+    None -> []
+    Some(t) -> [html.div([attribute.class("chat-header")], [html.text(t)])]
+  }
+  let footer_el = case c.footer {
+    None -> []
+    Some(t) -> [html.div([attribute.class("chat-footer")], [html.text(t)])]
+  }
+  let avatar_el = case c.avatar { None -> [] Some(el) -> [el] }
+  html.div(
+    [attribute.class(class), ..c.attrs],
+    list.flatten([avatar_el, header_el, [bubble_el], footer_el]),
+  )
 }

@@ -1,23 +1,25 @@
-/// Stat component — renders a DaisyUI `stat` for displaying a key metric.
+/// Stat — display key metrics in a DaisyUI `stats` grid.
 ///
-/// Wrap multiple stats in a `stat.group/1` for a horizontal dashboard layout.
+/// Build individual stat items with `stat_new()` → modifiers → `stat_build`,
+/// then pass the list to a `Stats` container with `new()` → `items()` → `build`.
 ///
 /// ```gleam
 /// import tidal/stat
 ///
-/// stat.group([
-///   stat.new()
-///   |> stat.title("Total Users")
-///   |> stat.value("31K")
-///   |> stat.description("↗︎ 400 (22%)")
-///   |> stat.build,
+/// stat.new()
+/// |> stat.items([
+///   stat.stat_new()
+///   |> stat.stat_title("Total Users")
+///   |> stat.stat_value("31K")
+///   |> stat.stat_desc("↗︎ 400 (22%)")
+///   |> stat.stat_build,
 ///
-///   stat.new()
-///   |> stat.title("New Registers")
-///   |> stat.value("4,200")
-///   |> stat.description("↘︎ 90 (14%)")
-///   |> stat.build,
+///   stat.stat_new()
+///   |> stat.stat_title("Revenue")
+///   |> stat.stat_value("$4,200")
+///   |> stat.stat_build,
 /// ])
+/// |> stat.build
 /// ```
 
 import gleam/list
@@ -28,102 +30,133 @@ import lustre/element/html
 import tidal/style.{type Style}
 
 // ---------------------------------------------------------------------------
-// Type
+// Stats container
+// ---------------------------------------------------------------------------
+
+pub opaque type Stats(msg) {
+  Stats(
+    vertical: Bool,
+    styles: List(Style),
+    attrs: List(attribute.Attribute(msg)),
+    items: List(Element(msg)),
+  )
+}
+
+/// Create a new stats container — `<div class="stats">`.
+/// By default stats are arranged horizontally.
+pub fn new() -> Stats(msg) {
+  Stats(vertical: False, styles: [], attrs: [], items: [])
+}
+
+/// Stack stats vertically — `stats-vertical`.
+pub fn vertical(s: Stats(msg)) -> Stats(msg) { Stats(..s, vertical: True) }
+
+/// Appends stat item elements (built with `stat_build`).
+pub fn items(s: Stats(msg), els: List(Element(msg))) -> Stats(msg) {
+  Stats(..s, items: list.append(s.items, els))
+}
+
+/// Appends Tailwind utility styles.
+pub fn style(s: Stats(msg), st: List(Style)) -> Stats(msg) {
+  Stats(..s, styles: list.append(s.styles, st))
+}
+
+/// Appends HTML attributes.
+pub fn attrs(s: Stats(msg), a: List(attribute.Attribute(msg))) -> Stats(msg) {
+  Stats(..s, attrs: list.append(s.attrs, a))
+}
+
+pub fn build(s: Stats(msg)) -> Element(msg) {
+  let cls =
+    "stats"
+    <> case s.vertical { True -> " stats-vertical" False -> "" }
+    <> case style.to_class_string(s.styles) { "" -> "" st -> " " <> st }
+  html.div([attribute.class(cls), ..s.attrs], s.items)
+}
+
+// ---------------------------------------------------------------------------
+// Stat item
 // ---------------------------------------------------------------------------
 
 pub opaque type Stat(msg) {
   Stat(
     title: Option(String),
     value: Option(String),
-    description: Option(String),
+    desc: Option(String),
     figure: Option(Element(msg)),
+    actions: List(Element(msg)),
     styles: List(Style),
     attrs: List(attribute.Attribute(msg)),
   )
 }
 
-// ---------------------------------------------------------------------------
-// Builder
-// ---------------------------------------------------------------------------
-
-pub fn new() -> Stat(msg) {
-  Stat(
-    title: None,
-    value: None,
-    description: None,
-    figure: None,
-    styles: [],
-    attrs: [],
-  )
+/// Create a new stat item. Chain `stat_title`, `stat_value`, etc., then `stat_build`.
+pub fn stat_new() -> Stat(msg) {
+  Stat(title: None, value: None, desc: None, figure: None, actions: [], styles: [], attrs: [])
 }
 
-/// Sets the stat label (e.g. "Total Users").
-pub fn title(s: Stat(msg), text: String) -> Stat(msg) {
+/// Label above the value (e.g. "Total Users").
+pub fn stat_title(s: Stat(msg), text: String) -> Stat(msg) {
   Stat(..s, title: Some(text))
 }
 
-/// Sets the primary metric value (e.g. "31K").
-pub fn value(s: Stat(msg), text: String) -> Stat(msg) {
+/// The primary metric value (e.g. "31K").
+pub fn stat_value(s: Stat(msg), text: String) -> Stat(msg) {
   Stat(..s, value: Some(text))
 }
 
-/// Sets the supporting description text (e.g. trend information).
-pub fn description(s: Stat(msg), text: String) -> Stat(msg) {
-  Stat(..s, description: Some(text))
+/// Supporting description below the value (e.g. "↗︎ 400 (22%)").
+pub fn stat_desc(s: Stat(msg), text: String) -> Stat(msg) {
+  Stat(..s, desc: Some(text))
 }
 
-/// Adds a figure element (e.g. an icon or avatar) alongside the stat.
-pub fn figure(s: Stat(msg), el: Element(msg)) -> Stat(msg) {
+/// Icon or avatar element displayed to the right — `stat-figure`.
+pub fn stat_figure(s: Stat(msg), el: Element(msg)) -> Stat(msg) {
   Stat(..s, figure: Some(el))
 }
 
-/// Appends presentation styles. May be called multiple times.
-pub fn style(s: Stat(msg), st: List(Style)) -> Stat(msg) {
+/// Action buttons shown below the description — `stat-actions`.
+pub fn stat_actions(s: Stat(msg), els: List(Element(msg))) -> Stat(msg) {
+  Stat(..s, actions: list.append(s.actions, els))
+}
+
+/// Appends Tailwind utility styles to the stat item.
+pub fn stat_style(s: Stat(msg), st: List(Style)) -> Stat(msg) {
   Stat(..s, styles: list.append(s.styles, st))
 }
 
-/// Appends HTML attributes. May be called multiple times.
-pub fn attrs(s: Stat(msg), a: List(attribute.Attribute(msg))) -> Stat(msg) {
+/// Appends HTML attributes to the stat item.
+pub fn stat_attrs(s: Stat(msg), a: List(attribute.Attribute(msg))) -> Stat(msg) {
   Stat(..s, attrs: list.append(s.attrs, a))
 }
 
-// ---------------------------------------------------------------------------
-// Build
-// ---------------------------------------------------------------------------
-
-/// Wraps a list of built stat elements in a `stats` container.
-pub fn group(stats: List(Element(msg))) -> Element(msg) {
-  html.div([attribute.class("stats shadow")], stats)
-}
-
-pub fn build(s: Stat(msg)) -> Element(msg) {
+pub fn stat_build(s: Stat(msg)) -> Element(msg) {
   let cls = case style.to_class_string(s.styles) {
     "" -> "stat"
     st -> "stat " <> st
   }
-
   let figure_el = case s.figure {
     None -> []
     Some(el) -> [html.div([attribute.class("stat-figure")], [el])]
   }
-
   let title_el = case s.title {
     None -> []
     Some(t) -> [html.div([attribute.class("stat-title")], [element.text(t)])]
   }
-
   let value_el = case s.value {
     None -> []
     Some(v) -> [html.div([attribute.class("stat-value")], [element.text(v)])]
   }
-
-  let desc_el = case s.description {
+  let desc_el = case s.desc {
     None -> []
     Some(d) -> [html.div([attribute.class("stat-desc")], [element.text(d)])]
   }
-
+  let actions_el = case s.actions {
+    [] -> []
+    els -> [html.div([attribute.class("stat-actions")], els)]
+  }
   html.div(
     [attribute.class(cls), ..s.attrs],
-    list.flatten([figure_el, title_el, value_el, desc_el]),
+    list.flatten([figure_el, title_el, value_el, desc_el, actions_el]),
   )
 }

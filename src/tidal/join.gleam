@@ -49,7 +49,7 @@ pub fn attrs(j: Join(msg), a: List(Attribute(msg))) -> Join(msg) {
 }
 
 pub fn children(j: Join(msg), c: List(Element(msg))) -> Join(msg) {
-  Join(..j, children: c)
+  Join(..j, children: list.append(j.children, c))
 }
 
 pub fn build(j: Join(msg)) -> Element(msg) {

@@ -6,17 +6,16 @@
 /// ```gleam
 /// import tidal/modal
 /// import tidal/button
-/// import tidal/variant
 ///
 /// modal.new()
 /// |> modal.open(model.show_modal)
 /// |> modal.title("Confirm action")
 /// |> modal.body([
-///   text.new("Are you sure you want to continue?") |> text.build,
+///   html.p([], [html.text("Are you sure you want to continue?")]),
 /// ])
 /// |> modal.actions([
-///   button.new("Cancel") |> button.on_click(UserCancelledModal) |> button.build,
-///   button.new("Confirm") |> button.variant(variant.Primary) |> button.on_click(UserConfirmedModal) |> button.build,
+///   button.new() |> button.label("Cancel") |> button.on_click(UserCancelledModal) |> button.build,
+///   button.new() |> button.label("Confirm") |> button.primary |> button.on_click(UserConfirmedModal) |> button.build,
 /// ])
 /// |> modal.on_backdrop_click(UserCancelledModal)
 /// |> modal.build
@@ -37,6 +36,7 @@ import tidal/style.{type Style}
 pub opaque type Modal(msg) {
   Modal(
     open: Bool,
+    placement: Option(String),
     title: Option(String),
     body: List(Element(msg)),
     actions: List(Element(msg)),
@@ -53,6 +53,7 @@ pub opaque type Modal(msg) {
 pub fn new() -> Modal(msg) {
   Modal(
     open: False,
+    placement: None,
     title: None,
     body: [],
     actions: [],
@@ -61,6 +62,15 @@ pub fn new() -> Modal(msg) {
     attrs: [],
   )
 }
+
+/// Position the modal at the top of the viewport.
+pub fn top(m: Modal(msg)) -> Modal(msg) { Modal(..m, placement: Some("modal-top")) }
+/// Position the modal at the bottom of the viewport.
+pub fn bottom(m: Modal(msg)) -> Modal(msg) { Modal(..m, placement: Some("modal-bottom")) }
+/// Position the modal at the horizontal start.
+pub fn start(m: Modal(msg)) -> Modal(msg) { Modal(..m, placement: Some("modal-start")) }
+/// Position the modal at the horizontal end.
+pub fn end_(m: Modal(msg)) -> Modal(msg) { Modal(..m, placement: Some("modal-end")) }
 
 /// Controls whether the modal is visible.
 pub fn open(m: Modal(msg), is_open: Bool) -> Modal(msg) {
@@ -103,9 +113,10 @@ pub fn attrs(m: Modal(msg), a: List(attribute.Attribute(msg))) -> Modal(msg) {
 // ---------------------------------------------------------------------------
 
 pub fn build(m: Modal(msg)) -> Element(msg) {
+  let placement = case m.placement { None -> "" Some(p) -> " " <> p }
   let wrapper_cls = case m.open {
-    True -> "modal modal-open"
-    False -> "modal"
+    True -> "modal modal-open" <> placement
+    False -> "modal" <> placement
   }
 
   let box_cls = case style.to_class_string(m.styles) {
