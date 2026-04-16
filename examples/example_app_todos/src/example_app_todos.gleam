@@ -16,14 +16,8 @@ import tidal/row
 import tidal/size
 import tidal/spacer
 
-
-
-
-
-
-
-import tidal/text
 import tidal/styling as s
+import tidal/text
 
 pub fn main() {
   let app = lustre.simple(init, update, view)
@@ -234,7 +228,8 @@ fn view_filter_bar(current: Filter) -> Element(Message) {
 
 fn filter_tab(label: String, f: Filter, current: Filter) -> Element(Message) {
   let is_active = f == current
-  let b = button.new()
+  let b =
+    button.new()
     |> button.label(label)
     |> button.size(size.Sm)
     |> button.on_click(UserSetFilter(f))

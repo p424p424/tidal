@@ -1,4 +1,4 @@
-<img src="tidal_logo.jpg" alt="Tidal" width="100%">
+<img src="tidal-animation_3.gif" alt="Tidal" width="100%">
 
 # tidal
 
