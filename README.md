@@ -1,3 +1,5 @@
+<img src="tidal_logo.jpg" alt="Tidal" width="100%">
+
 # tidal
 
 [![Package Version](https://img.shields.io/hexpm/v/tidal)](https://hex.pm/packages/tidal)
@@ -8,8 +10,9 @@ A UI component library for [Lustre](https://hexdocs.pm/lustre/) built on [Tailwi
 Tidal gives you a builder-pattern API where every component, layout primitive, and style utility is a plain Gleam function. No HTML, no CSS class strings, no raw attributes — just a pipeline.
 
 ```gleam
-button.new("Save changes")
-|> button.variant(variant.Primary)
+button.new()
+|> button.label("Save changes")
+|> button.primary
 |> button.size(size.Lg)
 |> button.on_click(UserClickedSave)
 |> button.build
@@ -17,27 +20,20 @@ button.new("Save changes")
 
 ```gleam
 card.new()
-|> card.style([sizing.w_full(), responsive.md(sizing.max_w_lg())])
-|> card.children([
-  card.figure_el([html.img([attribute.src("/hero.jpg")])]),
-  card.body_el([
-    card.title_el([element.text("Hello, Tidal")]),
-    text.new("Build UIs in pure Gleam.")
-    |> text.style([typography.text_sm()])
-    |> text.build,
-  ]),
+|> card.style([s.w_full(), s.sm(s.max_w_lg())])
+|> card.body([
+  card.title("Hello, Tidal"),
+  text.new("Build UIs in pure Gleam.")
+  |> text.style([s.text_sm()])
+  |> text.build,
 ])
 |> card.build
 ```
 
 ```gleam
 column.new()
-|> column.style([sizing.w_full(), sizing.max_w_md(), spacing.mx_auto()])
+|> column.style([s.w_full(), s.max_w_md(), s.mx_auto()])
 |> column.children([
-  text.new("Sign in")
-  |> text.h2()
-  |> text.style([typography.text_2xl(), typography.font_bold()])
-  |> text.build,
   input.new()
   |> input.type_(input.Email)
   |> input.placeholder("you@example.com")
@@ -48,9 +44,10 @@ column.new()
   |> input.placeholder("Password")
   |> input.on_input(UserTypedPassword)
   |> input.build,
-  button.new("Sign in")
-  |> button.variant(variant.Primary)
-  |> button.style([sizing.w_full()])
+  button.new()
+  |> button.label("Sign in")
+  |> button.primary
+  |> button.style([s.w_full()])
   |> button.on_click(UserSubmitted)
   |> button.build,
 ])
@@ -65,11 +62,9 @@ column.new()
 
 **Consistent API across every component.** Every component follows the same `new() |> ... |> build` pipeline. Learn one, know them all.
 
-**Styles compose freely.** The `style()` function on every component and layout primitive accepts any list of style values from `tidal/style/*`. Call it multiple times — styles always append, never replace.
+**Styles compose freely.** The `style()` function on every component and layout primitive accepts any list of style values from `tidal/styling`. Call it multiple times — styles always append, never replace.
 
-**Responsive modifiers are first-class.** Wrap any style in `responsive.sm()`, `responsive.md()`, etc. There's no separate responsive API to learn.
-
-**Full Tailwind coverage.** All 15 Tailwind utility categories — layout, flexbox, grid, typography, filters, transforms, and more — are wrapped as typed Gleam functions. Custom values go through `style.raw()`.
+**Responsive modifiers are first-class.** Wrap any style in `s.sm()`, `s.md()`, etc. There's no separate responsive API to learn.
 
 **35+ themes out of the box.** DaisyUI's semantic colour tokens mean your components automatically respect whichever theme is active.
 
@@ -135,9 +130,9 @@ export default defineConfig({
 gleam run -m lustre/dev_tools serve
 ```
 
-### Using `style.raw()`
+### Using `s.raw()`
 
-If you reach for `style.raw("my-class")` to pass a class Tidal doesn't have a typed function for, that class won't be in the safelist. Add it with an inline source directive in your CSS:
+If you reach for `s.raw("my-class")` to pass a class Tidal doesn't have a typed function for, that class won't be in the safelist. Add it with an inline source directive in your CSS:
 
 ```css
 @source inline("my-class another-class");
@@ -169,7 +164,7 @@ All components follow the same pipeline: `new()` creates a default, modifier fun
 
 | Module | Description |
 |--------|-------------|
-| `tidal/button` | Button with variants, sizes, and event handlers |
+| `tidal/button` | Button with colour variants, sizes, and event handlers |
 | `tidal/input` | Text, email, password, number, and other input types |
 | `tidal/textarea` | Multi-line text input |
 | `tidal/select` | Dropdown select with option list |
@@ -180,7 +175,7 @@ All components follow the same pipeline: `new()` creates a default, modifier fun
 | `tidal/file_input` | File picker |
 | `tidal/badge` | Inline badge/tag |
 | `tidal/alert` | Alert/notification banner |
-| `tidal/avatar` | Avatar with image, placeholder, and status indicator |
+| `tidal/avatar` | Avatar with image, placeholder, initials, and status indicator |
 | `tidal/tooltip` | Tooltip wrapper |
 | `tidal/card` | Card with figure, title, body, and actions slots |
 | `tidal/navbar` | Navigation bar with start/center/end slots |
@@ -188,7 +183,7 @@ All components follow the same pipeline: `new()` creates a default, modifier fun
 | `tidal/breadcrumb` | Breadcrumb trail |
 | `tidal/menu` | Vertical navigation menu |
 | `tidal/pagination` | Page number navigation |
-| `tidal/bottom_nav` | Mobile bottom navigation bar |
+| `tidal/dock` | Mobile bottom navigation bar |
 | `tidal/modal` | Dialog/modal overlay |
 | `tidal/dropdown` | Dropdown menu |
 | `tidal/drawer` | Sidebar drawer |
@@ -221,19 +216,21 @@ All components follow the same pipeline: `new()` creates a default, modifier fun
 | `tidal/mockup_window` | Browser/desktop window frame |
 | `tidal/theme_controller` | DaisyUI theme switcher via checkbox or radio |
 
-### Variants and sizes
+### Colours
 
-Most components accept `variant.Primary`, `variant.Secondary`, etc. and `size.Sm`, `size.Md`, `size.Lg`, etc.:
+Each component has individual colour functions — no separate variant type to import:
 
 ```gleam
 import tidal/size
-import tidal/variant
 
-badge.new("New")
-|> badge.variant(variant.Success)
+badge.new()
+|> badge.label("New")
+|> badge.success
 |> badge.size(size.Sm)
 |> badge.build
 ```
+
+The eight semantic colours available on every component are: `primary`, `secondary`, `accent`, `neutral`, `info`, `success`, `warning`, `error`.
 
 ### Events
 
@@ -241,7 +238,7 @@ Interactive components have named event functions — no need to reach for `attr
 
 ```gleam
 toggle.new()
-|> toggle.variant(variant.Primary)
+|> toggle.primary
 |> toggle.on_check(UserToggledDarkMode)
 |> toggle.build
 
@@ -260,23 +257,27 @@ select.new()
 | `tidal/el` | Generic block container (`div`) |
 | `tidal/row` | Horizontal flex row |
 | `tidal/column` | Vertical flex column |
-| `tidal/stack` | Relative-positioned stack (for layering) |
+| `tidal/container` | Centered max-width page container |
+| `tidal/grid` | CSS grid container |
+| `tidal/stack` | Layered stack of overlapping elements |
 | `tidal/text` | Span, paragraph, and heading elements |
 | `tidal/image` | Image element |
 | `tidal/spacer` | Flex spacer (`flex-1`) |
 | `tidal/divider` | Horizontal or vertical divider |
 
 ```gleam
+import tidal/styling as s
+
 row.new()
-|> row.style([flexbox.items_center(), flexbox.justify_between(), spacing.px(4)])
+|> row.style([s.items_center(), s.justify_between(), s.px(4)])
 |> row.children([
   text.new("Inbox")
-  |> text.h1()
-  |> text.style([typography.text_xl(), typography.font_semibold()])
+  |> text.style([s.text_xl(), s.font_semibold()])
   |> text.build,
   spacer.spacer(),
-  button.new("Compose")
-  |> button.variant(variant.Primary)
+  button.new()
+  |> button.label("Compose")
+  |> button.primary
   |> button.size(size.Sm)
   |> button.on_click(UserClickedCompose)
   |> button.build,
@@ -288,28 +289,22 @@ row.new()
 
 ## Style system
 
-Style functions live under `tidal/style/*` and cover the full Tailwind utility surface. Every component and layout primitive has a `style(List(Style))` function — pass a list of style values, call it as many times as you need, and they always accumulate.
+All style utilities live in `tidal/styling`. Import it once — typically aliased as `s` — and access the full Tailwind utility surface:
 
-| Module | Description |
-|--------|-------------|
-| `tidal/style/spacing` | Padding and margin (`p`, `m`, `px`, `py`, `mx`, `my`, and directional variants) |
-| `tidal/style/sizing` | Width, height, min/max, logical sizing |
-| `tidal/style/typography` | Font family, size, weight, style, line height, decoration, and more |
-| `tidal/style/color` | Semantic colour tokens for text, background, and border |
-| `tidal/style/background` | Background attachment, clip, image, position, repeat, size |
-| `tidal/style/border` | Border width, radius, style, outline |
-| `tidal/style/effects` | Shadow, text shadow, opacity, blend modes, masks |
-| `tidal/style/filters` | Blur, brightness, contrast, grayscale, hue-rotate, and backdrop variants |
-| `tidal/style/transition` | Transition property, behaviour, duration, easing, delay |
-| `tidal/style/transform` | Scale, rotate, translate, skew, origin, perspective, backface |
-| `tidal/style/interactivity` | Cursor, pointer events, resize, scroll snap, touch, accent, field sizing |
-| `tidal/style/layout` | Display, position, overflow, visibility, z-index, box decoration |
-| `tidal/style/flexbox` | Direction, wrap, grow, shrink, align, justify, gap, order |
-| `tidal/style/grid` | Template columns/rows, span, flow, auto sizing, gap |
-| `tidal/style/tables` | Border collapse, spacing, table layout, caption side |
-| `tidal/style/svg` | Fill, stroke, stroke width |
-| `tidal/style/accessibility` | Forced colour adjust |
-| `tidal/style/responsive` | Breakpoint modifiers: `sm`, `md`, `lg`, `xl`, `xxl` |
+```gleam
+import tidal/styling as s
+
+el.new()
+|> el.style([
+  s.flex(),
+  s.flex_col(),
+  s.md(s.flex_row()),
+  s.p(4),
+  s.md(s.p(8)),
+  s.gap(4),
+])
+|> el.build
+```
 
 ### Responsive styles
 
@@ -318,29 +313,28 @@ Wrap any style value in a breakpoint modifier:
 ```gleam
 el.new()
 |> el.style([
-  layout.flex(),
-  flexbox.flex_col(),
-  responsive.md(flexbox.flex_row()),
-  spacing.p(4),
-  responsive.md(spacing.p(8)),
-  responsive.lg(spacing.p(12)),
+  s.w_full(),
+  s.sm(s.max_w_md()),
+  s.lg(s.max_w_xl()),
+  s.rounded_none(),
+  s.sm(s.rounded_xl()),
 ])
 |> el.build
 ```
 
 ### Colours
 
-The `color` module exposes DaisyUI's semantic colour tokens. Using these instead of hardcoded colours means your UI automatically adapts to the active theme:
+Use DaisyUI's semantic colour tokens so your UI automatically adapts to the active theme:
 
 ```gleam
-import tidal/style/color
+import tidal/styling as s
 
 text.new("Warning")
-|> text.style([typography.text_color(color.Warning)])
+|> text.style([s.text_warning()])
 |> text.build
 
 el.new()
-|> el.style([color.bg(color.Base200)])
+|> el.style([s.bg_base_200()])
 |> el.build
 ```
 
