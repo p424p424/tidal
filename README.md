@@ -85,7 +85,7 @@ export default defineConfig({
 ### 4. Start developing
 
 ```sh
-gleam run -m lustre/dev_tools serve
+gleam run -m lustre/dev start
 ```
 
 ### Using `s.raw()`
@@ -306,7 +306,7 @@ The `examples/` directory contains a fully working todo app built with Tidal. To
 cd examples/example_app_todos
 gleam deps download
 npm install
-gleam run -m lustre/dev_tools serve
+gleam run -m lustre/dev start
 ```
 
 ---
