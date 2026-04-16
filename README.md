@@ -5,68 +5,26 @@
 [![Package Version](https://img.shields.io/hexpm/v/tidal)](https://hex.pm/packages/tidal)
 [![Hex Docs](https://img.shields.io/badge/hex-docs-ffaff3)](https://hexdocs.pm/tidal/)
 
-A UI component library for [Lustre](https://hexdocs.pm/lustre/) built on [Tailwind CSS](https://tailwindcss.com/) and [DaisyUI](https://daisyui.com/).
-
-Tidal gives you a builder-pattern API where every component, layout primitive, and style utility is a plain Gleam function. No HTML, no CSS class strings, no raw attributes — just a pipeline.
-
-```gleam
-button.new()
-|> button.label("Save changes")
-|> button.primary
-|> button.size(size.Lg)
-|> button.on_click(UserClickedSave)
-|> button.build
-```
-
-```gleam
-card.new()
-|> card.style([s.w_full(), s.sm(s.max_w_lg())])
-|> card.body([
-  card.title("Hello, Tidal"),
-  text.new("Build UIs in pure Gleam.")
-  |> text.style([s.text_sm()])
-  |> text.build,
-])
-|> card.build
-```
-
-```gleam
-column.new()
-|> column.style([s.w_full(), s.max_w_md(), s.mx_auto()])
-|> column.children([
-  input.new()
-  |> input.type_(input.Email)
-  |> input.placeholder("you@example.com")
-  |> input.on_input(UserTypedEmail)
-  |> input.build,
-  input.new()
-  |> input.type_(input.Password)
-  |> input.placeholder("Password")
-  |> input.on_input(UserTypedPassword)
-  |> input.build,
-  button.new()
-  |> button.label("Sign in")
-  |> button.primary
-  |> button.style([s.w_full()])
-  |> button.on_click(UserSubmitted)
-  |> button.build,
-])
-|> column.build
-```
+Tidal is a Gleam UI package built on [DaisyUI](https://daisyui.com/), [Tailwind CSS](https://tailwindcss.com/), and [Lustre](https://hexdocs.pm/lustre/). It gives you a complete set of UI components and layout primitives, all written as plain Gleam functions that compose naturally in a pipeline.
 
 ---
 
-## Why Tidal
+<img src="snippet-button.png" alt="Tidal button example" width="100%">
 
-**No class strings.** Every visual property is a typed function call. Typos in class names are compile errors, not silent style breakage.
+- **`new()`** — every component starts the same way, no arguments required
+- **`label`, `primary`, `size`** — modifiers that configure the component; apply as many as you need, in any order
+- **`on_click`** — events are just another modifier, first-class alongside everything else
+- **`build`** — produces an `Element(msg)` ready to drop into your Lustre view
 
-**Consistent API across every component.** Every component follows the same `new() |> ... |> build` pipeline. Learn one, know them all.
+---
 
-**Styles compose freely.** The `style()` function on every component and layout primitive accepts any list of style values from `tidal/styling`. Call it multiple times — styles always append, never replace.
+## What Tidal gives you
 
-**Responsive modifiers are first-class.** Wrap any style in `s.sm()`, `s.md()`, etc. There's no separate responsive API to learn.
-
-**35+ themes out of the box.** DaisyUI's semantic colour tokens mean your components automatically respect whichever theme is active.
+- **50+ DaisyUI components** wrapped as typed Gleam builders — buttons, forms, cards, modals, menus, tables, and more
+- **Layout primitives** — row, column, grid, stack, container, and other building blocks for structuring your UI
+- **A full Tailwind utility layer** via `tidal/styling` — spacing, sizing, typography, colour, responsive breakpoints, and more, all as plain functions
+- **Raw Tailwind escape hatch** — every component has `style()` and `attrs()` so you can drop in any Tailwind class or HTML attribute you need
+- **35+ built-in themes** from DaisyUI, switchable at runtime with no extra configuration
 
 ---
 
