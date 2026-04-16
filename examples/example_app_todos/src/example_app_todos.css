@@ -1,0 +1,5 @@
+@import "tailwindcss";
+@import "../node_modules/daisyui/daisyui.css";
+
+/* Tidal class safelist — ensures all Tidal utility classes are included in the CSS output */
+@source "../../../priv/tidal.js";

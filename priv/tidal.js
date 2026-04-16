@@ -1,0 +1,408 @@
+# priv/tidal.css — Tailwind CSS class safelist for the Tidal UI package.
+#
+# Tidal generates Tailwind utility class names as runtime strings inside compiled
+# JavaScript. Tailwind's static scanner cannot see them, so this file lists every
+# class that any Tidal style function can ever emit.
+#
+# Add this to your CSS entry point (adjust the relative path as needed):
+#
+#   @source "../../../priv/tidal.css";
+#
+# The path is relative to your CSS file. From examples/<app>/src/app.css the
+# correct path is ../../../priv/tidal.css. From a project root src/app.css it
+# would be ../../build/packages/tidal/priv/tidal.css.
+#
+# TODO: document exact setup steps in README.
+
+# Padding
+p-0 p-1 p-2 p-3 p-4 p-5 p-6 p-7 p-8 p-9 p-10 p-11 p-12 p-13 p-14 p-15 p-16 p-18 p-20 p-22 p-24 p-28
+p-32 p-36 p-40 p-44 p-48 p-52 p-56 p-60 p-64 p-72 p-80 p-96 px-0 px-1 px-2 px-3 px-4 px-5 px-6 px-7
+px-8 px-9 px-10 px-11 px-12 px-13 px-14 px-15 px-16 px-18 px-20 px-22 px-24 px-28 px-32 px-36 px-40
+px-44 px-48 px-52 px-56 px-60 px-64 px-72 px-80 px-96 py-0 py-1 py-2 py-3 py-4 py-5 py-6 py-7 py-8
+py-9 py-10 py-11 py-12 py-13 py-14 py-15 py-16 py-18 py-20 py-22 py-24 py-28 py-32 py-36 py-40 py-44
+py-48 py-52 py-56 py-60 py-64 py-72 py-80 py-96 pt-0 pt-1 pt-2 pt-3 pt-4 pt-5 pt-6 pt-7 pt-8 pt-9
+pt-10 pt-11 pt-12 pt-13 pt-14 pt-15 pt-16 pt-18 pt-20 pt-22 pt-24 pt-28 pt-32 pt-36 pt-40 pt-44
+pt-48 pt-52 pt-56 pt-60 pt-64 pt-72 pt-80 pt-96 pr-0 pr-1 pr-2 pr-3 pr-4 pr-5 pr-6 pr-7 pr-8 pr-9
+pr-10 pr-11 pr-12 pr-13 pr-14 pr-15 pr-16 pr-18 pr-20 pr-22 pr-24 pr-28 pr-32 pr-36 pr-40 pr-44
+pr-48 pr-52 pr-56 pr-60 pr-64 pr-72 pr-80 pr-96 pb-0 pb-1 pb-2 pb-3 pb-4 pb-5 pb-6 pb-7 pb-8 pb-9
+pb-10 pb-11 pb-12 pb-13 pb-14 pb-15 pb-16 pb-18 pb-20 pb-22 pb-24 pb-28 pb-32 pb-36 pb-40 pb-44
+pb-48 pb-52 pb-56 pb-60 pb-64 pb-72 pb-80 pb-96 pl-0 pl-1 pl-2 pl-3 pl-4 pl-5 pl-6 pl-7 pl-8 pl-9
+pl-10 pl-11 pl-12 pl-13 pl-14 pl-15 pl-16 pl-18 pl-20 pl-22 pl-24 pl-28 pl-32 pl-36 pl-40 pl-44
+pl-48 pl-52 pl-56 pl-60 pl-64 pl-72 pl-80 pl-96 ps-0 ps-1 ps-2 ps-3 ps-4 ps-5 ps-6 ps-7 ps-8 ps-9
+ps-10 ps-11 ps-12 ps-13 ps-14 ps-15 ps-16 ps-18 ps-20 ps-22 ps-24 ps-28 ps-32 ps-36 ps-40 ps-44
+ps-48 ps-52 ps-56 ps-60 ps-64 ps-72 ps-80 ps-96 pe-0 pe-1 pe-2 pe-3 pe-4 pe-5 pe-6 pe-7 pe-8 pe-9
+pe-10 pe-11 pe-12 pe-13 pe-14 pe-15 pe-16 pe-18 pe-20 pe-22 pe-24 pe-28 pe-32 pe-36 pe-40 pe-44
+pe-48 pe-52 pe-56 pe-60 pe-64 pe-72 pe-80 pe-96
+
+# Margin
+m-0 m-1 m-2 m-3 m-4 m-5 m-6 m-7 m-8 m-9 m-10 m-11 m-12 m-13 m-14 m-15 m-16 m-18 m-20 m-22 m-24 m-28
+m-32 m-36 m-40 m-44 m-48 m-52 m-56 m-60 m-64 m-72 m-80 m-96 mx-0 mx-1 mx-2 mx-3 mx-4 mx-5 mx-6 mx-7
+mx-8 mx-9 mx-10 mx-11 mx-12 mx-13 mx-14 mx-15 mx-16 mx-18 mx-20 mx-22 mx-24 mx-28 mx-32 mx-36 mx-40
+mx-44 mx-48 mx-52 mx-56 mx-60 mx-64 mx-72 mx-80 mx-96 my-0 my-1 my-2 my-3 my-4 my-5 my-6 my-7 my-8
+my-9 my-10 my-11 my-12 my-13 my-14 my-15 my-16 my-18 my-20 my-22 my-24 my-28 my-32 my-36 my-40 my-44
+my-48 my-52 my-56 my-60 my-64 my-72 my-80 my-96 mt-0 mt-1 mt-2 mt-3 mt-4 mt-5 mt-6 mt-7 mt-8 mt-9
+mt-10 mt-11 mt-12 mt-13 mt-14 mt-15 mt-16 mt-18 mt-20 mt-22 mt-24 mt-28 mt-32 mt-36 mt-40 mt-44
+mt-48 mt-52 mt-56 mt-60 mt-64 mt-72 mt-80 mt-96 mr-0 mr-1 mr-2 mr-3 mr-4 mr-5 mr-6 mr-7 mr-8 mr-9
+mr-10 mr-11 mr-12 mr-13 mr-14 mr-15 mr-16 mr-18 mr-20 mr-22 mr-24 mr-28 mr-32 mr-36 mr-40 mr-44
+mr-48 mr-52 mr-56 mr-60 mr-64 mr-72 mr-80 mr-96 mb-0 mb-1 mb-2 mb-3 mb-4 mb-5 mb-6 mb-7 mb-8 mb-9
+mb-10 mb-11 mb-12 mb-13 mb-14 mb-15 mb-16 mb-18 mb-20 mb-22 mb-24 mb-28 mb-32 mb-36 mb-40 mb-44
+mb-48 mb-52 mb-56 mb-60 mb-64 mb-72 mb-80 mb-96 ml-0 ml-1 ml-2 ml-3 ml-4 ml-5 ml-6 ml-7 ml-8 ml-9
+ml-10 ml-11 ml-12 ml-13 ml-14 ml-15 ml-16 ml-18 ml-20 ml-22 ml-24 ml-28 ml-32 ml-36 ml-40 ml-44
+ml-48 ml-52 ml-56 ml-60 ml-64 ml-72 ml-80 ml-96 ms-0 ms-1 ms-2 ms-3 ms-4 ms-5 ms-6 ms-7 ms-8 ms-9
+ms-10 ms-11 ms-12 ms-13 ms-14 ms-15 ms-16 ms-18 ms-20 ms-22 ms-24 ms-28 ms-32 ms-36 ms-40 ms-44
+ms-48 ms-52 ms-56 ms-60 ms-64 ms-72 ms-80 ms-96 me-0 me-1 me-2 me-3 me-4 me-5 me-6 me-7 me-8 me-9
+me-10 me-11 me-12 me-13 me-14 me-15 me-16 me-18 me-20 me-22 me-24 me-28 me-32 me-36 me-40 me-44
+me-48 me-52 me-56 me-60 me-64 me-72 me-80 me-96
+
+# Space between
+space-x-0 space-x-1 space-x-2 space-x-3 space-x-4 space-x-5 space-x-6 space-x-7 space-x-8 space-x-9
+space-x-10 space-x-11 space-x-12 space-x-13 space-x-14 space-x-15 space-x-16 space-x-18 space-x-20
+space-x-22 space-x-24 space-x-28 space-x-32 space-x-36 space-x-40 space-x-44 space-x-48 space-x-52
+space-x-56 space-x-60 space-x-64 space-x-72 space-x-80 space-x-96 space-y-0 space-y-1 space-y-2
+space-y-3 space-y-4 space-y-5 space-y-6 space-y-7 space-y-8 space-y-9 space-y-10 space-y-11
+space-y-12 space-y-13 space-y-14 space-y-15 space-y-16 space-y-18 space-y-20 space-y-22 space-y-24
+space-y-28 space-y-32 space-y-36 space-y-40 space-y-44 space-y-48 space-y-52 space-y-56 space-y-60
+space-y-64 space-y-72 space-y-80 space-y-96
+
+# Width and height
+w-0 w-1 w-2 w-3 w-4 w-5 w-6 w-7 w-8 w-9 w-10 w-11 w-12 w-13 w-14 w-15 w-16 w-18 w-20 w-22 w-24 w-28
+w-32 w-36 w-40 w-44 w-48 w-52 w-56 w-60 w-64 w-72 w-80 w-96 h-0 h-1 h-2 h-3 h-4 h-5 h-6 h-7 h-8 h-9
+h-10 h-11 h-12 h-13 h-14 h-15 h-16 h-18 h-20 h-22 h-24 h-28 h-32 h-36 h-40 h-44 h-48 h-52 h-56 h-60
+h-64 h-72 h-80 h-96
+
+# Min/max sizing
+min-w-0 min-w-1 min-w-2 min-w-3 min-w-4 min-w-5 min-w-6 min-w-7 min-w-8 min-w-9 min-w-10 min-w-11
+min-w-12 min-w-13 min-w-14 min-w-15 min-w-16 min-w-18 min-w-20 min-w-22 min-w-24 min-w-28 min-w-32
+min-w-36 min-w-40 min-w-44 min-w-48 min-w-52 min-w-56 min-w-60 min-w-64 min-w-72 min-w-80 min-w-96
+min-h-0 min-h-1 min-h-2 min-h-3 min-h-4 min-h-5 min-h-6 min-h-7 min-h-8 min-h-9 min-h-10 min-h-11
+min-h-12 min-h-13 min-h-14 min-h-15 min-h-16 min-h-18 min-h-20 min-h-22 min-h-24 min-h-28 min-h-32
+min-h-36 min-h-40 min-h-44 min-h-48 min-h-52 min-h-56 min-h-60 min-h-64 min-h-72 min-h-80 min-h-96
+max-h-0 max-h-1 max-h-2 max-h-3 max-h-4 max-h-5 max-h-6 max-h-7 max-h-8 max-h-9 max-h-10 max-h-11
+max-h-12 max-h-13 max-h-14 max-h-15 max-h-16 max-h-18 max-h-20 max-h-22 max-h-24 max-h-28 max-h-32
+max-h-36 max-h-40 max-h-44 max-h-48 max-h-52 max-h-56 max-h-60 max-h-64 max-h-72 max-h-80 max-h-96
+
+# Position inset
+inset-0 inset-1 inset-2 inset-3 inset-4 inset-5 inset-6 inset-7 inset-8 inset-9 inset-10 inset-11
+inset-12 inset-13 inset-14 inset-15 inset-16 inset-18 inset-20 inset-22 inset-24 inset-28 inset-32
+inset-36 inset-40 inset-44 inset-48 inset-52 inset-56 inset-60 inset-64 inset-72 inset-80 inset-96
+inset-x-0 inset-x-1 inset-x-2 inset-x-3 inset-x-4 inset-x-5 inset-x-6 inset-x-7 inset-x-8 inset-x-9
+inset-x-10 inset-x-11 inset-x-12 inset-x-13 inset-x-14 inset-x-15 inset-x-16 inset-x-18 inset-x-20
+inset-x-22 inset-x-24 inset-x-28 inset-x-32 inset-x-36 inset-x-40 inset-x-44 inset-x-48 inset-x-52
+inset-x-56 inset-x-60 inset-x-64 inset-x-72 inset-x-80 inset-x-96 inset-y-0 inset-y-1 inset-y-2
+inset-y-3 inset-y-4 inset-y-5 inset-y-6 inset-y-7 inset-y-8 inset-y-9 inset-y-10 inset-y-11
+inset-y-12 inset-y-13 inset-y-14 inset-y-15 inset-y-16 inset-y-18 inset-y-20 inset-y-22 inset-y-24
+inset-y-28 inset-y-32 inset-y-36 inset-y-40 inset-y-44 inset-y-48 inset-y-52 inset-y-56 inset-y-60
+inset-y-64 inset-y-72 inset-y-80 inset-y-96 top-0 top-1 top-2 top-3 top-4 top-5 top-6 top-7 top-8
+top-9 top-10 top-11 top-12 top-13 top-14 top-15 top-16 top-18 top-20 top-22 top-24 top-28 top-32
+top-36 top-40 top-44 top-48 top-52 top-56 top-60 top-64 top-72 top-80 top-96 right-0 right-1 right-2
+right-3 right-4 right-5 right-6 right-7 right-8 right-9 right-10 right-11 right-12 right-13 right-14
+right-15 right-16 right-18 right-20 right-22 right-24 right-28 right-32 right-36 right-40 right-44
+right-48 right-52 right-56 right-60 right-64 right-72 right-80 right-96 bottom-0 bottom-1 bottom-2
+bottom-3 bottom-4 bottom-5 bottom-6 bottom-7 bottom-8 bottom-9 bottom-10 bottom-11 bottom-12
+bottom-13 bottom-14 bottom-15 bottom-16 bottom-18 bottom-20 bottom-22 bottom-24 bottom-28 bottom-32
+bottom-36 bottom-40 bottom-44 bottom-48 bottom-52 bottom-56 bottom-60 bottom-64 bottom-72 bottom-80
+bottom-96 left-0 left-1 left-2 left-3 left-4 left-5 left-6 left-7 left-8 left-9 left-10 left-11
+left-12 left-13 left-14 left-15 left-16 left-18 left-20 left-22 left-24 left-28 left-32 left-36
+left-40 left-44 left-48 left-52 left-56 left-60 left-64 left-72 left-80 left-96
+
+# Z-index
+z-0 z-10 z-20 z-30 z-40 z-50
+
+# Columns
+columns-1 columns-2 columns-3 columns-4 columns-5 columns-6 columns-7 columns-8 columns-9
+columns-10 columns-11 columns-12
+
+# Gap
+gap-0 gap-1 gap-2 gap-3 gap-4 gap-5 gap-6 gap-7 gap-8 gap-9 gap-10 gap-11 gap-12 gap-13 gap-14
+gap-15 gap-16 gap-18 gap-20 gap-22 gap-24 gap-28 gap-32 gap-36 gap-40 gap-44 gap-48 gap-52 gap-56
+gap-60 gap-64 gap-72 gap-80 gap-96 gap-x-0 gap-x-1 gap-x-2 gap-x-3 gap-x-4 gap-x-5 gap-x-6 gap-x-7
+gap-x-8 gap-x-9 gap-x-10 gap-x-11 gap-x-12 gap-x-13 gap-x-14 gap-x-15 gap-x-16 gap-x-18 gap-x-20
+gap-x-22 gap-x-24 gap-x-28 gap-x-32 gap-x-36 gap-x-40 gap-x-44 gap-x-48 gap-x-52 gap-x-56 gap-x-60
+gap-x-64 gap-x-72 gap-x-80 gap-x-96 gap-y-0 gap-y-1 gap-y-2 gap-y-3 gap-y-4 gap-y-5 gap-y-6 gap-y-7
+gap-y-8 gap-y-9 gap-y-10 gap-y-11 gap-y-12 gap-y-13 gap-y-14 gap-y-15 gap-y-16 gap-y-18 gap-y-20
+gap-y-22 gap-y-24 gap-y-28 gap-y-32 gap-y-36 gap-y-40 gap-y-44 gap-y-48 gap-y-52 gap-y-56 gap-y-60
+gap-y-64 gap-y-72 gap-y-80 gap-y-96
+
+# Basis and order
+basis-0 basis-1 basis-2 basis-3 basis-4 basis-5 basis-6 basis-7 basis-8 basis-9 basis-10 basis-11
+basis-12 basis-13 basis-14 basis-15 basis-16 basis-18 basis-20 basis-22 basis-24 basis-28 basis-32
+basis-36 basis-40 basis-44 basis-48 basis-52 basis-56 basis-60 basis-64 basis-72 basis-80 basis-96
+order--5 order--4 order--3 order--2 order--1 order-0 order-1 order-2 order-3 order-4 order-5 order-6
+order-7 order-8 order-9 order-10 order-11 order-12
+
+# Grid
+grid-cols-1 grid-cols-2 grid-cols-3 grid-cols-4 grid-cols-5 grid-cols-6 grid-cols-7 grid-cols-8
+grid-cols-9 grid-cols-10 grid-cols-11 grid-cols-12 grid-rows-1 grid-rows-2 grid-rows-3 grid-rows-4
+grid-rows-5 grid-rows-6 grid-rows-7 grid-rows-8 grid-rows-9 grid-rows-10 grid-rows-11 grid-rows-12
+col-span-1 col-span-2 col-span-3 col-span-4 col-span-5 col-span-6 col-span-7 col-span-8 col-span-9
+col-span-10 col-span-11 col-span-12 col-start-1 col-start-2 col-start-3 col-start-4 col-start-5
+col-start-6 col-start-7 col-start-8 col-start-9 col-start-10 col-start-11 col-start-12 col-end-1
+col-end-2 col-end-3 col-end-4 col-end-5 col-end-6 col-end-7 col-end-8 col-end-9 col-end-10
+col-end-11 col-end-12 row-span-1 row-span-2 row-span-3 row-span-4 row-span-5 row-span-6 row-span-7
+row-span-8 row-span-9 row-span-10 row-span-11 row-span-12 row-start-1 row-start-2 row-start-3
+row-start-4 row-start-5 row-start-6 row-start-7 row-start-8 row-start-9 row-start-10 row-start-11
+row-start-12 row-end-1 row-end-2 row-end-3 row-end-4 row-end-5 row-end-6 row-end-7 row-end-8
+row-end-9 row-end-10 row-end-11 row-end-12
+
+# Typography numeric
+leading-0 leading-1 leading-2 leading-3 leading-4 leading-5 leading-6 leading-7 leading-8 leading-9
+leading-10 leading-11 leading-12 leading-14 leading-16 leading-20 leading-24 leading-28 leading-32
+leading-36 leading-40 leading-44 leading-48 leading-52 leading-56 leading-60 leading-64 leading-72
+leading-80 leading-96 indent-0 indent-1 indent-2 indent-3 indent-4 indent-5 indent-6 indent-7
+indent-8 indent-9 indent-10 indent-11 indent-12 indent-13 indent-14 indent-15 indent-16 indent-18
+indent-20 indent-22 indent-24 indent-28 indent-32 indent-36 indent-40 indent-44 indent-48 indent-52
+indent-56 indent-60 indent-64 indent-72 indent-80 indent-96 line-clamp-1 line-clamp-2 line-clamp-3
+line-clamp-4 line-clamp-5 line-clamp-6
+
+# Border width
+border-0 border-1 border-2 border-4 border-8 border-x-0 border-x-1 border-x-2 border-x-4 border-x-8
+border-y-0 border-y-1 border-y-2 border-y-4 border-y-8 border-t-0 border-t-1 border-t-2 border-t-4
+border-t-8 border-r-0 border-r-1 border-r-2 border-r-4 border-r-8 border-b-0 border-b-1 border-b-2
+border-b-4 border-b-8 border-l-0 border-l-1 border-l-2 border-l-4 border-l-8
+
+# Outline
+outline-0 outline-1 outline-2 outline-4 outline-8 outline-offset-0 outline-offset-1
+outline-offset-2 outline-offset-4 outline-offset-8
+
+# Opacity
+opacity-0 opacity-5 opacity-10 opacity-20 opacity-25 opacity-30 opacity-40 opacity-50 opacity-60
+opacity-70 opacity-75 opacity-80 opacity-90 opacity-95 opacity-100
+
+# Filters
+brightness-0 brightness-50 brightness-75 brightness-90 brightness-95 brightness-100 brightness-105
+brightness-110 brightness-125 brightness-150 brightness-200 contrast-0 contrast-50 contrast-75
+contrast-90 contrast-95 contrast-100 contrast-105 contrast-110 contrast-125 contrast-150
+contrast-200 saturate-0 saturate-50 saturate-100 saturate-150 saturate-200 hue-rotate-0
+hue-rotate-15 hue-rotate-30 hue-rotate-60 hue-rotate-90 hue-rotate-180 backdrop-brightness-0
+backdrop-brightness-50 backdrop-brightness-75 backdrop-brightness-90 backdrop-brightness-95
+backdrop-brightness-100 backdrop-brightness-105 backdrop-brightness-110 backdrop-brightness-125
+backdrop-brightness-150 backdrop-brightness-200 backdrop-contrast-0 backdrop-contrast-50
+backdrop-contrast-75 backdrop-contrast-90 backdrop-contrast-95 backdrop-contrast-100
+backdrop-contrast-105 backdrop-contrast-110 backdrop-contrast-125 backdrop-contrast-150
+backdrop-contrast-200 backdrop-saturate-0 backdrop-saturate-50 backdrop-saturate-100
+backdrop-saturate-150 backdrop-saturate-200 backdrop-hue-rotate-0 backdrop-hue-rotate-15
+backdrop-hue-rotate-30 backdrop-hue-rotate-60 backdrop-hue-rotate-90 backdrop-hue-rotate-180
+backdrop-opacity-0 backdrop-opacity-5 backdrop-opacity-10 backdrop-opacity-20 backdrop-opacity-25
+backdrop-opacity-30 backdrop-opacity-40 backdrop-opacity-50 backdrop-opacity-60 backdrop-opacity-70
+backdrop-opacity-75 backdrop-opacity-80 backdrop-opacity-90 backdrop-opacity-95 backdrop-opacity-100
+
+# Transition timing
+duration-0 duration-75 duration-100 duration-150 duration-200 duration-300 duration-500
+duration-700 duration-1000 delay-0 delay-75 delay-100 delay-150 delay-200 delay-300 delay-500
+delay-700 delay-1000
+
+# Transform
+scale-0 scale-50 scale-75 scale-90 scale-95 scale-100 scale-105 scale-110 scale-125 scale-150
+scale-x-0 scale-x-50 scale-x-75 scale-x-90 scale-x-95 scale-x-100 scale-x-105 scale-x-110
+scale-x-125 scale-x-150 scale-y-0 scale-y-50 scale-y-75 scale-y-90 scale-y-95 scale-y-100
+scale-y-105 scale-y-110 scale-y-125 scale-y-150 rotate-0 rotate-1 rotate-2 rotate-3 rotate-6
+rotate-12 rotate-45 rotate-90 rotate-180 rotate-x-0 rotate-x-12 rotate-x-45 rotate-x-90 rotate-x-180
+rotate-y-0 rotate-y-12 rotate-y-45 rotate-y-90 rotate-y-180 translate-x-0 translate-x-1
+translate-x-2 translate-x-3 translate-x-4 translate-x-5 translate-x-6 translate-x-7 translate-x-8
+translate-x-9 translate-x-10 translate-x-11 translate-x-12 translate-x-13 translate-x-14
+translate-x-15 translate-x-16 translate-x-18 translate-x-20 translate-x-22 translate-x-24
+translate-x-28 translate-x-32 translate-x-36 translate-x-40 translate-x-44 translate-x-48
+translate-x-52 translate-x-56 translate-x-60 translate-x-64 translate-x-72 translate-x-80
+translate-x-96 translate-y-0 translate-y-1 translate-y-2 translate-y-3 translate-y-4 translate-y-5
+translate-y-6 translate-y-7 translate-y-8 translate-y-9 translate-y-10 translate-y-11 translate-y-12
+translate-y-13 translate-y-14 translate-y-15 translate-y-16 translate-y-18 translate-y-20
+translate-y-22 translate-y-24 translate-y-28 translate-y-32 translate-y-36 translate-y-40
+translate-y-44 translate-y-48 translate-y-52 translate-y-56 translate-y-60 translate-y-64
+translate-y-72 translate-y-80 translate-y-96 skew-x-0 skew-x-1 skew-x-2 skew-x-3 skew-x-6 skew-x-12
+skew-y-0 skew-y-1 skew-y-2 skew-y-3 skew-y-6 skew-y-12
+
+# Scroll spacing
+scroll-m-0 scroll-m-1 scroll-m-2 scroll-m-3 scroll-m-4 scroll-m-5 scroll-m-6 scroll-m-7 scroll-m-8
+scroll-m-9 scroll-m-10 scroll-m-11 scroll-m-12 scroll-m-14 scroll-m-16 scroll-m-20 scroll-m-24
+scroll-m-28 scroll-m-32 scroll-m-36 scroll-m-40 scroll-m-44 scroll-m-48 scroll-m-52 scroll-m-56
+scroll-m-60 scroll-m-64 scroll-m-72 scroll-m-80 scroll-m-96 scroll-mx-0 scroll-mx-1 scroll-mx-2
+scroll-mx-3 scroll-mx-4 scroll-mx-5 scroll-mx-6 scroll-mx-7 scroll-mx-8 scroll-mx-9 scroll-mx-10
+scroll-mx-11 scroll-mx-12 scroll-mx-14 scroll-mx-16 scroll-mx-20 scroll-mx-24 scroll-mx-28
+scroll-mx-32 scroll-mx-36 scroll-mx-40 scroll-mx-44 scroll-mx-48 scroll-mx-52 scroll-mx-56
+scroll-mx-60 scroll-mx-64 scroll-mx-72 scroll-mx-80 scroll-mx-96 scroll-my-0 scroll-my-1 scroll-my-2
+scroll-my-3 scroll-my-4 scroll-my-5 scroll-my-6 scroll-my-7 scroll-my-8 scroll-my-9 scroll-my-10
+scroll-my-11 scroll-my-12 scroll-my-14 scroll-my-16 scroll-my-20 scroll-my-24 scroll-my-28
+scroll-my-32 scroll-my-36 scroll-my-40 scroll-my-44 scroll-my-48 scroll-my-52 scroll-my-56
+scroll-my-60 scroll-my-64 scroll-my-72 scroll-my-80 scroll-my-96 scroll-mt-0 scroll-mt-1 scroll-mt-2
+scroll-mt-3 scroll-mt-4 scroll-mt-5 scroll-mt-6 scroll-mt-7 scroll-mt-8 scroll-mt-9 scroll-mt-10
+scroll-mt-11 scroll-mt-12 scroll-mt-14 scroll-mt-16 scroll-mt-20 scroll-mt-24 scroll-mt-28
+scroll-mt-32 scroll-mt-36 scroll-mt-40 scroll-mt-44 scroll-mt-48 scroll-mt-52 scroll-mt-56
+scroll-mt-60 scroll-mt-64 scroll-mt-72 scroll-mt-80 scroll-mt-96 scroll-mr-0 scroll-mr-1 scroll-mr-2
+scroll-mr-3 scroll-mr-4 scroll-mr-5 scroll-mr-6 scroll-mr-7 scroll-mr-8 scroll-mr-9 scroll-mr-10
+scroll-mr-11 scroll-mr-12 scroll-mr-14 scroll-mr-16 scroll-mr-20 scroll-mr-24 scroll-mr-28
+scroll-mr-32 scroll-mr-36 scroll-mr-40 scroll-mr-44 scroll-mr-48 scroll-mr-52 scroll-mr-56
+scroll-mr-60 scroll-mr-64 scroll-mr-72 scroll-mr-80 scroll-mr-96 scroll-mb-0 scroll-mb-1 scroll-mb-2
+scroll-mb-3 scroll-mb-4 scroll-mb-5 scroll-mb-6 scroll-mb-7 scroll-mb-8 scroll-mb-9 scroll-mb-10
+scroll-mb-11 scroll-mb-12 scroll-mb-14 scroll-mb-16 scroll-mb-20 scroll-mb-24 scroll-mb-28
+scroll-mb-32 scroll-mb-36 scroll-mb-40 scroll-mb-44 scroll-mb-48 scroll-mb-52 scroll-mb-56
+scroll-mb-60 scroll-mb-64 scroll-mb-72 scroll-mb-80 scroll-mb-96 scroll-ml-0 scroll-ml-1 scroll-ml-2
+scroll-ml-3 scroll-ml-4 scroll-ml-5 scroll-ml-6 scroll-ml-7 scroll-ml-8 scroll-ml-9 scroll-ml-10
+scroll-ml-11 scroll-ml-12 scroll-ml-14 scroll-ml-16 scroll-ml-20 scroll-ml-24 scroll-ml-28
+scroll-ml-32 scroll-ml-36 scroll-ml-40 scroll-ml-44 scroll-ml-48 scroll-ml-52 scroll-ml-56
+scroll-ml-60 scroll-ml-64 scroll-ml-72 scroll-ml-80 scroll-ml-96 scroll-p-0 scroll-p-1 scroll-p-2
+scroll-p-3 scroll-p-4 scroll-p-5 scroll-p-6 scroll-p-7 scroll-p-8 scroll-p-9 scroll-p-10 scroll-p-11
+scroll-p-12 scroll-p-14 scroll-p-16 scroll-p-20 scroll-p-24 scroll-p-28 scroll-p-32 scroll-p-36
+scroll-p-40 scroll-p-44 scroll-p-48 scroll-p-52 scroll-p-56 scroll-p-60 scroll-p-64 scroll-p-72
+scroll-p-80 scroll-p-96 scroll-px-0 scroll-px-1 scroll-px-2 scroll-px-3 scroll-px-4 scroll-px-5
+scroll-px-6 scroll-px-7 scroll-px-8 scroll-px-9 scroll-px-10 scroll-px-11 scroll-px-12 scroll-px-14
+scroll-px-16 scroll-px-20 scroll-px-24 scroll-px-28 scroll-px-32 scroll-px-36 scroll-px-40
+scroll-px-44 scroll-px-48 scroll-px-52 scroll-px-56 scroll-px-60 scroll-px-64 scroll-px-72
+scroll-px-80 scroll-px-96 scroll-py-0 scroll-py-1 scroll-py-2 scroll-py-3 scroll-py-4 scroll-py-5
+scroll-py-6 scroll-py-7 scroll-py-8 scroll-py-9 scroll-py-10 scroll-py-11 scroll-py-12 scroll-py-14
+scroll-py-16 scroll-py-20 scroll-py-24 scroll-py-28 scroll-py-32 scroll-py-36 scroll-py-40
+scroll-py-44 scroll-py-48 scroll-py-52 scroll-py-56 scroll-py-60 scroll-py-64 scroll-py-72
+scroll-py-80 scroll-py-96 scroll-pt-0 scroll-pt-1 scroll-pt-2 scroll-pt-3 scroll-pt-4 scroll-pt-5
+scroll-pt-6 scroll-pt-7 scroll-pt-8 scroll-pt-9 scroll-pt-10 scroll-pt-11 scroll-pt-12 scroll-pt-14
+scroll-pt-16 scroll-pt-20 scroll-pt-24 scroll-pt-28 scroll-pt-32 scroll-pt-36 scroll-pt-40
+scroll-pt-44 scroll-pt-48 scroll-pt-52 scroll-pt-56 scroll-pt-60 scroll-pt-64 scroll-pt-72
+scroll-pt-80 scroll-pt-96 scroll-pr-0 scroll-pr-1 scroll-pr-2 scroll-pr-3 scroll-pr-4 scroll-pr-5
+scroll-pr-6 scroll-pr-7 scroll-pr-8 scroll-pr-9 scroll-pr-10 scroll-pr-11 scroll-pr-12 scroll-pr-14
+scroll-pr-16 scroll-pr-20 scroll-pr-24 scroll-pr-28 scroll-pr-32 scroll-pr-36 scroll-pr-40
+scroll-pr-44 scroll-pr-48 scroll-pr-52 scroll-pr-56 scroll-pr-60 scroll-pr-64 scroll-pr-72
+scroll-pr-80 scroll-pr-96 scroll-pb-0 scroll-pb-1 scroll-pb-2 scroll-pb-3 scroll-pb-4 scroll-pb-5
+scroll-pb-6 scroll-pb-7 scroll-pb-8 scroll-pb-9 scroll-pb-10 scroll-pb-11 scroll-pb-12 scroll-pb-14
+scroll-pb-16 scroll-pb-20 scroll-pb-24 scroll-pb-28 scroll-pb-32 scroll-pb-36 scroll-pb-40
+scroll-pb-44 scroll-pb-48 scroll-pb-52 scroll-pb-56 scroll-pb-60 scroll-pb-64 scroll-pb-72
+scroll-pb-80 scroll-pb-96 scroll-pl-0 scroll-pl-1 scroll-pl-2 scroll-pl-3 scroll-pl-4 scroll-pl-5
+scroll-pl-6 scroll-pl-7 scroll-pl-8 scroll-pl-9 scroll-pl-10 scroll-pl-11 scroll-pl-12 scroll-pl-14
+scroll-pl-16 scroll-pl-20 scroll-pl-24 scroll-pl-28 scroll-pl-32 scroll-pl-36 scroll-pl-40
+scroll-pl-44 scroll-pl-48 scroll-pl-52 scroll-pl-56 scroll-pl-60 scroll-pl-64 scroll-pl-72
+scroll-pl-80 scroll-pl-96
+
+
+# Static classes — all non-parameterised classes emitted by Tidal style modules
+absolute align-baseline align-bottom align-middle align-text-bottom align-text-top align-top
+animate-bounce animate-none animate-ping animate-pulse animate-spin appearance-auto appearance-none
+aspect-auto aspect-square aspect-video auto-cols-auto auto-cols-fr auto-cols-max auto-cols-min
+auto-rows-auto auto-rows-fr auto-rows-max auto-rows-min backdrop-blur backdrop-blur-2xl
+backdrop-blur-3xl backdrop-blur-lg backdrop-blur-md backdrop-blur-none backdrop-blur-sm
+backdrop-blur-xl backdrop-blur-xs backdrop-grayscale backdrop-grayscale-0 backdrop-invert
+backdrop-invert-0 backdrop-sepia backdrop-sepia-0 basis-1/2 basis-1/3 basis-1/4 basis-2/3 basis-3/4
+basis-auto basis-full bg-auto bg-blend-color bg-blend-color-burn bg-blend-color-dodge
+bg-blend-darken bg-blend-difference bg-blend-exclusion bg-blend-hard-light bg-blend-hue
+bg-blend-lighten bg-blend-luminosity bg-blend-multiply bg-blend-normal bg-blend-overlay
+bg-blend-saturation bg-blend-screen bg-blend-soft-light bg-bottom bg-center bg-clip-border
+bg-clip-content bg-clip-padding bg-clip-text bg-contain bg-cover bg-fixed bg-left bg-left-bottom
+bg-left-top bg-local bg-no-repeat bg-origin-border bg-origin-content bg-origin-padding bg-repeat
+bg-repeat-round bg-repeat-space bg-repeat-x bg-repeat-y bg-right bg-right-bottom bg-right-top
+bg-scroll bg-top block blur blur-2xl blur-3xl blur-lg blur-md blur-none blur-sm blur-xl blur-xs
+border border-0 border-dashed border-dotted border-double border-hidden border-none border-solid
+border-x-0 border-y-0 bottom-auto bottom-full box-border box-content break-after-all
+break-after-auto break-after-avoid break-after-column break-after-page break-all break-before-all
+break-before-auto break-before-avoid break-before-column break-before-page break-inside-auto
+break-inside-avoid break-inside-avoid-column break-inside-avoid-page break-keep break-normal
+break-words capitalize caret-current caret-transparent clear-both clear-end clear-left clear-none
+clear-right clear-start col-auto col-end-auto col-span-full col-start-auto collapse columns-auto
+content-around content-baseline content-between content-center content-end content-evenly
+content-normal content-start content-stretch contents cursor-alias cursor-all-scroll cursor-auto
+cursor-cell cursor-col-resize cursor-context-menu cursor-copy cursor-crosshair cursor-default
+cursor-e-resize cursor-grab cursor-grabbing cursor-help cursor-move cursor-n-resize cursor-no-drop
+cursor-none cursor-not-allowed cursor-pointer cursor-progress cursor-row-resize cursor-s-resize
+cursor-text cursor-vertical-text cursor-w-resize cursor-wait cursor-zoom-in cursor-zoom-out
+drop-shadow drop-shadow-2xl drop-shadow-lg drop-shadow-md drop-shadow-none drop-shadow-sm
+drop-shadow-xl drop-shadow-xs ease-in ease-in-out ease-linear ease-out fixed flex flex-1 flex-auto
+flex-col flex-col-reverse flex-initial flex-none flex-nowrap flex-row flex-row-reverse flex-wrap
+flex-wrap-reverse float-end float-left float-none float-right float-start flow-root font-black
+font-bold font-extrabold font-extralight font-light font-medium font-mono font-normal font-sans
+font-semibold font-serif font-thin grayscale grayscale-0 grid grid-cols-none grid-cols-subgrid
+grid-flow-col grid-flow-col-dense grid-flow-dense grid-flow-row grid-flow-row-dense grid-rows-none
+grid-rows-subgrid grow grow-0 h-auto h-dvh h-fit h-full h-max h-min h-px h-screen h-svh hidden
+inline inline-block inline-flex inline-grid inset-auto invert invert-0 invisible isolate
+isolation-auto italic items-baseline items-center items-end items-start items-stretch
+justify-around justify-between justify-center justify-end justify-evenly justify-items-center
+justify-items-end justify-items-normal justify-items-start justify-items-stretch justify-normal
+justify-self-auto justify-self-center justify-self-end justify-self-start justify-self-stretch
+justify-start justify-stretch leading-loose leading-none leading-normal leading-relaxed
+leading-snug leading-tight left-auto left-full line-clamp-none line-through list-item lowercase
+m-auto m-px max-h-dvh max-h-fit max-h-full max-h-none max-h-screen max-w-2xl max-w-3xl max-w-4xl
+max-w-5xl max-w-6xl max-w-7xl max-w-fit max-w-full max-w-lg max-w-max max-w-md max-w-min max-w-none
+max-w-prose max-w-screen max-w-sm max-w-xl max-w-xs min-h-0 min-h-dvh min-h-fit min-h-full
+min-h-screen min-w-0 min-w-fit min-w-full min-w-max min-w-min mix-blend-color mix-blend-color-burn
+mix-blend-color-dodge mix-blend-darken mix-blend-difference mix-blend-exclusion
+mix-blend-hard-light mix-blend-hue mix-blend-lighten mix-blend-luminosity mix-blend-multiply
+mix-blend-normal mix-blend-overlay mix-blend-saturation mix-blend-screen mix-blend-soft-light
+mx-auto my-auto no-underline normal-case not-italic object-bottom object-center object-contain
+object-cover object-fill object-left object-left-bottom object-left-top object-none object-right
+object-right-bottom object-right-top object-scale-down object-top order-first order-last order-none
+origin-bottom origin-bottom-left origin-bottom-right origin-center origin-left origin-right
+origin-top origin-top-left origin-top-right outline outline-dashed outline-dotted outline-double
+outline-none overflow-auto overflow-clip overflow-hidden overflow-scroll overflow-visible
+overflow-x-auto overflow-x-clip overflow-x-hidden overflow-x-scroll overflow-x-visible
+overflow-y-auto overflow-y-clip overflow-y-hidden overflow-y-scroll overflow-y-visible overline
+overscroll-auto overscroll-contain overscroll-none overscroll-x-auto overscroll-x-contain
+overscroll-x-none overscroll-y-auto overscroll-y-contain overscroll-y-none p-px perspective-distant
+perspective-dramatic perspective-midrange perspective-near perspective-none perspective-normal
+place-content-around place-content-between place-content-center place-content-end
+place-content-evenly place-content-start place-content-stretch place-items-baseline
+place-items-center place-items-end place-items-start place-items-stretch place-self-auto
+place-self-center place-self-end place-self-start place-self-stretch pointer-events-auto
+pointer-events-none relative resize resize-none resize-x resize-y right-auto right-full rounded
+rounded-2xl rounded-3xl rounded-b rounded-b-full rounded-b-lg rounded-b-md rounded-b-none
+rounded-b-sm rounded-b-xl rounded-bl rounded-bl-full rounded-bl-lg rounded-bl-none rounded-br
+rounded-br-full rounded-br-lg rounded-br-none rounded-full rounded-l rounded-l-full rounded-l-lg
+rounded-l-md rounded-l-none rounded-l-sm rounded-lg rounded-md rounded-none rounded-r
+rounded-r-full rounded-r-lg rounded-r-md rounded-r-none rounded-r-sm rounded-sm rounded-t
+rounded-t-full rounded-t-lg rounded-t-md rounded-t-none rounded-t-sm rounded-t-xl rounded-tl
+rounded-tl-full rounded-tl-lg rounded-tl-none rounded-tr rounded-tr-full rounded-tr-lg
+rounded-tr-none rounded-xl row-auto row-end-auto row-span-full row-start-auto scroll-auto
+scroll-smooth select-all select-auto select-none select-text self-auto self-baseline self-center
+self-end self-start self-stretch sepia sepia-0 shadow shadow-2xl shadow-inner shadow-lg shadow-md
+shadow-none shadow-sm shadow-xl shadow-xs shrink shrink-0 snap-align-none snap-always snap-both
+snap-center snap-end snap-mandatory snap-none snap-normal snap-proximity snap-start snap-x snap-y
+space-x-reverse space-y-reverse static sticky table table-caption table-cell table-column
+table-column-group table-footer-group table-header-group table-row table-row-group text-2xl
+text-3xl text-4xl text-5xl text-6xl text-7xl text-8xl text-9xl text-balance text-base text-center
+text-clip text-ellipsis text-end text-justify text-left text-lg text-nowrap text-pretty text-right
+text-shadow text-shadow-lg text-shadow-md text-shadow-none text-shadow-sm text-shadow-xs text-sm
+text-start text-wrap text-xl text-xs top-auto top-full touch-auto touch-manipulation touch-none
+touch-pan-down touch-pan-left touch-pan-right touch-pan-up touch-pan-x touch-pan-y touch-pinch-zoom
+tracking-normal tracking-tight tracking-tighter tracking-wide tracking-wider tracking-widest
+transform-box-border transform-box-content transform-box-fill transform-box-stroke
+transform-box-view transition transition-all transition-colors transition-none transition-opacity
+transition-shadow transition-transform translate-x-1/2 translate-x-full translate-y-1/2
+translate-y-full truncate underline uppercase visible w-1/2 w-1/3 w-1/4 w-2/3 w-3/4 w-auto w-dvw
+w-fit w-full w-max w-min w-px w-screen w-svw whitespace-break-spaces whitespace-normal
+whitespace-nowrap whitespace-pre whitespace-pre-line whitespace-pre-wrap will-change-auto
+will-change-contents will-change-scroll will-change-transform z-auto
+
+# New additions — typography, sizing, effects, transforms, interactivity, tables, svg, accessibility
+accent-auto antialiased backface-hidden backface-visible border-collapse border-separate
+bs-auto bs-fit bs-full caption-bottom caption-top color-scheme-dark color-scheme-light
+color-scheme-light-dark color-scheme-normal color-scheme-only-dark color-scheme-only-light
+content-none decoration-auto decoration-dashed decoration-dotted decoration-double
+decoration-from-font decoration-solid decoration-wavy diagonal-fractions field-sizing-content
+field-sizing-fixed fill-current fill-none font-condensed font-expanded font-extra-condensed
+font-extra-expanded font-semi-condensed font-semi-expanded font-ultra-condensed font-ultra-expanded
+forced-color-adjust-auto forced-color-adjust-none hyphens-auto hyphens-manual hyphens-none is-fit
+lining-nums list-decimal list-disc list-inside list-none list-outside mask-alpha mask-auto
+mask-bottom mask-center mask-clip-border mask-clip-content mask-clip-fill mask-clip-no-clip
+mask-clip-padding mask-clip-stroke mask-clip-view mask-composite-add mask-composite-exclude
+mask-composite-intersect mask-composite-subtract mask-contain mask-cover mask-left mask-luminance
+mask-no-repeat mask-none mask-origin-border mask-origin-content mask-origin-fill mask-origin-padding
+mask-origin-stroke mask-origin-view mask-repeat mask-repeat-round mask-repeat-space mask-repeat-x
+mask-repeat-y mask-right mask-top mask-type-alpha mask-type-luminance max-bs-full max-bs-none
+max-is-full max-is-none min-bs-full min-is-full normal-nums oldstyle-nums ordinal
+perspective-origin-bottom perspective-origin-bottom-left perspective-origin-bottom-right
+perspective-origin-center perspective-origin-left perspective-origin-right perspective-origin-top
+perspective-origin-top-left perspective-origin-top-right proportional-nums size-auto size-fit
+size-full size-max size-min slashed-zero stacked-fractions stroke-current stroke-none
+subpixel-antialiased table-auto table-fixed tabular-nums transform-3d transform-flat
+transition-discrete transition-normal underline-offset-auto wrap-anywhere wrap-break-word
+wrap-normal
+
+# Parameterised new utilities — common scale values
+border-spacing-0 border-spacing-1 border-spacing-2 border-spacing-4 border-spacing-8
+border-spacing-x-0 border-spacing-x-1 border-spacing-x-2 border-spacing-x-4 border-spacing-x-8
+border-spacing-y-0 border-spacing-y-1 border-spacing-y-2 border-spacing-y-4 border-spacing-y-8
+size-0 size-1 size-2 size-3 size-4 size-5 size-6 size-8 size-10 size-12 size-16 size-20 size-24 size-32 size-40 size-48 size-64 size-px
+is-0 is-1 is-2 is-4 is-8 is-12 is-16 is-24 is-32 is-48 is-64 is-auto is-full is-fit
+min-is-0 min-is-1 min-is-2 min-is-4 min-is-8 min-is-full
+max-is-0 max-is-1 max-is-2 max-is-4 max-is-8 max-is-full max-is-none
+bs-0 bs-1 bs-2 bs-4 bs-8 bs-12 bs-16 bs-24 bs-32 bs-48 bs-64
+min-bs-0 min-bs-1 min-bs-2 min-bs-4 min-bs-8 min-bs-full
+max-bs-0 max-bs-1 max-bs-2 max-bs-4 max-bs-8 max-bs-full max-bs-none
+stroke-0 stroke-1 stroke-2
+decoration-0 decoration-1 decoration-2 decoration-4 decoration-8
+underline-offset-0 underline-offset-1 underline-offset-2 underline-offset-4 underline-offset-8
+
+box-decoration-clone box-decoration-slice
