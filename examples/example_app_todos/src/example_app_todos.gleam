@@ -15,15 +15,16 @@ import tidal/input
 import tidal/row
 import tidal/size
 import tidal/spacer
-import tidal/style/border
-import tidal/style/flexbox
-import tidal/style/layout
-import tidal/style/responsive
-import tidal/style/sizing
-import tidal/style/spacing
-import tidal/style/typography
+
+
+
+
+
+
+
 import tidal/text
 import tidal/variant
+import tidal/styling as s
 
 pub fn main() {
   let app = lustre.simple(init, update, view)
@@ -132,24 +133,24 @@ fn view(model: Model) -> Element(Message) {
 
   el.new()
   |> el.style([
-    sizing.min_h_screen(),
-    layout.flex(),
-    flexbox.flex_col(),
-    flexbox.items_start(),
-    flexbox.justify_start(),
-    responsive.sm(flexbox.items_center()),
-    responsive.sm(flexbox.justify_center()),
+    s.min_h_screen(),
+    s.flex(),
+    s.flex_col(),
+    s.items_start(),
+    s.justify_start(),
+    s.sm(s.items_center()),
+    s.sm(s.justify_center()),
   ])
   |> el.attrs([attribute.class("bg-base-200")])
   |> el.children([
     el.new()
     |> el.style([
-      sizing.w_full(),
-      responsive.sm(sizing.max_w_md()),
-      layout.flex(),
-      flexbox.flex_col(),
-      responsive.sm(border.rounded_xl()),
-      responsive.sm(layout.overflow_hidden()),
+      s.w_full(),
+      s.sm(s.max_w_md()),
+      s.flex(),
+      s.flex_col(),
+      s.sm(s.rounded_xl()),
+      s.sm(s.overflow_hidden()),
     ])
     |> el.attrs([attribute.class("bg-base-100 shadow-xl")])
     |> el.children([
@@ -166,15 +167,15 @@ fn view(model: Model) -> Element(Message) {
 
 fn view_header(active_count: Int, done_count: Int) -> Element(Message) {
   el.new()
-  |> el.style([spacing.p(6), spacing.pb(4)])
+  |> el.style([s.p(6), s.pb(4)])
   |> el.attrs([attribute.class("bg-primary")])
   |> el.children([
     text.new("My Todos")
-      |> text.style([typography.text_2xl(), typography.font_bold()])
+      |> text.style([s.text_2xl(), s.font_bold()])
       |> text.attrs([attribute.class("text-primary-content")])
       |> text.build,
     row.new()
-      |> row.style([spacing.mt(1), flexbox.gap(2)])
+      |> row.style([s.mt(1), s.gap(2)])
       |> row.children([
         badge.new(count_label(active_count) <> " left")
           |> badge.attrs([attribute.class("badge-ghost opacity-80")])
@@ -194,13 +195,13 @@ fn view_header(active_count: Int, done_count: Int) -> Element(Message) {
 
 fn view_input(current: String) -> Element(Message) {
   row.new()
-  |> row.style([spacing.p(4), flexbox.gap(2), flexbox.items_center()])
+  |> row.style([s.p(4), s.gap(2), s.items_center()])
   |> row.attrs([attribute.class("border-b border-base-200")])
   |> row.children([
     input.new()
       |> input.placeholder("Add a todo…")
       |> input.value(current)
-      |> input.style([sizing.w_full()])
+      |> input.style([s.w_full()])
       |> input.on_input(UserTyped)
       |> input.on_keydown(fn(key) {
         case key {
@@ -219,7 +220,7 @@ fn view_input(current: String) -> Element(Message) {
 
 fn view_filter_bar(current: Filter) -> Element(Message) {
   row.new()
-  |> row.style([spacing.px(4), spacing.py(2), flexbox.gap(2)])
+  |> row.style([s.px(4), s.py(2), s.gap(2)])
   |> row.attrs([attribute.class("border-b border-base-200")])
   |> row.children([
     filter_tab("All", All, current),
@@ -246,7 +247,7 @@ fn view_todo_list(todos: List(Todo)) -> Element(Message) {
     [] -> view_empty_state()
     _ ->
       column.new()
-      |> column.style([sizing.w_full()])
+      |> column.style([s.w_full()])
       |> column.children(list.map(todos, view_todo_item))
       |> column.build
   }
@@ -255,20 +256,20 @@ fn view_todo_list(todos: List(Todo)) -> Element(Message) {
 fn view_empty_state() -> Element(Message) {
   el.new()
   |> el.style([
-    spacing.py(12),
-    layout.flex(),
-    flexbox.flex_col(),
-    flexbox.items_center(),
-    flexbox.justify_center(),
-    flexbox.gap(2),
+    s.py(12),
+    s.flex(),
+    s.flex_col(),
+    s.items_center(),
+    s.justify_center(),
+    s.gap(2),
   ])
   |> el.children([
     text.new("Nothing here")
-      |> text.style([typography.text_lg(), typography.font_medium()])
+      |> text.style([s.text_lg(), s.font_medium()])
       |> text.attrs([attribute.class("text-base-content/40")])
       |> text.build,
     text.new("Add something above to get started")
-      |> text.style([typography.text_sm()])
+      |> text.style([s.text_sm()])
       |> text.attrs([attribute.class("text-base-content/30")])
       |> text.build,
   ])
@@ -283,10 +284,10 @@ fn view_todo_item(item: Todo) -> Element(Message) {
 
   row.new()
   |> row.style([
-    spacing.px(4),
-    spacing.py(3),
-    flexbox.items_center(),
-    flexbox.gap(3),
+    s.px(4),
+    s.py(3),
+    s.items_center(),
+    s.gap(3),
   ])
   |> row.attrs([attribute.class("border-b border-base-200 last:border-0")])
   |> row.children([
@@ -297,11 +298,11 @@ fn view_todo_item(item: Todo) -> Element(Message) {
       |> checkbox.build,
     text.new(item.label)
       |> text.style([
-        typography.text_base(),
-        responsive.sm(typography.text_lg()),
+        s.text_base(),
+        s.sm(s.text_lg()),
         case item.done {
-          True -> typography.line_through()
-          False -> typography.font_normal()
+          True -> s.line_through()
+          False -> s.font_normal()
         },
       ])
       |> text.attrs([
@@ -349,7 +350,7 @@ fn view_footer(done_count: Int) -> Element(Message) {
     False -> element.none()
     True ->
       row.new()
-      |> row.style([spacing.p(4), flexbox.justify_end()])
+      |> row.style([s.p(4), s.justify_end()])
       |> row.attrs([attribute.class("border-t border-base-200")])
       |> row.children([
         button.new("Clear completed")

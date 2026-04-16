@@ -194,9 +194,32 @@ All components follow the same pipeline: `new()` creates a default, modifier fun
 | `tidal/drawer` | Sidebar drawer |
 | `tidal/loading` | Loading spinner and variants |
 | `tidal/progress` | Progress bar |
+| `tidal/radial_progress` | Circular progress indicator |
 | `tidal/stat` | Stat display block |
 | `tidal/table` | Data table |
 | `tidal/collapse` | Collapsible content panel |
+| `tidal/chat` | Chat bubble with start/end alignment and colour variants |
+| `tidal/rating` | Star/heart rating input |
+| `tidal/steps` | Step progress indicator |
+| `tidal/timeline` | Vertical or horizontal event timeline |
+| `tidal/countdown` | Slot-machine style number display |
+| `tidal/diff` | Side-by-side content comparison with draggable divider |
+| `tidal/carousel` | Scroll-snap slide container |
+| `tidal/toast` | Toast notification stack |
+| `tidal/hero` | Full-width hero section with overlay support |
+| `tidal/indicator` | Badge/dot overlay on any element |
+| `tidal/join` | Join adjacent elements into a group |
+| `tidal/kbd` | Keyboard key display |
+| `tidal/skeleton` | Loading skeleton placeholder |
+| `tidal/swap` | Swap two elements with animation |
+| `tidal/link` | Styled anchor element |
+| `tidal/footer` | Site footer with columnar navigation |
+| `tidal/fieldset` | Form field grouping with legend and label |
+| `tidal/list_display` | Styled list with row borders |
+| `tidal/mockup_code` | Terminal/code block mockup |
+| `tidal/mockup_phone` | Phone device frame |
+| `tidal/mockup_window` | Browser/desktop window frame |
+| `tidal/theme_controller` | DaisyUI theme switcher via checkbox or radio |
 
 ### Variants and sizes
 
