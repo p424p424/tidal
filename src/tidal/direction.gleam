@@ -8,7 +8,6 @@
 /// |> row.direction(direction.ColReverse)
 /// |> row.build
 /// ```
-
 pub type Direction {
   Row
   Col

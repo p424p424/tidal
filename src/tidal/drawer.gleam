@@ -1,19 +1,21 @@
 /// Drawer component — renders a DaisyUI `drawer` layout with a toggleable sidebar.
 ///
-/// The drawer wraps your page content and sidebar together. Use `open/2` to
+/// The drawer wraps your page content and sidebar together. Use `open(to:)` to
 /// control visibility from your model.
 ///
 /// ```gleam
 /// import tidal/drawer
 ///
 /// drawer.new()
-/// |> drawer.open(model.drawer_open)
+/// |> drawer.open(to: model.drawer_open)
 /// |> drawer.on_close(UserClosedDrawer)
-/// |> drawer.content([main_content])
-/// |> drawer.sidebar([nav_menu])
+/// |> drawer.content(elements: [main_content])
+/// |> drawer.sidebar(elements: [nav_menu])
 /// |> drawer.build
 /// ```
-
+///
+/// See also:
+/// - DaisyUI drawer docs: https://daisyui.com/components/drawer/
 import gleam/list
 import gleam/option.{type Option, None, Some}
 import gleam/string
@@ -42,6 +44,23 @@ pub opaque type Drawer(msg) {
 // Builder
 // ---------------------------------------------------------------------------
 
+/// Creates a new `Drawer` builder (closed by default).
+///
+/// Chain builder functions to configure the drawer, then call `build`:
+///
+/// ```gleam
+/// import tidal/drawer
+///
+/// drawer.new()
+/// |> drawer.open(to: model.drawer_open)
+/// |> drawer.on_close(UserClosedDrawer)
+/// |> drawer.content(elements: [main_content])
+/// |> drawer.sidebar(elements: [nav_menu])
+/// |> drawer.build
+/// ```
+///
+/// See also:
+/// - DaisyUI drawer docs: https://daisyui.com/components/drawer/
 pub fn new() -> Drawer(msg) {
   Drawer(
     open: False,
@@ -55,50 +74,62 @@ pub fn new() -> Drawer(msg) {
 }
 
 /// Controls whether the drawer is open.
-pub fn open(d: Drawer(msg), is_open: Bool) -> Drawer(msg) {
-  Drawer(..d, open: is_open)
+pub fn open(drawer: Drawer(msg), to is_open: Bool) -> Drawer(msg) {
+  Drawer(..drawer, open: is_open)
 }
 
 /// Registers a message dispatched when the overlay backdrop is clicked.
-pub fn on_close(d: Drawer(msg), msg: msg) -> Drawer(msg) {
-  Drawer(..d, on_close: Some(msg))
+pub fn on_close(drawer: Drawer(msg), msg: msg) -> Drawer(msg) {
+  Drawer(..drawer, on_close: Some(msg))
 }
 
 /// Sets the main page content. May be called multiple times — accumulates.
-pub fn content(d: Drawer(msg), els: List(Element(msg))) -> Drawer(msg) {
-  Drawer(..d, content: list.append(d.content, els))
+pub fn content(
+  drawer: Drawer(msg),
+  elements elements: List(Element(msg)),
+) -> Drawer(msg) {
+  Drawer(..drawer, content: list.append(drawer.content, elements))
 }
 
 /// Sets the sidebar content. May be called multiple times — accumulates.
-pub fn sidebar(d: Drawer(msg), els: List(Element(msg))) -> Drawer(msg) {
-  Drawer(..d, sidebar: list.append(d.sidebar, els))
+pub fn sidebar(
+  drawer: Drawer(msg),
+  elements elements: List(Element(msg)),
+) -> Drawer(msg) {
+  Drawer(..drawer, sidebar: list.append(drawer.sidebar, elements))
 }
 
 /// Places the drawer on the right side instead of the left.
-pub fn end_(d: Drawer(msg)) -> Drawer(msg) {
-  Drawer(..d, end_: True)
+pub fn end_(drawer: Drawer(msg)) -> Drawer(msg) {
+  Drawer(..drawer, end_: True)
 }
 
 /// Appends presentation styles. May be called multiple times.
-pub fn style(d: Drawer(msg), s: List(Style)) -> Drawer(msg) {
-  Drawer(..d, styles: list.append(d.styles, s))
+pub fn style(drawer: Drawer(msg), styles styles: List(Style)) -> Drawer(msg) {
+  Drawer(..drawer, styles: list.append(drawer.styles, styles))
 }
 
 /// Appends HTML attributes. May be called multiple times.
-pub fn attrs(d: Drawer(msg), a: List(attribute.Attribute(msg))) -> Drawer(msg) {
-  Drawer(..d, attrs: list.append(d.attrs, a))
+pub fn attrs(
+  drawer: Drawer(msg),
+  attributes attributes: List(attribute.Attribute(msg)),
+) -> Drawer(msg) {
+  Drawer(..drawer, attrs: list.append(drawer.attrs, attributes))
 }
 
 // ---------------------------------------------------------------------------
 // Build
 // ---------------------------------------------------------------------------
 
-pub fn build(d: Drawer(msg)) -> Element(msg) {
+pub fn build(drawer: Drawer(msg)) -> Element(msg) {
   let classes =
     [
       Some("drawer"),
-      case d.end_ { True -> Some("drawer-end") False -> None },
-      case style.to_class_string(d.styles) {
+      case drawer.end_ {
+        True -> Some("drawer-end")
+        False -> None
+      },
+      case style.to_class_string(drawer.styles) {
         "" -> None
         s -> Some(s)
       },
@@ -112,14 +143,16 @@ pub fn build(d: Drawer(msg)) -> Element(msg) {
       attribute.id("tidal-drawer-toggle"),
       attribute.type_("checkbox"),
       attribute.class("drawer-toggle"),
-      attribute.checked(d.open),
+      attribute.checked(drawer.open),
     ])
 
-  let content_el =
-    html.div([attribute.class("drawer-content")], d.content)
+  let content_el = html.div([attribute.class("drawer-content")], drawer.content)
 
-  let overlay_attrs = case d.on_close {
-    None -> [attribute.class("drawer-overlay"), attribute.for("tidal-drawer-toggle")]
+  let overlay_attrs = case drawer.on_close {
+    None -> [
+      attribute.class("drawer-overlay"),
+      attribute.for("tidal-drawer-toggle"),
+    ]
     Some(_msg) -> [
       attribute.class("drawer-overlay"),
       attribute.for("tidal-drawer-toggle"),
@@ -127,10 +160,14 @@ pub fn build(d: Drawer(msg)) -> Element(msg) {
   }
 
   let side_el =
-    html.div(
-      [attribute.class("drawer-side")],
-      [html.label(overlay_attrs, []), html.div([attribute.class("drawer-menu")], d.sidebar)],
-    )
+    html.div([attribute.class("drawer-side")], [
+      html.label(overlay_attrs, []),
+      html.div([attribute.class("drawer-menu")], drawer.sidebar),
+    ])
 
-  html.div([attribute.class(classes), ..d.attrs], [checkbox, content_el, side_el])
+  html.div([attribute.class(classes), ..drawer.attrs], [
+    checkbox,
+    content_el,
+    side_el,
+  ])
 }

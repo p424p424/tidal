@@ -5,14 +5,12 @@
 ///
 /// ```gleam
 /// import tidal/text
-/// import tidal/style/typography
-/// import tidal/style/color
+/// import tidal/styling as s
 ///
 /// text.new("Hello, world!")
-/// |> text.style([typography.text_2xl(), typography.font_bold()])
+/// |> text.style(styles: [s.text_2xl(), s.font_bold()])
 /// |> text.build
 /// ```
-
 import gleam/list
 import lustre/attribute
 import lustre/element.{type Element}
@@ -48,64 +46,83 @@ pub opaque type Text(msg) {
 // ---------------------------------------------------------------------------
 
 /// Creates a new inline text element with the given string content.
+///
+/// Renders as a `<span>` by default. Use `paragraph()`, `h1()` … `h6()` to
+/// change the tag, then call `build`:
+///
+/// ```gleam
+/// import tidal/text
+/// import tidal/styling as s
+///
+/// text.new("Hello, world!")
+/// |> text.h2
+/// |> text.style(styles: [s.font_bold()])
+/// |> text.build
+/// ```
+///
+/// See also:
+/// - Tailwind typography docs: https://tailwindcss.com/docs/font-size
 pub fn new(content: String) -> Text(msg) {
   Text(content: content, tag: Span, styles: [], attrs: [])
 }
 
 /// Switches the rendered tag to `<p>`.
-pub fn paragraph(t: Text(msg)) -> Text(msg) {
-  Text(..t, tag: Paragraph)
+pub fn paragraph(txt: Text(msg)) -> Text(msg) {
+  Text(..txt, tag: Paragraph)
 }
 
 /// Switches the rendered tag to `<h1>`.
-pub fn h1(t: Text(msg)) -> Text(msg) {
-  Text(..t, tag: H1)
+pub fn h1(txt: Text(msg)) -> Text(msg) {
+  Text(..txt, tag: H1)
 }
 
 /// Switches the rendered tag to `<h2>`.
-pub fn h2(t: Text(msg)) -> Text(msg) {
-  Text(..t, tag: H2)
+pub fn h2(txt: Text(msg)) -> Text(msg) {
+  Text(..txt, tag: H2)
 }
 
 /// Switches the rendered tag to `<h3>`.
-pub fn h3(t: Text(msg)) -> Text(msg) {
-  Text(..t, tag: H3)
+pub fn h3(txt: Text(msg)) -> Text(msg) {
+  Text(..txt, tag: H3)
 }
 
 /// Switches the rendered tag to `<h4>`.
-pub fn h4(t: Text(msg)) -> Text(msg) {
-  Text(..t, tag: H4)
+pub fn h4(txt: Text(msg)) -> Text(msg) {
+  Text(..txt, tag: H4)
 }
 
 /// Switches the rendered tag to `<h5>`.
-pub fn h5(t: Text(msg)) -> Text(msg) {
-  Text(..t, tag: H5)
+pub fn h5(txt: Text(msg)) -> Text(msg) {
+  Text(..txt, tag: H5)
 }
 
 /// Switches the rendered tag to `<h6>`.
-pub fn h6(t: Text(msg)) -> Text(msg) {
-  Text(..t, tag: H6)
+pub fn h6(txt: Text(msg)) -> Text(msg) {
+  Text(..txt, tag: H6)
 }
 
 /// Appends presentation styles. May be called multiple times.
-pub fn style(t: Text(msg), s: List(Style)) -> Text(msg) {
-  Text(..t, styles: list.append(t.styles, s))
+pub fn style(txt: Text(msg), styles styles: List(Style)) -> Text(msg) {
+  Text(..txt, styles: list.append(txt.styles, styles))
 }
 
 /// Appends HTML attributes. May be called multiple times.
-pub fn attrs(t: Text(msg), a: List(attribute.Attribute(msg))) -> Text(msg) {
-  Text(..t, attrs: list.append(t.attrs, a))
+pub fn attrs(
+  txt: Text(msg),
+  attributes attributes: List(attribute.Attribute(msg)),
+) -> Text(msg) {
+  Text(..txt, attrs: list.append(txt.attrs, attributes))
 }
 
 // ---------------------------------------------------------------------------
 // Build
 // ---------------------------------------------------------------------------
 
-pub fn build(t: Text(msg)) -> Element(msg) {
-  let cls = attribute.class(style.to_class_string(t.styles))
-  let all_attrs = [cls, ..t.attrs]
-  let body = [element.text(t.content)]
-  case t.tag {
+pub fn build(txt: Text(msg)) -> Element(msg) {
+  let cls = attribute.class(style.to_class_string(txt.styles))
+  let all_attrs = [cls, ..txt.attrs]
+  let body = [element.text(txt.content)]
+  case txt.tag {
     Span -> html.span(all_attrs, body)
     Paragraph -> html.p(all_attrs, body)
     H1 -> html.h1(all_attrs, body)

@@ -5,10 +5,12 @@
 /// import lustre/element/html
 ///
 /// mockup_phone.new()
-/// |> mockup_phone.content([html.p([], [html.text("Screen content")])])
+/// |> mockup_phone.content(elements: [html.p([], [html.text("Screen content")])])
 /// |> mockup_phone.build
 /// ```
-
+///
+/// See also:
+/// - DaisyUI mockup phone docs: https://daisyui.com/components/mockup-phone/
 import gleam/list
 import gleam/option.{type Option, None, Some}
 import lustre/attribute.{type Attribute}
@@ -25,43 +27,73 @@ pub opaque type MockupPhone(msg) {
   )
 }
 
-/// Create a new phone mockup frame.
+/// Creates a new `MockupPhone` — renders a phone device frame.
+///
+/// Chain builder functions to configure it, then call `build`:
+///
+/// ```gleam
+/// import tidal/mockup_phone
+/// import lustre/element/html
+///
+/// mockup_phone.new()
+/// |> mockup_phone.content(elements: [html.p([], [html.text("Screen content")])])
+/// |> mockup_phone.build
+/// ```
+///
+/// See also:
+/// - DaisyUI mockup phone docs: https://daisyui.com/components/mockup-phone/
 pub fn new() -> MockupPhone(msg) {
   MockupPhone(border_color: None, styles: [], attrs: [], content: [])
 }
 
 /// Sets an arbitrary border color using a Tailwind arbitrary value — e.g. `"#ff8938"`.
-pub fn border_color(m: MockupPhone(msg), color: String) -> MockupPhone(msg) {
-  MockupPhone(..m, border_color: Some(color))
+pub fn border_color(
+  mockup: MockupPhone(msg),
+  color color: String,
+) -> MockupPhone(msg) {
+  MockupPhone(..mockup, border_color: Some(color))
 }
 
 /// Appends Tailwind utility styles.
-pub fn style(m: MockupPhone(msg), s: List(Style)) -> MockupPhone(msg) {
-  MockupPhone(..m, styles: list.append(m.styles, s))
+pub fn style(
+  mockup: MockupPhone(msg),
+  styles styles: List(Style),
+) -> MockupPhone(msg) {
+  MockupPhone(..mockup, styles: list.append(mockup.styles, styles))
 }
 
 /// Appends HTML attributes.
-pub fn attrs(m: MockupPhone(msg), a: List(Attribute(msg))) -> MockupPhone(msg) {
-  MockupPhone(..m, attrs: list.append(m.attrs, a))
+pub fn attrs(
+  mockup: MockupPhone(msg),
+  attributes attributes: List(Attribute(msg)),
+) -> MockupPhone(msg) {
+  MockupPhone(..mockup, attrs: list.append(mockup.attrs, attributes))
 }
 
 /// Sets the screen content. May be called multiple times — accumulates.
-pub fn content(m: MockupPhone(msg), els: List(Element(msg))) -> MockupPhone(msg) {
-  MockupPhone(..m, content: list.append(m.content, els))
+pub fn content(
+  mockup: MockupPhone(msg),
+  elements elements: List(Element(msg)),
+) -> MockupPhone(msg) {
+  MockupPhone(..mockup, content: list.append(mockup.content, elements))
 }
 
-pub fn build(m: MockupPhone(msg)) -> Element(msg) {
-  let border_cls = case m.border_color {
+pub fn build(mockup: MockupPhone(msg)) -> Element(msg) {
+  let border_cls = case mockup.border_color {
     None -> ""
-    Some(c) -> " border-[" <> c <> "]"
+    Some(color) -> " border-[" <> color <> "]"
   }
-  let class = case to_class_string(m.styles) {
+  let class = case to_class_string(mockup.styles) {
     "" -> "mockup-phone" <> border_cls
     extra -> "mockup-phone" <> border_cls <> " " <> extra
   }
   let camera = html.div([attribute.class("camera")], [])
-  let display = html.div([attribute.class("display")], [
-    html.div([attribute.class("artboard artboard-demo phone-1")], m.content),
-  ])
-  html.div([attribute.class(class), ..m.attrs], [camera, display])
+  let display =
+    html.div([attribute.class("display")], [
+      html.div(
+        [attribute.class("artboard artboard-demo phone-1")],
+        mockup.content,
+      ),
+    ])
+  html.div([attribute.class(class), ..mockup.attrs], [camera, display])
 }

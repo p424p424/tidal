@@ -7,15 +7,17 @@
 /// toast.new()
 /// |> toast.top
 /// |> toast.end_
-/// |> toast.children([
+/// |> toast.children(elements: [
 ///   alert.new()
 ///   |> alert.success
-///   |> alert.text("Saved!")
+///   |> alert.text(content: "Saved!")
 ///   |> alert.build,
 /// ])
 /// |> toast.build
 /// ```
-
+///
+/// See also:
+/// - DaisyUI toast docs: https://daisyui.com/components/toast/
 import gleam/list
 import gleam/option.{type Option, None, Some}
 import gleam/string
@@ -34,38 +36,76 @@ pub opaque type Toast(msg) {
   )
 }
 
+/// Creates a new `Toast` container — fixed-position notification stack.
+///
+/// Chain builder functions to configure the toast, then call `build`:
+///
+/// ```gleam
+/// import tidal/toast
+///
+/// toast.new()
+/// |> toast.top
+/// |> toast.end_
+/// |> toast.children(elements: [notification_el])
+/// |> toast.build
+/// ```
+///
+/// See also:
+/// - DaisyUI toast docs: https://daisyui.com/components/toast/
 pub fn new() -> Toast(msg) {
   Toast(horiz: None, vert: None, styles: [], attrs: [], children: [])
 }
 
-pub fn start(t: Toast(msg)) -> Toast(msg) { Toast(..t, horiz: Some("toast-start")) }
-pub fn center(t: Toast(msg)) -> Toast(msg) { Toast(..t, horiz: Some("toast-center")) }
-pub fn end_(t: Toast(msg)) -> Toast(msg) { Toast(..t, horiz: Some("toast-end")) }
-
-pub fn top(t: Toast(msg)) -> Toast(msg) { Toast(..t, vert: Some("toast-top")) }
-pub fn middle(t: Toast(msg)) -> Toast(msg) { Toast(..t, vert: Some("toast-middle")) }
-pub fn bottom(t: Toast(msg)) -> Toast(msg) { Toast(..t, vert: Some("toast-bottom")) }
-
-pub fn style(t: Toast(msg), s: List(Style)) -> Toast(msg) {
-  Toast(..t, styles: list.append(t.styles, s))
+pub fn start(toast: Toast(msg)) -> Toast(msg) {
+  Toast(..toast, horiz: Some("toast-start"))
 }
 
-pub fn attrs(t: Toast(msg), a: List(Attribute(msg))) -> Toast(msg) {
-  Toast(..t, attrs: list.append(t.attrs, a))
+pub fn center(toast: Toast(msg)) -> Toast(msg) {
+  Toast(..toast, horiz: Some("toast-center"))
 }
 
-pub fn children(t: Toast(msg), c: List(Element(msg))) -> Toast(msg) {
-  Toast(..t, children: list.append(t.children, c))
+pub fn end_(toast: Toast(msg)) -> Toast(msg) {
+  Toast(..toast, horiz: Some("toast-end"))
 }
 
-pub fn build(t: Toast(msg)) -> Element(msg) {
+pub fn top(toast: Toast(msg)) -> Toast(msg) {
+  Toast(..toast, vert: Some("toast-top"))
+}
+
+pub fn middle(toast: Toast(msg)) -> Toast(msg) {
+  Toast(..toast, vert: Some("toast-middle"))
+}
+
+pub fn bottom(toast: Toast(msg)) -> Toast(msg) {
+  Toast(..toast, vert: Some("toast-bottom"))
+}
+
+pub fn style(toast: Toast(msg), styles styles: List(Style)) -> Toast(msg) {
+  Toast(..toast, styles: list.append(toast.styles, styles))
+}
+
+pub fn attrs(
+  toast: Toast(msg),
+  attributes attributes: List(Attribute(msg)),
+) -> Toast(msg) {
+  Toast(..toast, attrs: list.append(toast.attrs, attributes))
+}
+
+pub fn children(
+  toast: Toast(msg),
+  elements elements: List(Element(msg)),
+) -> Toast(msg) {
+  Toast(..toast, children: list.append(toast.children, elements))
+}
+
+pub fn build(toast: Toast(msg)) -> Element(msg) {
   let base =
-    [Some("toast"), t.horiz, t.vert]
+    [Some("toast"), toast.horiz, toast.vert]
     |> list.filter_map(fn(x) { option.to_result(x, Nil) })
     |> string.join(" ")
-  let class = case to_class_string(t.styles) {
+  let class = case to_class_string(toast.styles) {
     "" -> base
     extra -> base <> " " <> extra
   }
-  html.div([attribute.class(class), ..t.attrs], t.children)
+  html.div([attribute.class(class), ..toast.attrs], toast.children)
 }

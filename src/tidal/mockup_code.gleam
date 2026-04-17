@@ -1,17 +1,19 @@
 /// Mockup Code — terminal/code block display.
 ///
-/// Call `new()`, then pipe `line(text)` or `line_prefix(text, prefix)` calls
+/// Call `new()`, then pipe `line(text:)` or `line_prefix(text:, prefix:)` calls
 /// to accumulate code lines, then `build`.
 ///
 /// ```gleam
 /// import tidal/mockup_code
 ///
 /// mockup_code.new()
-/// |> mockup_code.line_prefix("npm install tidal", "$")
-/// |> mockup_code.line("gleam run")
+/// |> mockup_code.line_prefix(text: "npm install tidal", prefix: "$")
+/// |> mockup_code.line(text: "gleam run")
 /// |> mockup_code.build
 /// ```
-
+///
+/// See also:
+/// - DaisyUI mockup code docs: https://daisyui.com/components/mockup-code/
 import gleam/list
 import gleam/option.{type Option, None, Some}
 import lustre/attribute.{type Attribute}
@@ -28,58 +30,88 @@ pub opaque type MockupCode(msg) {
   )
 }
 
-/// Create a new empty mockup code block.
+/// Creates a new empty `MockupCode` block — renders `<div class="mockup-code">`.
+///
+/// Chain builder functions to add lines, then call `build`:
+///
+/// ```gleam
+/// import tidal/mockup_code
+///
+/// mockup_code.new()
+/// |> mockup_code.line_prefix(text: "npm install tidal", prefix: "$")
+/// |> mockup_code.line(text: "gleam run")
+/// |> mockup_code.build
+/// ```
+///
+/// See also:
+/// - DaisyUI mockup code docs: https://daisyui.com/components/mockup-code/
 pub fn new() -> MockupCode(msg) {
   MockupCode(bg: None, styles: [], attrs: [], lines: [])
 }
 
 /// Append a plain code line (no prefix).
-pub fn line(m: MockupCode(msg), text: String) -> MockupCode(msg) {
-  let el = html.pre([attribute.class("line")], [html.code([], [html.text(text)])])
-  MockupCode(..m, lines: list.append(m.lines, [el]))
+pub fn line(mockup: MockupCode(msg), text text: String) -> MockupCode(msg) {
+  let el =
+    html.pre([attribute.class("line")], [html.code([], [html.text(text)])])
+  MockupCode(..mockup, lines: list.append(mockup.lines, [el]))
 }
 
 /// Append a code line with a leading prefix (e.g. `"$"`, `"~"`).
-pub fn line_prefix(m: MockupCode(msg), text: String, prefix: String) -> MockupCode(msg) {
-  let el = html.pre(
-    [attribute.class("line"), attribute.attribute("data-prefix", prefix)],
-    [html.code([], [html.text(text)])],
-  )
-  MockupCode(..m, lines: list.append(m.lines, [el]))
+pub fn line_prefix(
+  mockup: MockupCode(msg),
+  text text: String,
+  prefix prefix: String,
+) -> MockupCode(msg) {
+  let el =
+    html.pre(
+      [attribute.class("line"), attribute.attribute("data-prefix", prefix)],
+      [html.code([], [html.text(text)])],
+    )
+  MockupCode(..mockup, lines: list.append(mockup.lines, [el]))
 }
 
 /// Append a highlighted code line with a background color (e.g. `"warning"`).
-pub fn line_highlight(m: MockupCode(msg), text: String, color: String) -> MockupCode(msg) {
-  let el = html.pre(
-    [attribute.class("line bg-" <> color)],
-    [html.code([], [html.text(text)])],
-  )
-  MockupCode(..m, lines: list.append(m.lines, [el]))
+pub fn line_highlight(
+  mockup: MockupCode(msg),
+  text text: String,
+  color color: String,
+) -> MockupCode(msg) {
+  let el =
+    html.pre([attribute.class("line bg-" <> color)], [
+      html.code([], [html.text(text)]),
+    ])
+  MockupCode(..mockup, lines: list.append(mockup.lines, [el]))
 }
 
 /// Sets the wrapper background color (e.g. `"neutral"`).
-pub fn bg(m: MockupCode(msg), color: String) -> MockupCode(msg) {
-  MockupCode(..m, bg: Some(color))
+pub fn bg(mockup: MockupCode(msg), color color: String) -> MockupCode(msg) {
+  MockupCode(..mockup, bg: Some(color))
 }
 
 /// Appends Tailwind utility styles.
-pub fn style(m: MockupCode(msg), s: List(Style)) -> MockupCode(msg) {
-  MockupCode(..m, styles: list.append(m.styles, s))
+pub fn style(
+  mockup: MockupCode(msg),
+  styles styles: List(Style),
+) -> MockupCode(msg) {
+  MockupCode(..mockup, styles: list.append(mockup.styles, styles))
 }
 
 /// Appends HTML attributes.
-pub fn attrs(m: MockupCode(msg), a: List(Attribute(msg))) -> MockupCode(msg) {
-  MockupCode(..m, attrs: list.append(m.attrs, a))
+pub fn attrs(
+  mockup: MockupCode(msg),
+  attributes attributes: List(Attribute(msg)),
+) -> MockupCode(msg) {
+  MockupCode(..mockup, attrs: list.append(mockup.attrs, attributes))
 }
 
-pub fn build(m: MockupCode(msg)) -> Element(msg) {
-  let base = case m.bg {
+pub fn build(mockup: MockupCode(msg)) -> Element(msg) {
+  let base = case mockup.bg {
     None -> "mockup-code"
-    Some(c) -> "mockup-code bg-" <> c
+    Some(color) -> "mockup-code bg-" <> color
   }
-  let class = case to_class_string(m.styles) {
+  let class = case to_class_string(mockup.styles) {
     "" -> base
     extra -> base <> " " <> extra
   }
-  html.div([attribute.class(class), ..m.attrs], m.lines)
+  html.div([attribute.class(class), ..mockup.attrs], mockup.lines)
 }

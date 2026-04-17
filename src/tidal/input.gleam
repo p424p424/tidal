@@ -4,13 +4,12 @@
 /// import tidal/input
 ///
 /// input.new()
-/// |> input.placeholder("Email address")
+/// |> input.placeholder(text: "Email address")
 /// |> input.type_(input.Email)
 /// |> input.primary
 /// |> input.on_input(UserTypedEmail)
 /// |> input.build
 /// ```
-
 import gleam/list
 import gleam/option.{type Option, None, Some}
 import gleam/string
@@ -46,6 +45,24 @@ pub opaque type Input(msg) {
   )
 }
 
+/// Creates a new `Input` builder with all options at their defaults.
+///
+/// Chain builder functions to configure the input, then call `build`:
+///
+/// ```gleam
+/// import tidal/input
+///
+/// input.new()
+/// |> input.placeholder(text: "Email address")
+/// |> input.type_(input.Email)
+/// |> input.primary
+/// |> input.on_input(UserTypedEmail)
+/// |> input.build
+/// ```
+///
+/// See also:
+/// - DaisyUI input docs: https://daisyui.com/components/input/
+/// - Lustre events: https://hexdocs.pm/lustre/lustre/event.html
 pub fn new() -> Input(msg) {
   Input(
     type_: Text,
@@ -62,62 +79,119 @@ pub fn new() -> Input(msg) {
 }
 
 /// Sets the HTML input type. Defaults to `Text`.
-pub fn type_(i: Input(msg), t: InputType) -> Input(msg) { Input(..i, type_: t) }
+pub fn type_(input: Input(msg), kind: InputType) -> Input(msg) {
+  Input(..input, type_: kind)
+}
 
 /// Placeholder text shown when empty.
-pub fn placeholder(i: Input(msg), text: String) -> Input(msg) { Input(..i, placeholder: text) }
+pub fn placeholder(input: Input(msg), text text: String) -> Input(msg) {
+  Input(..input, placeholder: text)
+}
 
 /// Controlled value.
-pub fn value(i: Input(msg), v: String) -> Input(msg) { Input(..i, value: Some(v)) }
+pub fn value(input: Input(msg), to to: String) -> Input(msg) {
+  Input(..input, value: Some(to))
+}
 
-pub fn primary(i: Input(msg)) -> Input(msg) { Input(..i, color: Some("input-primary")) }
-pub fn secondary(i: Input(msg)) -> Input(msg) { Input(..i, color: Some("input-secondary")) }
-pub fn accent(i: Input(msg)) -> Input(msg) { Input(..i, color: Some("input-accent")) }
-pub fn neutral(i: Input(msg)) -> Input(msg) { Input(..i, color: Some("input-neutral")) }
-pub fn info(i: Input(msg)) -> Input(msg) { Input(..i, color: Some("input-info")) }
-pub fn success(i: Input(msg)) -> Input(msg) { Input(..i, color: Some("input-success")) }
-pub fn warning(i: Input(msg)) -> Input(msg) { Input(..i, color: Some("input-warning")) }
-pub fn error(i: Input(msg)) -> Input(msg) { Input(..i, color: Some("input-error")) }
+pub fn primary(input: Input(msg)) -> Input(msg) {
+  Input(..input, color: Some("input-primary"))
+}
+
+pub fn secondary(input: Input(msg)) -> Input(msg) {
+  Input(..input, color: Some("input-secondary"))
+}
+
+pub fn accent(input: Input(msg)) -> Input(msg) {
+  Input(..input, color: Some("input-accent"))
+}
+
+pub fn neutral(input: Input(msg)) -> Input(msg) {
+  Input(..input, color: Some("input-neutral"))
+}
+
+pub fn info(input: Input(msg)) -> Input(msg) {
+  Input(..input, color: Some("input-info"))
+}
+
+pub fn success(input: Input(msg)) -> Input(msg) {
+  Input(..input, color: Some("input-success"))
+}
+
+pub fn warning(input: Input(msg)) -> Input(msg) {
+  Input(..input, color: Some("input-warning"))
+}
+
+pub fn error(input: Input(msg)) -> Input(msg) {
+  Input(..input, color: Some("input-error"))
+}
 
 /// Minimal ghost style — no visible border by default.
-pub fn ghost(i: Input(msg)) -> Input(msg) { Input(..i, ghost: True) }
+pub fn ghost(input: Input(msg)) -> Input(msg) {
+  Input(..input, ghost: True)
+}
 
 /// Sets the input size.
-pub fn size(i: Input(msg), s: Size) -> Input(msg) { Input(..i, size: Some(s)) }
+pub fn size(input: Input(msg), size size: Size) -> Input(msg) {
+  Input(..input, size: Some(size))
+}
 
 /// Marks the input as disabled.
-pub fn disabled(i: Input(msg)) -> Input(msg) { Input(..i, disabled: True) }
+pub fn disabled(input: Input(msg)) -> Input(msg) {
+  Input(..input, disabled: True)
+}
 
 /// Marks the input as required.
-pub fn required(i: Input(msg)) -> Input(msg) { Input(..i, required: True) }
+pub fn required(input: Input(msg)) -> Input(msg) {
+  Input(..input, required: True)
+}
 
 /// Appends Tailwind utility styles.
-pub fn style(i: Input(msg), s: List(Style)) -> Input(msg) {
-  Input(..i, styles: list.append(i.styles, s))
+pub fn style(input: Input(msg), styles styles: List(Style)) -> Input(msg) {
+  Input(..input, styles: list.append(input.styles, styles))
 }
 
 /// Appends HTML attributes.
-pub fn attrs(i: Input(msg), a: List(Attribute(msg))) -> Input(msg) {
-  Input(..i, attrs: list.append(i.attrs, a))
+pub fn attrs(
+  input: Input(msg),
+  attributes attributes: List(Attribute(msg)),
+) -> Input(msg) {
+  Input(..input, attrs: list.append(input.attrs, attributes))
 }
 
-pub fn on_input(i: Input(msg), f: fn(String) -> msg) -> Input(msg) {
-  Input(..i, attrs: list.append(i.attrs, [event.on_input(f)]))
+pub fn on_input(
+  input: Input(msg),
+  handler handler: fn(String) -> msg,
+) -> Input(msg) {
+  Input(..input, attrs: list.append(input.attrs, [event.on_input(handler)]))
 }
-pub fn on_change(i: Input(msg), f: fn(String) -> msg) -> Input(msg) {
-  Input(..i, attrs: list.append(i.attrs, [event.on_change(f)]))
+
+pub fn on_change(
+  input: Input(msg),
+  handler handler: fn(String) -> msg,
+) -> Input(msg) {
+  Input(..input, attrs: list.append(input.attrs, [event.on_change(handler)]))
 }
-pub fn on_focus(i: Input(msg), msg: msg) -> Input(msg) {
-  Input(..i, attrs: list.append(i.attrs, [event.on_focus(msg)]))
+
+pub fn on_focus(input: Input(msg), msg: msg) -> Input(msg) {
+  Input(..input, attrs: list.append(input.attrs, [event.on_focus(msg)]))
 }
-pub fn on_blur(i: Input(msg), msg: msg) -> Input(msg) {
-  Input(..i, attrs: list.append(i.attrs, [event.on_blur(msg)]))
+
+pub fn on_blur(input: Input(msg), msg: msg) -> Input(msg) {
+  Input(..input, attrs: list.append(input.attrs, [event.on_blur(msg)]))
 }
-pub fn on_keydown(i: Input(msg), f: fn(String) -> msg) -> Input(msg) {
-  Input(..i, attrs: list.append(i.attrs, [event.on_keydown(f)]))
+
+pub fn on_keydown(
+  input: Input(msg),
+  handler handler: fn(String) -> msg,
+) -> Input(msg) {
+  Input(..input, attrs: list.append(input.attrs, [event.on_keydown(handler)]))
 }
-pub fn on_keyup(i: Input(msg), f: fn(String) -> msg) -> Input(msg) {
-  Input(..i, attrs: list.append(i.attrs, [event.on_keyup(f)]))
+
+pub fn on_keyup(
+  input: Input(msg),
+  handler handler: fn(String) -> msg,
+) -> Input(msg) {
+  Input(..input, attrs: list.append(input.attrs, [event.on_keyup(handler)]))
 }
 
 fn type_string(t: InputType) -> String {
@@ -142,26 +216,35 @@ fn size_class(s: Size) -> String {
   }
 }
 
-pub fn build(i: Input(msg)) -> Element(msg) {
+pub fn build(input: Input(msg)) -> Element(msg) {
   let classes =
     [
       Some("input"),
-      i.color,
-      case i.ghost { True -> Some("input-ghost") False -> None },
-      option.map(i.size, size_class),
-      case style.to_class_string(i.styles) { "" -> None s -> Some(s) },
+      input.color,
+      case input.ghost {
+        True -> Some("input-ghost")
+        False -> None
+      },
+      option.map(input.size, size_class),
+      case style.to_class_string(input.styles) {
+        "" -> None
+        s -> Some(s)
+      },
     ]
     |> list.filter_map(fn(x) { option.to_result(x, Nil) })
     |> list.filter(fn(c) { c != "" })
     |> string.join(" ")
 
-  let value_attrs = case i.value { None -> [] Some(v) -> [attribute.value(v)] }
+  let value_attrs = case input.value {
+    None -> []
+    Some(v) -> [attribute.value(v)]
+  }
   let base_attrs = [
     attribute.class(classes),
-    attribute.type_(type_string(i.type_)),
-    attribute.placeholder(i.placeholder),
-    attribute.disabled(i.disabled),
-    attribute.required(i.required),
+    attribute.type_(type_string(input.type_)),
+    attribute.placeholder(input.placeholder),
+    attribute.disabled(input.disabled),
+    attribute.required(input.required),
   ]
-  html.input(list.flatten([base_attrs, value_attrs, i.attrs]))
+  html.input(list.flatten([base_attrs, value_attrs, input.attrs]))
 }

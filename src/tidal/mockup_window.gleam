@@ -6,11 +6,13 @@
 /// import lustre/element/html
 ///
 /// mockup_window.new()
-/// |> mockup_window.attrs([attribute.class("border border-base-300")])
-/// |> mockup_window.content([html.p([], [html.text("Window content")])])
+/// |> mockup_window.attrs(attributes: [attribute.class("border border-base-300")])
+/// |> mockup_window.content(elements: [html.p([], [html.text("Window content")])])
 /// |> mockup_window.build
 /// ```
-
+///
+/// See also:
+/// - DaisyUI mockup window docs: https://daisyui.com/components/mockup-window/
 import gleam/list
 import gleam/option.{type Option, None, Some}
 import lustre/attribute.{type Attribute}
@@ -27,36 +29,65 @@ pub opaque type MockupWindow(msg) {
   )
 }
 
+/// Creates a new `MockupWindow` — renders a browser/desktop window frame.
+///
+/// Chain builder functions to configure it, then call `build`:
+///
+/// ```gleam
+/// import tidal/mockup_window
+/// import lustre/attribute
+/// import lustre/element/html
+///
+/// mockup_window.new()
+/// |> mockup_window.url(url: "https://example.com")
+/// |> mockup_window.content(elements: [html.p([], [html.text("Window content")])])
+/// |> mockup_window.build
+/// ```
+///
+/// See also:
+/// - DaisyUI mockup window docs: https://daisyui.com/components/mockup-window/
 pub fn new() -> MockupWindow(msg) {
   MockupWindow(url: None, styles: [], attrs: [], content: [])
 }
 
 /// Set the fake URL shown in the address bar.
-pub fn url(m: MockupWindow(msg), u: String) -> MockupWindow(msg) {
-  MockupWindow(..m, url: Some(u))
+pub fn url(mockup: MockupWindow(msg), url url: String) -> MockupWindow(msg) {
+  MockupWindow(..mockup, url: Some(url))
 }
 
-pub fn style(m: MockupWindow(msg), s: List(Style)) -> MockupWindow(msg) {
-  MockupWindow(..m, styles: list.append(m.styles, s))
+/// Appends Tailwind utility styles.
+pub fn style(
+  mockup: MockupWindow(msg),
+  styles styles: List(Style),
+) -> MockupWindow(msg) {
+  MockupWindow(..mockup, styles: list.append(mockup.styles, styles))
 }
 
-pub fn attrs(m: MockupWindow(msg), a: List(Attribute(msg))) -> MockupWindow(msg) {
-  MockupWindow(..m, attrs: list.append(m.attrs, a))
+/// Appends HTML attributes.
+pub fn attrs(
+  mockup: MockupWindow(msg),
+  attributes attributes: List(Attribute(msg)),
+) -> MockupWindow(msg) {
+  MockupWindow(..mockup, attrs: list.append(mockup.attrs, attributes))
 }
 
-pub fn content(m: MockupWindow(msg), c: List(Element(msg))) -> MockupWindow(msg) {
-  MockupWindow(..m, content: list.append(m.content, c))
+/// Sets the window content. May be called multiple times — accumulates.
+pub fn content(
+  mockup: MockupWindow(msg),
+  elements elements: List(Element(msg)),
+) -> MockupWindow(msg) {
+  MockupWindow(..mockup, content: list.append(mockup.content, elements))
 }
 
-pub fn build(m: MockupWindow(msg)) -> Element(msg) {
-  let class = case to_class_string(m.styles) {
+pub fn build(mockup: MockupWindow(msg)) -> Element(msg) {
+  let class = case to_class_string(mockup.styles) {
     "" -> "mockup-window"
     extra -> "mockup-window " <> extra
   }
-  let bar_content = case m.url {
+  let bar_content = case mockup.url {
     None -> []
-    Some(u) -> [html.span([], [html.text(u)])]
+    Some(address) -> [html.span([], [html.text(address)])]
   }
   let bar = html.div([attribute.class("mockup-window-bar")], bar_content)
-  html.div([attribute.class(class), ..m.attrs], [bar, ..m.content])
+  html.div([attribute.class(class), ..mockup.attrs], [bar, ..mockup.content])
 }

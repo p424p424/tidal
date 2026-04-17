@@ -25,7 +25,7 @@ Run the example app:
 cd examples/example_app_todos
 gleam deps download
 npm install
-gleam run -m lustre/dev_tools serve
+gleam run -m lustre/dev start
 ```
 
 ---
@@ -34,7 +34,6 @@ gleam run -m lustre/dev_tools serve
 
 ```
 src/tidal/          # Components and layout primitives
-src/tidal/style/    # Tailwind utility wrappers
 priv/tidal.js       # Tailwind safelist (auto-scanned by Tailwind)
 examples/           # Example applications
 ```
@@ -48,14 +47,30 @@ pub opaque type MyComponent(msg) {
   )
 }
 
-pub fn new(...) -> MyComponent(msg)      // sensible defaults
-pub fn some_modifier(...) -> MyComponent(msg)
-pub fn style(c: MyComponent(msg), s: List(Style)) -> MyComponent(msg)  // always APPENDs
-pub fn attrs(c: MyComponent(msg), a: List(Attribute(msg))) -> MyComponent(msg)  // always APPENDs
-pub fn build(c: MyComponent(msg)) -> Element(msg)
+pub fn new() -> MyComponent(msg)      // sensible defaults; always takes no args
+pub fn some_modifier(component: MyComponent(msg), value value: ValueType) -> MyComponent(msg)
+pub fn style(component: MyComponent(msg), styles styles: List(Style)) -> MyComponent(msg)  // always APPENDs
+pub fn attrs(component: MyComponent(msg), attributes attributes: List(Attribute(msg))) -> MyComponent(msg)  // always APPENDs
+pub fn build(component: MyComponent(msg)) -> Element(msg)
 ```
 
 The `style()` and `attrs()` functions must always **append** to the existing list, never replace it. This is what lets users call `style()` multiple times and have all calls accumulate.
+
+**Labeled arguments:** All public functions beyond the piped component itself must use Gleam's labeled argument syntax (`label internal: Type`). For example:
+
+```gleam
+pub fn label(btn: Button(msg), text text: String) -> Button(msg)
+pub fn size(btn: Button(msg), size size: Size) -> Button(msg)
+pub fn on_click(btn: Button(msg), handler handler: msg) -> Button(msg)
+pub fn style(btn: Button(msg), styles styles: List(Style)) -> Button(msg)
+pub fn attrs(btn: Button(msg), attributes attributes: List(Attribute(msg))) -> Button(msg)
+```
+
+This lets callers write `button.label(text: "Save")` and `button.size(size: size.Sm)`, which reads clearly in documentation and editor hover tooltips.
+
+**Descriptive parameter names:** Never use single-letter parameter names (`a`, `b`, `s`, `t`, `c`, etc.) in public functions. Use the full descriptive name that matches the label.
+
+**`new()` doc comments:** Every `new()` function must have a doc comment that explains what it creates, shows a full builder chain example, and links to the relevant DaisyUI/Lustre docs.
 
 ---
 

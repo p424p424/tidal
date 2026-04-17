@@ -9,7 +9,6 @@
 /// my_component
 /// |> component.style([style.overflow(overflow.Hidden)])
 /// ```
-
 pub type Overflow {
   Auto
   Hidden

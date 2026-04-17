@@ -6,12 +6,14 @@
 /// import tidal/radial_progress
 ///
 /// radial_progress.new()
-/// |> radial_progress.value(75)
+/// |> radial_progress.value(to: 75)
 /// |> radial_progress.primary
-/// |> radial_progress.label("75%")
+/// |> radial_progress.label(text: "75%")
 /// |> radial_progress.build
 /// ```
-
+///
+/// See also:
+/// - DaisyUI radial progress docs: https://daisyui.com/components/radial-progress/
 import gleam/int
 import gleam/list
 import gleam/option.{type Option, None, Some}
@@ -33,81 +35,144 @@ pub opaque type RadialProgress(msg) {
   )
 }
 
+/// Creates a new `RadialProgress` — renders a circular progress ring.
+///
+/// Chain builder functions to configure it, then call `build`:
+///
+/// ```gleam
+/// import tidal/radial_progress
+///
+/// radial_progress.new()
+/// |> radial_progress.value(to: 75)
+/// |> radial_progress.primary
+/// |> radial_progress.label(text: "75%")
+/// |> radial_progress.build
+/// ```
+///
+/// See also:
+/// - DaisyUI radial progress docs: https://daisyui.com/components/radial-progress/
 pub fn new() -> RadialProgress(msg) {
-  RadialProgress(value: 0, size: None, thickness: None, label: None, color: None, styles: [], attrs: [])
+  RadialProgress(
+    value: 0,
+    size: None,
+    thickness: None,
+    label: None,
+    color: None,
+    styles: [],
+    attrs: [],
+  )
 }
 
 /// Progress percentage 0–100.
-pub fn value(r: RadialProgress(msg), n: Int) -> RadialProgress(msg) {
-  RadialProgress(..r, value: n)
+pub fn value(radial: RadialProgress(msg), to amount: Int) -> RadialProgress(msg) {
+  RadialProgress(..radial, value: amount)
 }
 
-/// Diameter in rem units (e.g. `5.0` = 5rem). Default is 5rem.
-pub fn size_rem(r: RadialProgress(msg), rem: String) -> RadialProgress(msg) {
-  RadialProgress(..r, size: Some(rem))
+/// Diameter in rem units (e.g. `"5"` = 5rem). Default is 5rem.
+pub fn size_rem(
+  radial: RadialProgress(msg),
+  rem rem: String,
+) -> RadialProgress(msg) {
+  RadialProgress(..radial, size: Some(rem))
 }
 
 /// Stroke width in pixels. Default is 10% of size.
-pub fn thickness(r: RadialProgress(msg), px: Int) -> RadialProgress(msg) {
-  RadialProgress(..r, thickness: Some(px))
+pub fn thickness(radial: RadialProgress(msg), px px: Int) -> RadialProgress(msg) {
+  RadialProgress(..radial, thickness: Some(px))
 }
 
 /// Text shown inside the circle.
-pub fn label(r: RadialProgress(msg), text: String) -> RadialProgress(msg) {
-  RadialProgress(..r, label: Some(text))
+pub fn label(
+  radial: RadialProgress(msg),
+  text text: String,
+) -> RadialProgress(msg) {
+  RadialProgress(..radial, label: Some(text))
 }
 
-pub fn primary(r: RadialProgress(msg)) -> RadialProgress(msg) { RadialProgress(..r, color: Some("text-primary")) }
-pub fn secondary(r: RadialProgress(msg)) -> RadialProgress(msg) { RadialProgress(..r, color: Some("text-secondary")) }
-pub fn accent(r: RadialProgress(msg)) -> RadialProgress(msg) { RadialProgress(..r, color: Some("text-accent")) }
-pub fn neutral(r: RadialProgress(msg)) -> RadialProgress(msg) { RadialProgress(..r, color: Some("text-neutral")) }
-pub fn info(r: RadialProgress(msg)) -> RadialProgress(msg) { RadialProgress(..r, color: Some("text-info")) }
-pub fn success(r: RadialProgress(msg)) -> RadialProgress(msg) { RadialProgress(..r, color: Some("text-success")) }
-pub fn warning(r: RadialProgress(msg)) -> RadialProgress(msg) { RadialProgress(..r, color: Some("text-warning")) }
-pub fn error(r: RadialProgress(msg)) -> RadialProgress(msg) { RadialProgress(..r, color: Some("text-error")) }
+pub fn primary(radial: RadialProgress(msg)) -> RadialProgress(msg) {
+  RadialProgress(..radial, color: Some("text-primary"))
+}
+
+pub fn secondary(radial: RadialProgress(msg)) -> RadialProgress(msg) {
+  RadialProgress(..radial, color: Some("text-secondary"))
+}
+
+pub fn accent(radial: RadialProgress(msg)) -> RadialProgress(msg) {
+  RadialProgress(..radial, color: Some("text-accent"))
+}
+
+pub fn neutral(radial: RadialProgress(msg)) -> RadialProgress(msg) {
+  RadialProgress(..radial, color: Some("text-neutral"))
+}
+
+pub fn info(radial: RadialProgress(msg)) -> RadialProgress(msg) {
+  RadialProgress(..radial, color: Some("text-info"))
+}
+
+pub fn success(radial: RadialProgress(msg)) -> RadialProgress(msg) {
+  RadialProgress(..radial, color: Some("text-success"))
+}
+
+pub fn warning(radial: RadialProgress(msg)) -> RadialProgress(msg) {
+  RadialProgress(..radial, color: Some("text-warning"))
+}
+
+pub fn error(radial: RadialProgress(msg)) -> RadialProgress(msg) {
+  RadialProgress(..radial, color: Some("text-error"))
+}
 
 /// Appends Tailwind utility styles.
-pub fn style(r: RadialProgress(msg), s: List(Style)) -> RadialProgress(msg) {
-  RadialProgress(..r, styles: list.append(r.styles, s))
+pub fn style(
+  radial: RadialProgress(msg),
+  styles styles: List(Style),
+) -> RadialProgress(msg) {
+  RadialProgress(..radial, styles: list.append(radial.styles, styles))
 }
 
 /// Appends HTML attributes.
-pub fn attrs(r: RadialProgress(msg), a: List(Attribute(msg))) -> RadialProgress(msg) {
-  RadialProgress(..r, attrs: list.append(r.attrs, a))
+pub fn attrs(
+  radial: RadialProgress(msg),
+  attributes attributes: List(Attribute(msg)),
+) -> RadialProgress(msg) {
+  RadialProgress(..radial, attrs: list.append(radial.attrs, attributes))
 }
 
-pub fn build(r: RadialProgress(msg)) -> Element(msg) {
-  let base_cls = case r.color {
+pub fn build(radial: RadialProgress(msg)) -> Element(msg) {
+  let base_cls = case radial.color {
     None -> "radial-progress"
-    Some(c) -> "radial-progress " <> c
+    Some(color) -> "radial-progress " <> color
   }
-  let classes = case style.to_class_string(r.styles) {
+  let classes = case style.to_class_string(radial.styles) {
     "" -> base_cls
     extra -> base_cls <> " " <> extra
   }
 
   let style_parts =
-    ["--value:" <> int.to_string(r.value)]
+    ["--value:" <> int.to_string(radial.value)]
     |> fn(parts) {
-      case r.size {
+      case radial.size {
         None -> parts
         Some(rem) -> list.append(parts, ["--size:" <> rem <> "rem"])
       }
     }
     |> fn(parts) {
-      case r.thickness {
+      case radial.thickness {
         None -> parts
-        Some(t) -> list.append(parts, ["--thickness:" <> int.to_string(t) <> "px"])
+        Some(px) ->
+          list.append(parts, ["--thickness:" <> int.to_string(px) <> "px"])
       }
     }
   let style_val = string.join(style_parts, ";")
-  let inner = case r.label { None -> int.to_string(r.value) <> "%" Some(t) -> t }
+  let inner = case radial.label {
+    None -> int.to_string(radial.value) <> "%"
+    Some(text) -> text
+  }
   html.div(
     [
       attribute.class(classes),
       attribute.attribute("role", "progressbar"),
       attribute.attribute("style", style_val),
-      ..r.attrs
+      ..radial.attrs
     ],
     [html.text(inner)],
   )

@@ -182,9 +182,9 @@ Each component has individual colour functions — no separate variant type to i
 import tidal/size
 
 badge.new()
-|> badge.label("New")
+|> badge.label(text: "New")
 |> badge.success
-|> badge.size(size.Sm)
+|> badge.size(size: size.Sm)
 |> badge.build
 ```
 
@@ -197,12 +197,12 @@ Interactive components have named event functions — no need to reach for `attr
 ```gleam
 toggle.new()
 |> toggle.primary
-|> toggle.on_check(UserToggledDarkMode)
+|> toggle.on_check(handler: UserToggledDarkMode)
 |> toggle.build
 
 select.new()
-|> select.options([#("us", "United States"), #("gb", "United Kingdom")])
-|> select.on_change(UserSelectedCountry)
+|> select.options(pairs: [#("us", "United States"), #("gb", "United Kingdom")])
+|> select.on_change(handler: UserSelectedCountry)
 |> select.build
 ```
 
@@ -227,17 +227,17 @@ select.new()
 import tidal/styling as s
 
 row.new()
-|> row.style([s.items_center(), s.justify_between(), s.px(4)])
-|> row.children([
+|> row.style(styles: [s.items_center(), s.justify_between(), s.px(4)])
+|> row.children(elements: [
   text.new("Inbox")
-  |> text.style([s.text_xl(), s.font_semibold()])
+  |> text.style(styles: [s.text_xl(), s.font_semibold()])
   |> text.build,
   spacer.spacer(),
   button.new()
-  |> button.label("Compose")
+  |> button.label(text: "Compose")
   |> button.primary
-  |> button.size(size.Sm)
-  |> button.on_click(UserClickedCompose)
+  |> button.size(size: size.Sm)
+  |> button.on_click(handler: UserClickedCompose)
   |> button.build,
 ])
 |> row.build
@@ -253,7 +253,7 @@ All style utilities live in `tidal/styling`. Import it once — typically aliase
 import tidal/styling as s
 
 el.new()
-|> el.style([
+|> el.style(styles: [
   s.flex(),
   s.flex_col(),
   s.md(s.flex_row()),
@@ -270,7 +270,7 @@ Wrap any style value in a breakpoint modifier:
 
 ```gleam
 el.new()
-|> el.style([
+|> el.style(styles: [
   s.w_full(),
   s.sm(s.max_w_md()),
   s.lg(s.max_w_xl()),
@@ -288,11 +288,11 @@ Use DaisyUI's semantic colour tokens so your UI automatically adapts to the acti
 import tidal/styling as s
 
 text.new("Warning")
-|> text.style([s.text_warning()])
+|> text.style(styles: [s.text_warning()])
 |> text.build
 
 el.new()
-|> el.style([s.bg_base_200()])
+|> el.style(styles: [s.bg_base_200()])
 |> el.build
 ```
 

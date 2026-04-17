@@ -8,14 +8,16 @@
 /// import lustre/element/html
 ///
 /// join.new()
-/// |> join.children([
+/// |> join.children(elements: [
 ///   html.button([attribute.class("btn join-item")], [html.text("One")]),
 ///   html.button([attribute.class("btn join-item")], [html.text("Two")]),
 ///   html.button([attribute.class("btn join-item")], [html.text("Three")]),
 /// ])
 /// |> join.build
 /// ```
-
+///
+/// See also:
+/// - DaisyUI join docs: https://daisyui.com/components/join/
 import gleam/list
 import gleam/option.{type Option, None, Some}
 import gleam/string
@@ -33,33 +35,58 @@ pub opaque type Join(msg) {
   )
 }
 
+/// Creates a new `Join` container — groups children into a connected unit.
+///
+/// Chain builder functions to configure the join, then call `build`:
+///
+/// ```gleam
+/// import tidal/join
+///
+/// join.new()
+/// |> join.children(elements: [btn1, btn2, btn3])
+/// |> join.build
+/// ```
+///
+/// See also:
+/// - DaisyUI join docs: https://daisyui.com/components/join/
 pub fn new() -> Join(msg) {
   Join(direction: None, styles: [], attrs: [], children: [])
 }
 
-pub fn vertical(j: Join(msg)) -> Join(msg) { Join(..j, direction: Some("join-vertical")) }
-pub fn horizontal(j: Join(msg)) -> Join(msg) { Join(..j, direction: Some("join-horizontal")) }
-
-pub fn style(j: Join(msg), s: List(Style)) -> Join(msg) {
-  Join(..j, styles: list.append(j.styles, s))
+pub fn vertical(jn: Join(msg)) -> Join(msg) {
+  Join(..jn, direction: Some("join-vertical"))
 }
 
-pub fn attrs(j: Join(msg), a: List(Attribute(msg))) -> Join(msg) {
-  Join(..j, attrs: list.append(j.attrs, a))
+pub fn horizontal(jn: Join(msg)) -> Join(msg) {
+  Join(..jn, direction: Some("join-horizontal"))
 }
 
-pub fn children(j: Join(msg), c: List(Element(msg))) -> Join(msg) {
-  Join(..j, children: list.append(j.children, c))
+pub fn style(jn: Join(msg), styles styles: List(Style)) -> Join(msg) {
+  Join(..jn, styles: list.append(jn.styles, styles))
 }
 
-pub fn build(j: Join(msg)) -> Element(msg) {
+pub fn attrs(
+  jn: Join(msg),
+  attributes attributes: List(Attribute(msg)),
+) -> Join(msg) {
+  Join(..jn, attrs: list.append(jn.attrs, attributes))
+}
+
+pub fn children(
+  jn: Join(msg),
+  elements elements: List(Element(msg)),
+) -> Join(msg) {
+  Join(..jn, children: list.append(jn.children, elements))
+}
+
+pub fn build(jn: Join(msg)) -> Element(msg) {
   let base =
-    [Some("join"), j.direction]
+    [Some("join"), jn.direction]
     |> list.filter_map(fn(x) { option.to_result(x, Nil) })
     |> string.join(" ")
-  let class = case to_class_string(j.styles) {
+  let class = case to_class_string(jn.styles) {
     "" -> base
     extra -> base <> " " <> extra
   }
-  html.div([attribute.class(class), ..j.attrs], j.children)
+  html.div([attribute.class(class), ..jn.attrs], jn.children)
 }

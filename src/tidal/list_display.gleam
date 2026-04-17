@@ -6,13 +6,15 @@
 /// import lustre/element/html
 ///
 /// list_display.new()
-/// |> list_display.items([
+/// |> list_display.items(elements: [
 ///   list_display.item([html.text("Item one")]),
 ///   list_display.item([html.text("Item two")]),
 /// ])
 /// |> list_display.build
 /// ```
-
+///
+/// See also:
+/// - DaisyUI list docs: https://daisyui.com/components/list/
 import gleam/list
 import lustre/attribute.{type Attribute}
 import lustre/element.{type Element}
@@ -27,20 +29,46 @@ pub opaque type ListDisplay(msg) {
   )
 }
 
+/// Creates a new `ListDisplay` builder.
+///
+/// Chain builder functions to configure the list, then call `build`:
+///
+/// ```gleam
+/// import tidal/list_display
+///
+/// list_display.new()
+/// |> list_display.items(elements: [
+///   list_display.item([html.text("Item one")]),
+///   list_display.item([html.text("Item two")]),
+/// ])
+/// |> list_display.build
+/// ```
+///
+/// See also:
+/// - DaisyUI list docs: https://daisyui.com/components/list/
 pub fn new() -> ListDisplay(msg) {
   ListDisplay(styles: [], attrs: [], items: [])
 }
 
-pub fn style(l: ListDisplay(msg), s: List(Style)) -> ListDisplay(msg) {
-  ListDisplay(..l, styles: list.append(l.styles, s))
+pub fn style(
+  lst: ListDisplay(msg),
+  styles styles: List(Style),
+) -> ListDisplay(msg) {
+  ListDisplay(..lst, styles: list.append(lst.styles, styles))
 }
 
-pub fn attrs(l: ListDisplay(msg), a: List(Attribute(msg))) -> ListDisplay(msg) {
-  ListDisplay(..l, attrs: list.append(l.attrs, a))
+pub fn attrs(
+  lst: ListDisplay(msg),
+  attributes attributes: List(Attribute(msg)),
+) -> ListDisplay(msg) {
+  ListDisplay(..lst, attrs: list.append(lst.attrs, attributes))
 }
 
-pub fn items(l: ListDisplay(msg), i: List(Element(msg))) -> ListDisplay(msg) {
-  ListDisplay(..l, items: list.append(l.items, i))
+pub fn items(
+  lst: ListDisplay(msg),
+  elements elements: List(Element(msg)),
+) -> ListDisplay(msg) {
+  ListDisplay(..lst, items: list.append(lst.items, elements))
 }
 
 /// A single list row.
@@ -48,10 +76,10 @@ pub fn item(children: List(Element(msg))) -> Element(msg) {
   html.li([attribute.class("list-row")], children)
 }
 
-pub fn build(l: ListDisplay(msg)) -> Element(msg) {
-  let class = case to_class_string(l.styles) {
+pub fn build(lst: ListDisplay(msg)) -> Element(msg) {
+  let class = case to_class_string(lst.styles) {
     "" -> "list"
     extra -> "list " <> extra
   }
-  html.ul([attribute.class(class), ..l.attrs], l.items)
+  html.ul([attribute.class(class), ..lst.attrs], lst.items)
 }

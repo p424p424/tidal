@@ -6,14 +6,13 @@
 /// import tidal/radio
 ///
 /// radio.new()
-/// |> radio.name("plan")
-/// |> radio.value("pro")
+/// |> radio.name(name: "plan")
+/// |> radio.value(to: "pro")
 /// |> radio.primary
-/// |> radio.checked(model.plan == "pro")
+/// |> radio.checked(to: model.plan == "pro")
 /// |> radio.on_check(UserSelectedPlan)
 /// |> radio.build
 /// ```
-
 import gleam/list
 import gleam/option.{type Option, None, Some}
 import gleam/string
@@ -37,52 +36,122 @@ pub opaque type Radio(msg) {
   )
 }
 
+/// Creates a new `Radio` builder with all options at their defaults.
+///
+/// Chain builder functions to configure the radio input, then call `build`.
+/// Use the same `name` value across a group of radio buttons to make them
+/// mutually exclusive:
+///
+/// ```gleam
+/// import tidal/radio
+///
+/// radio.new()
+/// |> radio.name(name: "plan")
+/// |> radio.value(to: "pro")
+/// |> radio.primary
+/// |> radio.checked(to: model.plan == "pro")
+/// |> radio.on_check(UserSelectedPlan)
+/// |> radio.build
+/// ```
+///
+/// See also:
+/// - DaisyUI radio docs: https://daisyui.com/components/radio/
 pub fn new() -> Radio(msg) {
-  Radio(name: "", value: "", checked: False, color: None, size: None, disabled: False, styles: [], attrs: [])
+  Radio(
+    name: "",
+    value: "",
+    checked: False,
+    color: None,
+    size: None,
+    disabled: False,
+    styles: [],
+    attrs: [],
+  )
 }
 
 /// Radio group name — all radios sharing a name are mutually exclusive.
-pub fn name(r: Radio(msg), n: String) -> Radio(msg) { Radio(..r, name: n) }
+pub fn name(radio: Radio(msg), name name: String) -> Radio(msg) {
+  Radio(..radio, name: name)
+}
 
 /// Value submitted when this radio is selected.
-pub fn value(r: Radio(msg), v: String) -> Radio(msg) { Radio(..r, value: v) }
+pub fn value(radio: Radio(msg), to val: String) -> Radio(msg) {
+  Radio(..radio, value: val)
+}
 
 /// Sets the checked state (controlled).
-pub fn checked(r: Radio(msg), b: Bool) -> Radio(msg) { Radio(..r, checked: b) }
+pub fn checked(radio: Radio(msg), to is_checked: Bool) -> Radio(msg) {
+  Radio(..radio, checked: is_checked)
+}
 
-pub fn primary(r: Radio(msg)) -> Radio(msg) { Radio(..r, color: Some("radio-primary")) }
-pub fn secondary(r: Radio(msg)) -> Radio(msg) { Radio(..r, color: Some("radio-secondary")) }
-pub fn accent(r: Radio(msg)) -> Radio(msg) { Radio(..r, color: Some("radio-accent")) }
-pub fn neutral(r: Radio(msg)) -> Radio(msg) { Radio(..r, color: Some("radio-neutral")) }
-pub fn info(r: Radio(msg)) -> Radio(msg) { Radio(..r, color: Some("radio-info")) }
-pub fn success(r: Radio(msg)) -> Radio(msg) { Radio(..r, color: Some("radio-success")) }
-pub fn warning(r: Radio(msg)) -> Radio(msg) { Radio(..r, color: Some("radio-warning")) }
-pub fn error(r: Radio(msg)) -> Radio(msg) { Radio(..r, color: Some("radio-error")) }
+pub fn primary(radio: Radio(msg)) -> Radio(msg) {
+  Radio(..radio, color: Some("radio-primary"))
+}
+
+pub fn secondary(radio: Radio(msg)) -> Radio(msg) {
+  Radio(..radio, color: Some("radio-secondary"))
+}
+
+pub fn accent(radio: Radio(msg)) -> Radio(msg) {
+  Radio(..radio, color: Some("radio-accent"))
+}
+
+pub fn neutral(radio: Radio(msg)) -> Radio(msg) {
+  Radio(..radio, color: Some("radio-neutral"))
+}
+
+pub fn info(radio: Radio(msg)) -> Radio(msg) {
+  Radio(..radio, color: Some("radio-info"))
+}
+
+pub fn success(radio: Radio(msg)) -> Radio(msg) {
+  Radio(..radio, color: Some("radio-success"))
+}
+
+pub fn warning(radio: Radio(msg)) -> Radio(msg) {
+  Radio(..radio, color: Some("radio-warning"))
+}
+
+pub fn error(radio: Radio(msg)) -> Radio(msg) {
+  Radio(..radio, color: Some("radio-error"))
+}
 
 /// Sets the radio size.
-pub fn size(r: Radio(msg), s: Size) -> Radio(msg) { Radio(..r, size: Some(s)) }
+pub fn size(radio: Radio(msg), size size: Size) -> Radio(msg) {
+  Radio(..radio, size: Some(size))
+}
 
 /// Marks the radio as disabled.
-pub fn disabled(r: Radio(msg)) -> Radio(msg) { Radio(..r, disabled: True) }
+pub fn disabled(radio: Radio(msg)) -> Radio(msg) {
+  Radio(..radio, disabled: True)
+}
 
 /// Appends Tailwind utility styles.
-pub fn style(r: Radio(msg), s: List(Style)) -> Radio(msg) {
-  Radio(..r, styles: list.append(r.styles, s))
+pub fn style(radio: Radio(msg), styles styles: List(Style)) -> Radio(msg) {
+  Radio(..radio, styles: list.append(radio.styles, styles))
 }
 
 /// Appends HTML attributes.
-pub fn attrs(r: Radio(msg), a: List(Attribute(msg))) -> Radio(msg) {
-  Radio(..r, attrs: list.append(r.attrs, a))
+pub fn attrs(
+  radio: Radio(msg),
+  attributes attributes: List(Attribute(msg)),
+) -> Radio(msg) {
+  Radio(..radio, attrs: list.append(radio.attrs, attributes))
 }
 
-pub fn on_check(r: Radio(msg), f: fn(Bool) -> msg) -> Radio(msg) {
-  Radio(..r, attrs: list.append(r.attrs, [event.on_check(f)]))
+pub fn on_check(
+  radio: Radio(msg),
+  handler handler: fn(Bool) -> msg,
+) -> Radio(msg) {
+  Radio(..radio, attrs: list.append(radio.attrs, [event.on_check(handler)]))
 }
-pub fn on_focus(r: Radio(msg), msg: msg) -> Radio(msg) {
-  Radio(..r, attrs: list.append(r.attrs, [event.on_focus(msg)]))
+
+pub fn on_focus(radio: Radio(msg), msg: msg) -> Radio(msg) {
+  Radio(..radio, attrs: list.append(radio.attrs, [event.on_focus(msg)]))
 }
-pub fn on_blur(r: Radio(msg), msg: msg) -> Radio(msg) {
-  Radio(..r, attrs: list.append(r.attrs, [event.on_blur(msg)]))
+
+pub fn on_blur(radio: Radio(msg), msg: msg) -> Radio(msg) {
+  Radio(..radio, attrs: list.append(radio.attrs, [event.on_blur(msg)]))
 }
 
 fn size_class(s: Size) -> String {
@@ -95,13 +164,16 @@ fn size_class(s: Size) -> String {
   }
 }
 
-pub fn build(r: Radio(msg)) -> Element(msg) {
+pub fn build(radio: Radio(msg)) -> Element(msg) {
   let classes =
     [
       Some("radio"),
-      r.color,
-      option.map(r.size, size_class),
-      case style.to_class_string(r.styles) { "" -> None s -> Some(s) },
+      radio.color,
+      option.map(radio.size, size_class),
+      case style.to_class_string(radio.styles) {
+        "" -> None
+        s -> Some(s)
+      },
     ]
     |> list.filter_map(fn(x) { option.to_result(x, Nil) })
     |> list.filter(fn(c) { c != "" })
@@ -109,10 +181,10 @@ pub fn build(r: Radio(msg)) -> Element(msg) {
   html.input([
     attribute.class(classes),
     attribute.type_("radio"),
-    attribute.name(r.name),
-    attribute.value(r.value),
-    attribute.checked(r.checked),
-    attribute.disabled(r.disabled),
-    ..r.attrs
+    attribute.name(radio.name),
+    attribute.value(radio.value),
+    attribute.checked(radio.checked),
+    attribute.disabled(radio.disabled),
+    ..radio.attrs
   ])
 }

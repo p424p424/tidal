@@ -11,7 +11,6 @@
 /// |> button.variant(variant.Primary)
 /// |> button.build
 /// ```
-
 pub type Variant {
   Primary
   Secondary

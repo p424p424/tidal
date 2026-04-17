@@ -6,6 +6,7 @@ import lustre/element.{type Element}
 import lustre/element/html
 import lustre/element/svg
 import lustre/event
+import tidal/align
 import tidal/badge
 import tidal/button
 import tidal/checkbox
@@ -16,7 +17,7 @@ import tidal/row
 import tidal/size
 import tidal/spacer
 
-import tidal/styling as s
+import tidal/styling as style
 import tidal/text
 
 pub fn main() {
@@ -125,28 +126,28 @@ fn view(model: Model) -> Element(Message) {
   let done_count = list.length(list.filter(model.todos, fn(t) { t.done }))
 
   el.new()
-  |> el.style([
-    s.min_h_screen(),
-    s.flex(),
-    s.flex_col(),
-    s.items_start(),
-    s.justify_start(),
-    s.sm(s.items_center()),
-    s.sm(s.justify_center()),
+  |> el.style(styles: [
+    style.min_h_screen(),
+    style.flex(),
+    style.flex_col(),
+    style.items_start(),
+    style.justify_start(),
+    style.sm(style.items_center()),
+    style.sm(style.justify_center()),
   ])
-  |> el.attrs([attribute.class("bg-base-200")])
-  |> el.children([
+  |> el.attrs(attributes: [attribute.class("bg-base-200")])
+  |> el.children(elements: [
     el.new()
-    |> el.style([
-      s.w_full(),
-      s.sm(s.max_w_md()),
-      s.flex(),
-      s.flex_col(),
-      s.sm(s.rounded_xl()),
-      s.sm(s.overflow_hidden()),
+    |> el.style(styles: [
+      style.w_full(),
+      style.sm(style.max_w_md()),
+      style.flex(),
+      style.flex_col(),
+      style.sm(style.rounded_xl()),
+      style.sm(style.overflow_hidden()),
     ])
-    |> el.attrs([attribute.class("bg-base-100 shadow-xl")])
-    |> el.children([
+    |> el.attrs(attributes: [attribute.class("bg-base-100 shadow-xl")])
+    |> el.children(elements: [
       view_header(active_count, done_count),
       view_input(model.input),
       view_filter_bar(model.filter),
@@ -160,25 +161,27 @@ fn view(model: Model) -> Element(Message) {
 
 fn view_header(active_count: Int, done_count: Int) -> Element(Message) {
   el.new()
-  |> el.style([s.p(6), s.pb(4)])
-  |> el.attrs([attribute.class("bg-primary")])
-  |> el.children([
+  |> el.style(styles: [style.p(6), style.pb(4)])
+  |> el.attrs(attributes: [attribute.class("bg-primary")])
+  |> el.children(elements: [
     text.new("My Todos")
-      |> text.style([s.text_2xl(), s.font_bold()])
-      |> text.attrs([attribute.class("text-primary-content")])
+      |> text.style(styles: [style.text_2xl(), style.font_bold()])
+      |> text.attrs(attributes: [attribute.class("text-primary-content")])
       |> text.build,
     row.new()
-      |> row.style([s.mt(1), s.gap(2)])
-      |> row.children([
+      |> row.style(styles: [style.mt(1), style.gap(2)])
+      |> row.children(elements: [
         badge.new()
-          |> badge.label(count_label(active_count) <> " left")
-          |> badge.attrs([attribute.class("badge-ghost opacity-80")])
+          |> badge.label(text: count_label(active_count) <> " left")
+          |> badge.attrs(attributes: [attribute.class("badge-ghost opacity-80")])
           |> badge.build,
         case done_count > 0 {
           True ->
             badge.new()
-            |> badge.label(count_label(done_count) <> " done")
-            |> badge.attrs([attribute.class("badge-ghost opacity-60")])
+            |> badge.label(text: count_label(done_count) <> " done")
+            |> badge.attrs(attributes: [
+              attribute.class("badge-ghost opacity-60"),
+            ])
             |> badge.build
           False -> element.none()
         },
@@ -190,15 +193,15 @@ fn view_header(active_count: Int, done_count: Int) -> Element(Message) {
 
 fn view_input(current: String) -> Element(Message) {
   row.new()
-  |> row.style([s.p(4), s.gap(2), s.items_center()])
-  |> row.attrs([attribute.class("border-b border-base-200")])
-  |> row.children([
+  |> row.style(styles: [style.p(4), style.gap(2), style.items_center()])
+  |> row.attrs(attributes: [attribute.class("border-b border-base-200")])
+  |> row.children(elements: [
     input.new()
-      |> input.placeholder("Add a todo…")
-      |> input.value(current)
-      |> input.style([s.w_full()])
-      |> input.on_input(UserTyped)
-      |> input.on_keydown(fn(key) {
+      |> input.placeholder(text: "Add a todo…")
+      |> input.value(to: current)
+      |> input.style(styles: [style.w_full()])
+      |> input.on_input(handler: UserTyped)
+      |> input.on_keydown(handler: fn(key) {
         case key {
           "Enter" -> UserSubmitted
           _ -> UserTyped(current)
@@ -206,7 +209,7 @@ fn view_input(current: String) -> Element(Message) {
       })
       |> input.build,
     button.new()
-      |> button.label("Add")
+      |> button.label(text: "Add")
       |> button.primary
       |> button.on_click(UserSubmitted)
       |> button.build,
@@ -216,9 +219,9 @@ fn view_input(current: String) -> Element(Message) {
 
 fn view_filter_bar(current: Filter) -> Element(Message) {
   row.new()
-  |> row.style([s.px(4), s.py(2), s.gap(2)])
-  |> row.attrs([attribute.class("border-b border-base-200")])
-  |> row.children([
+  |> row.style(styles: [style.px(4), style.py(2), style.gap(2)])
+  |> row.attrs(attributes: [attribute.class("border-b border-base-200")])
+  |> row.children(elements: [
     filter_tab("All", All, current),
     filter_tab("Active", Active, current),
     filter_tab("Done", Done, current),
@@ -230,8 +233,8 @@ fn filter_tab(label: String, f: Filter, current: Filter) -> Element(Message) {
   let is_active = f == current
   let b =
     button.new()
-    |> button.label(label)
-    |> button.size(size.Sm)
+    |> button.label(text: label)
+    |> button.size(size: size.Sm)
     |> button.on_click(UserSetFilter(f))
   case is_active {
     True -> b |> button.primary
@@ -245,30 +248,30 @@ fn view_todo_list(todos: List(Todo)) -> Element(Message) {
     [] -> view_empty_state()
     _ ->
       column.new()
-      |> column.style([s.w_full()])
-      |> column.children(list.map(todos, view_todo_item))
+      |> column.style(styles: [style.w_full()])
+      |> column.children(elements: list.map(todos, view_todo_item))
       |> column.build
   }
 }
 
 fn view_empty_state() -> Element(Message) {
   el.new()
-  |> el.style([
-    s.py(12),
-    s.flex(),
-    s.flex_col(),
-    s.items_center(),
-    s.justify_center(),
-    s.gap(2),
+  |> el.style(styles: [
+    style.py(12),
+    style.flex(),
+    style.flex_col(),
+    style.items_center(),
+    style.justify_center(),
+    style.gap(2),
   ])
-  |> el.children([
+  |> el.children(elements: [
     text.new("Nothing here")
-      |> text.style([s.text_lg(), s.font_medium()])
-      |> text.attrs([attribute.class("text-base-content/40")])
+      |> text.style(styles: [style.text_lg(), style.font_medium()])
+      |> text.attrs(attributes: [attribute.class("text-base-content/40")])
       |> text.build,
     text.new("Add something above to get started")
-      |> text.style([s.text_sm()])
-      |> text.attrs([attribute.class("text-base-content/30")])
+      |> text.style(styles: [style.text_sm()])
+      |> text.attrs(attributes: [attribute.class("text-base-content/30")])
       |> text.build,
   ])
   |> el.build
@@ -276,29 +279,31 @@ fn view_empty_state() -> Element(Message) {
 
 fn view_todo_item(item: Todo) -> Element(Message) {
   row.new()
-  |> row.style([
-    s.px(4),
-    s.py(3),
-    s.items_center(),
-    s.gap(3),
+  |> row.style(styles: [
+    style.px(4),
+    style.py(3),
+    style.items_center(),
+    style.gap(3),
   ])
-  |> row.attrs([attribute.class("border-b border-base-200 last:border-0")])
-  |> row.children([
+  |> row.attrs(attributes: [
+    attribute.class("border-b border-base-200 last:border-0"),
+  ])
+  |> row.children(elements: [
     checkbox.new()
       |> checkbox.primary
-      |> checkbox.checked(item.done)
-      |> checkbox.on_check(fn(v) { UserToggledTodo(item.id, v) })
+      |> checkbox.checked(to: item.done)
+      |> checkbox.on_check(handler: fn(v) { UserToggledTodo(item.id, v) })
       |> checkbox.build,
     text.new(item.label)
-      |> text.style([
-        s.text_base(),
-        s.sm(s.text_lg()),
+      |> text.style(styles: [
+        style.text_base(),
+        style.sm(style.text_lg()),
         case item.done {
-          True -> s.line_through()
-          False -> s.font_normal()
+          True -> style.line_through()
+          False -> style.font_normal()
         },
       ])
-      |> text.attrs([
+      |> text.attrs(attributes: [
         attribute.class(case item.done {
           True -> "text-base-content/40"
           False -> "text-base-content"
@@ -343,12 +348,12 @@ fn view_footer(done_count: Int) -> Element(Message) {
     False -> element.none()
     True ->
       row.new()
-      |> row.style([s.p(4), s.justify_end()])
-      |> row.attrs([attribute.class("border-t border-base-200")])
-      |> row.children([
+      |> row.style(styles: [style.p(4), style.justify_end()])
+      |> row.attrs(attributes: [attribute.class("border-t border-base-200")])
+      |> row.children(elements: [
         button.new()
-        |> button.label("Clear completed")
-        |> button.size(size.Sm)
+        |> button.label(text: "Clear completed")
+        |> button.size(size: size.Sm)
         |> button.ghost
         |> button.on_click(UserClearedDone)
         |> button.build,

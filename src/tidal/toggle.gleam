@@ -5,11 +5,10 @@
 ///
 /// toggle.new()
 /// |> toggle.primary
-/// |> toggle.checked(model.dark_mode)
+/// |> toggle.checked(to: model.dark_mode)
 /// |> toggle.on_check(UserToggledDarkMode)
 /// |> toggle.build
 /// ```
-
 import gleam/list
 import gleam/option.{type Option, None, Some}
 import gleam/string
@@ -31,46 +30,106 @@ pub opaque type Toggle(msg) {
   )
 }
 
+/// Creates a new `Toggle` builder with all options at their defaults.
+///
+/// Chain builder functions to configure the toggle, then call `build`:
+///
+/// ```gleam
+/// import tidal/toggle
+///
+/// toggle.new()
+/// |> toggle.primary
+/// |> toggle.checked(to: model.dark_mode)
+/// |> toggle.on_check(UserToggledDarkMode)
+/// |> toggle.build
+/// ```
+///
+/// See also:
+/// - DaisyUI toggle docs: https://daisyui.com/components/toggle/
 pub fn new() -> Toggle(msg) {
-  Toggle(checked: False, color: None, size: None, disabled: False, styles: [], attrs: [])
+  Toggle(
+    checked: False,
+    color: None,
+    size: None,
+    disabled: False,
+    styles: [],
+    attrs: [],
+  )
 }
 
 /// Sets the checked state (controlled).
-pub fn checked(t: Toggle(msg), b: Bool) -> Toggle(msg) { Toggle(..t, checked: b) }
+pub fn checked(toggle: Toggle(msg), to is_checked: Bool) -> Toggle(msg) {
+  Toggle(..toggle, checked: is_checked)
+}
 
-pub fn primary(t: Toggle(msg)) -> Toggle(msg) { Toggle(..t, color: Some("toggle-primary")) }
-pub fn secondary(t: Toggle(msg)) -> Toggle(msg) { Toggle(..t, color: Some("toggle-secondary")) }
-pub fn accent(t: Toggle(msg)) -> Toggle(msg) { Toggle(..t, color: Some("toggle-accent")) }
-pub fn neutral(t: Toggle(msg)) -> Toggle(msg) { Toggle(..t, color: Some("toggle-neutral")) }
-pub fn info(t: Toggle(msg)) -> Toggle(msg) { Toggle(..t, color: Some("toggle-info")) }
-pub fn success(t: Toggle(msg)) -> Toggle(msg) { Toggle(..t, color: Some("toggle-success")) }
-pub fn warning(t: Toggle(msg)) -> Toggle(msg) { Toggle(..t, color: Some("toggle-warning")) }
-pub fn error(t: Toggle(msg)) -> Toggle(msg) { Toggle(..t, color: Some("toggle-error")) }
+pub fn primary(toggle: Toggle(msg)) -> Toggle(msg) {
+  Toggle(..toggle, color: Some("toggle-primary"))
+}
+
+pub fn secondary(toggle: Toggle(msg)) -> Toggle(msg) {
+  Toggle(..toggle, color: Some("toggle-secondary"))
+}
+
+pub fn accent(toggle: Toggle(msg)) -> Toggle(msg) {
+  Toggle(..toggle, color: Some("toggle-accent"))
+}
+
+pub fn neutral(toggle: Toggle(msg)) -> Toggle(msg) {
+  Toggle(..toggle, color: Some("toggle-neutral"))
+}
+
+pub fn info(toggle: Toggle(msg)) -> Toggle(msg) {
+  Toggle(..toggle, color: Some("toggle-info"))
+}
+
+pub fn success(toggle: Toggle(msg)) -> Toggle(msg) {
+  Toggle(..toggle, color: Some("toggle-success"))
+}
+
+pub fn warning(toggle: Toggle(msg)) -> Toggle(msg) {
+  Toggle(..toggle, color: Some("toggle-warning"))
+}
+
+pub fn error(toggle: Toggle(msg)) -> Toggle(msg) {
+  Toggle(..toggle, color: Some("toggle-error"))
+}
 
 /// Sets the toggle size.
-pub fn size(t: Toggle(msg), s: Size) -> Toggle(msg) { Toggle(..t, size: Some(s)) }
+pub fn size(toggle: Toggle(msg), size size: Size) -> Toggle(msg) {
+  Toggle(..toggle, size: Some(size))
+}
 
 /// Marks the toggle as disabled.
-pub fn disabled(t: Toggle(msg)) -> Toggle(msg) { Toggle(..t, disabled: True) }
+pub fn disabled(toggle: Toggle(msg)) -> Toggle(msg) {
+  Toggle(..toggle, disabled: True)
+}
 
 /// Appends Tailwind utility styles.
-pub fn style(t: Toggle(msg), s: List(Style)) -> Toggle(msg) {
-  Toggle(..t, styles: list.append(t.styles, s))
+pub fn style(toggle: Toggle(msg), styles styles: List(Style)) -> Toggle(msg) {
+  Toggle(..toggle, styles: list.append(toggle.styles, styles))
 }
 
 /// Appends HTML attributes.
-pub fn attrs(t: Toggle(msg), a: List(Attribute(msg))) -> Toggle(msg) {
-  Toggle(..t, attrs: list.append(t.attrs, a))
+pub fn attrs(
+  toggle: Toggle(msg),
+  attributes attributes: List(Attribute(msg)),
+) -> Toggle(msg) {
+  Toggle(..toggle, attrs: list.append(toggle.attrs, attributes))
 }
 
-pub fn on_check(t: Toggle(msg), f: fn(Bool) -> msg) -> Toggle(msg) {
-  Toggle(..t, attrs: list.append(t.attrs, [event.on_check(f)]))
+pub fn on_check(
+  toggle: Toggle(msg),
+  handler handler: fn(Bool) -> msg,
+) -> Toggle(msg) {
+  Toggle(..toggle, attrs: list.append(toggle.attrs, [event.on_check(handler)]))
 }
-pub fn on_focus(t: Toggle(msg), msg: msg) -> Toggle(msg) {
-  Toggle(..t, attrs: list.append(t.attrs, [event.on_focus(msg)]))
+
+pub fn on_focus(toggle: Toggle(msg), msg: msg) -> Toggle(msg) {
+  Toggle(..toggle, attrs: list.append(toggle.attrs, [event.on_focus(msg)]))
 }
-pub fn on_blur(t: Toggle(msg), msg: msg) -> Toggle(msg) {
-  Toggle(..t, attrs: list.append(t.attrs, [event.on_blur(msg)]))
+
+pub fn on_blur(toggle: Toggle(msg), msg: msg) -> Toggle(msg) {
+  Toggle(..toggle, attrs: list.append(toggle.attrs, [event.on_blur(msg)]))
 }
 
 fn size_class(s: Size) -> String {
@@ -83,13 +142,16 @@ fn size_class(s: Size) -> String {
   }
 }
 
-pub fn build(t: Toggle(msg)) -> Element(msg) {
+pub fn build(toggle: Toggle(msg)) -> Element(msg) {
   let classes =
     [
       Some("toggle"),
-      t.color,
-      option.map(t.size, size_class),
-      case style.to_class_string(t.styles) { "" -> None s -> Some(s) },
+      toggle.color,
+      option.map(toggle.size, size_class),
+      case style.to_class_string(toggle.styles) {
+        "" -> None
+        s -> Some(s)
+      },
     ]
     |> list.filter_map(fn(x) { option.to_result(x, Nil) })
     |> list.filter(fn(c) { c != "" })
@@ -97,8 +159,8 @@ pub fn build(t: Toggle(msg)) -> Element(msg) {
   html.input([
     attribute.class(classes),
     attribute.type_("checkbox"),
-    attribute.checked(t.checked),
-    attribute.disabled(t.disabled),
-    ..t.attrs
+    attribute.checked(toggle.checked),
+    attribute.disabled(toggle.disabled),
+    ..toggle.attrs
   ])
 }

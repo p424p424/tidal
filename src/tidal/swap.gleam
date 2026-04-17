@@ -5,11 +5,13 @@
 ///
 /// swap.new()
 /// |> swap.rotate
-/// |> swap.on_el(sun_icon)
-/// |> swap.off_el(moon_icon)
+/// |> swap.on_el(element: sun_icon)
+/// |> swap.off_el(element: moon_icon)
 /// |> swap.build
 /// ```
-
+///
+/// See also:
+/// - DaisyUI swap docs: https://daisyui.com/components/swap/
 import gleam/list
 import gleam/option.{type Option, None, Some}
 import gleam/string
@@ -32,8 +34,21 @@ pub opaque type Swap(msg) {
   )
 }
 
-/// Create a new swap toggle.
-/// Provide `on_el(el)` and `off_el(el)` for the two states, then `build`.
+/// Creates a new `Swap` toggle.
+/// Provide `on_el(element:)` and `off_el(element:)` for the two states, then `build`.
+///
+/// ```gleam
+/// import tidal/swap
+///
+/// swap.new()
+/// |> swap.rotate
+/// |> swap.on_el(element: sun_icon)
+/// |> swap.off_el(element: moon_icon)
+/// |> swap.build
+/// ```
+///
+/// See also:
+/// - DaisyUI swap docs: https://daisyui.com/components/swap/
 pub fn new() -> Swap(msg) {
   Swap(
     effect: None,
@@ -48,74 +63,102 @@ pub fn new() -> Swap(msg) {
 }
 
 /// Rotation transition effect — `swap-rotate`.
-pub fn rotate(s: Swap(msg)) -> Swap(msg) { Swap(..s, effect: Some("swap-rotate")) }
+pub fn rotate(swap: Swap(msg)) -> Swap(msg) {
+  Swap(..swap, effect: Some("swap-rotate"))
+}
+
 /// Flip transition effect — `swap-flip`.
-pub fn flip(s: Swap(msg)) -> Swap(msg) { Swap(..s, effect: Some("swap-flip")) }
+pub fn flip(swap: Swap(msg)) -> Swap(msg) {
+  Swap(..swap, effect: Some("swap-flip"))
+}
 
 /// Control active state via `swap-active` CSS class (pass current model state).
 /// When `True` renders the `on_el`; when `False` renders the `off_el`.
-pub fn active(s: Swap(msg), b: Bool) -> Swap(msg) { Swap(..s, active: Some(b)) }
+pub fn active(swap: Swap(msg), to is_active: Bool) -> Swap(msg) {
+  Swap(..swap, active: Some(is_active))
+}
 
 /// Element shown when the swap is active/checked — wrapped in `swap-on`.
-pub fn on_el(s: Swap(msg), el: Element(msg)) -> Swap(msg) { Swap(..s, on_el: Some(el)) }
+pub fn on_el(swap: Swap(msg), element element: Element(msg)) -> Swap(msg) {
+  Swap(..swap, on_el: Some(element))
+}
+
 /// Element shown when the swap is inactive/unchecked — wrapped in `swap-off`.
-pub fn off_el(s: Swap(msg), el: Element(msg)) -> Swap(msg) { Swap(..s, off_el: Some(el)) }
+pub fn off_el(swap: Swap(msg), element element: Element(msg)) -> Swap(msg) {
+  Swap(..swap, off_el: Some(element))
+}
+
 /// Element shown when the swap is in an indeterminate state — wrapped in `swap-indeterminate`.
-pub fn indeterminate_el(s: Swap(msg), el: Element(msg)) -> Swap(msg) {
-  Swap(..s, indeterminate_el: Some(el))
+pub fn indeterminate_el(
+  swap: Swap(msg),
+  element element: Element(msg),
+) -> Swap(msg) {
+  Swap(..swap, indeterminate_el: Some(element))
 }
 
 /// Fires when the swap is toggled.
-pub fn on_change(s: Swap(msg), handler: fn(Bool) -> msg) -> Swap(msg) {
-  Swap(..s, on_change: Some(handler))
+pub fn on_change(swap: Swap(msg), handler handler: fn(Bool) -> msg) -> Swap(msg) {
+  Swap(..swap, on_change: Some(handler))
 }
 
 /// Appends Tailwind utility styles.
-pub fn style(s: Swap(msg), st: List(Style)) -> Swap(msg) {
-  Swap(..s, styles: list.append(s.styles, st))
+pub fn style(swap: Swap(msg), styles styles: List(Style)) -> Swap(msg) {
+  Swap(..swap, styles: list.append(swap.styles, styles))
 }
 
 /// Appends HTML attributes.
-pub fn attrs(s: Swap(msg), a: List(Attribute(msg))) -> Swap(msg) {
-  Swap(..s, attrs: list.append(s.attrs, a))
+pub fn attrs(
+  swap: Swap(msg),
+  attributes attributes: List(Attribute(msg)),
+) -> Swap(msg) {
+  Swap(..swap, attrs: list.append(swap.attrs, attributes))
 }
 
 fn wrap_slot(cls: String, el: Option(Element(msg))) -> Option(Element(msg)) {
   option.map(el, fn(e) { html.div([attribute.class(cls)], [e]) })
 }
 
-pub fn build(s: Swap(msg)) -> Element(msg) {
-  let is_active = case s.active { Some(True) -> True _ -> False }
+pub fn build(swap: Swap(msg)) -> Element(msg) {
+  let is_active = case swap.active {
+    Some(True) -> True
+    _ -> False
+  }
   let class =
     [
       Some("swap"),
-      s.effect,
-      case is_active { True -> Some("swap-active") False -> None },
-      case style.to_class_string(s.styles) { "" -> None st -> Some(st) },
+      swap.effect,
+      case is_active {
+        True -> Some("swap-active")
+        False -> None
+      },
+      case style.to_class_string(swap.styles) {
+        "" -> None
+        st -> Some(st)
+      },
     ]
     |> list.filter_map(fn(x) { option.to_result(x, Nil) })
     |> string.join(" ")
 
-  let change_attrs = case s.on_change {
+  let change_attrs = case swap.on_change {
     None -> []
     Some(handler) -> [event.on_check(handler)]
   }
 
-  let checkbox = case s.active {
+  let checkbox = case swap.active {
     Some(_) -> []
     None -> [html.input([attribute.type_("checkbox"), ..change_attrs])]
   }
 
   let slot_children =
     [
-      wrap_slot("swap-on", s.on_el),
-      wrap_slot("swap-off", s.off_el),
-      wrap_slot("swap-indeterminate", s.indeterminate_el),
+      wrap_slot("swap-on", swap.on_el),
+      wrap_slot("swap-off", swap.off_el),
+      wrap_slot("swap-indeterminate", swap.indeterminate_el),
     ]
     |> list.filter_map(fn(x) { option.to_result(x, Nil) })
 
   html.label(
-    [attribute.class(class), ..s.attrs],
+    [attribute.class(class), ..swap.attrs],
     list.append(checkbox, slot_children),
   )
 }

@@ -6,8 +6,8 @@
 /// import tidal/table
 ///
 /// table.new()
-/// |> table.columns(["Name", "Role", "Status"])
-/// |> table.rows([
+/// |> table.columns(headers: ["Name", "Role", "Status"])
+/// |> table.rows(data: [
 ///   [element.text("Alice"), element.text("Admin"), status_badge],
 ///   [element.text("Bob"),   element.text("Editor"), status_badge],
 /// ])
@@ -15,7 +15,9 @@
 /// |> table.pin_rows()
 /// |> table.build
 /// ```
-
+///
+/// See also:
+/// - DaisyUI table docs: https://daisyui.com/components/table/
 import gleam/list
 import gleam/option.{type Option, None, Some}
 import gleam/string
@@ -45,6 +47,24 @@ pub opaque type Table(msg) {
 // Builder
 // ---------------------------------------------------------------------------
 
+/// Creates a new `Table` — renders `<table class="table">`.
+///
+/// Chain builder functions to configure the table, then call `build`:
+///
+/// ```gleam
+/// import tidal/table
+///
+/// table.new()
+/// |> table.columns(headers: ["Name", "Role"])
+/// |> table.rows(data: [
+///   [element.text("Alice"), element.text("Admin")],
+/// ])
+/// |> table.zebra()
+/// |> table.build
+/// ```
+///
+/// See also:
+/// - DaisyUI table docs: https://daisyui.com/components/table/
 pub fn new() -> Table(msg) {
   Table(
     columns: [],
@@ -59,54 +79,57 @@ pub fn new() -> Table(msg) {
 }
 
 /// Sets the column header labels.
-pub fn columns(t: Table(msg), cols: List(String)) -> Table(msg) {
-  Table(..t, columns: cols)
+pub fn columns(tbl: Table(msg), headers headers: List(String)) -> Table(msg) {
+  Table(..tbl, columns: headers)
 }
 
 /// Adds data rows. Each row is a list of `Element(msg)` matching column order.
 /// May be called multiple times — rows accumulate.
-pub fn rows(t: Table(msg), rs: List(List(Element(msg)))) -> Table(msg) {
-  Table(..t, rows: list.append(t.rows, rs))
+pub fn rows(tbl: Table(msg), data data: List(List(Element(msg)))) -> Table(msg) {
+  Table(..tbl, rows: list.append(tbl.rows, data))
 }
 
 /// Applies alternating row background colours (`table-zebra`).
-pub fn zebra(t: Table(msg)) -> Table(msg) {
-  Table(..t, zebra: True)
+pub fn zebra(tbl: Table(msg)) -> Table(msg) {
+  Table(..tbl, zebra: True)
 }
 
 /// Pins header row so it stays visible while scrolling (`table-pin-rows`).
-pub fn pin_rows(t: Table(msg)) -> Table(msg) {
-  Table(..t, pin_rows: True)
+pub fn pin_rows(tbl: Table(msg)) -> Table(msg) {
+  Table(..tbl, pin_rows: True)
 }
 
 /// Pins the first column so it stays visible while scrolling (`table-pin-cols`).
-pub fn pin_cols(t: Table(msg)) -> Table(msg) {
-  Table(..t, pin_cols: True)
+pub fn pin_cols(tbl: Table(msg)) -> Table(msg) {
+  Table(..tbl, pin_cols: True)
 }
 
 /// Applies extra-small row padding (`table-xs`).
-pub fn xs(t: Table(msg)) -> Table(msg) {
-  Table(..t, size: Some("table-xs"))
+pub fn xs(tbl: Table(msg)) -> Table(msg) {
+  Table(..tbl, size: Some("table-xs"))
 }
 
 /// Applies small row padding (`table-sm`).
-pub fn sm(t: Table(msg)) -> Table(msg) {
-  Table(..t, size: Some("table-sm"))
+pub fn sm(tbl: Table(msg)) -> Table(msg) {
+  Table(..tbl, size: Some("table-sm"))
 }
 
 /// Applies large row padding (`table-lg`).
-pub fn lg(t: Table(msg)) -> Table(msg) {
-  Table(..t, size: Some("table-lg"))
+pub fn lg(tbl: Table(msg)) -> Table(msg) {
+  Table(..tbl, size: Some("table-lg"))
 }
 
 /// Appends presentation styles. May be called multiple times.
-pub fn style(t: Table(msg), s: List(Style)) -> Table(msg) {
-  Table(..t, styles: list.append(t.styles, s))
+pub fn style(tbl: Table(msg), styles styles: List(Style)) -> Table(msg) {
+  Table(..tbl, styles: list.append(tbl.styles, styles))
 }
 
 /// Appends HTML attributes. May be called multiple times.
-pub fn attrs(t: Table(msg), a: List(attribute.Attribute(msg))) -> Table(msg) {
-  Table(..t, attrs: list.append(t.attrs, a))
+pub fn attrs(
+  tbl: Table(msg),
+  attributes attributes: List(attribute.Attribute(msg)),
+) -> Table(msg) {
+  Table(..tbl, attrs: list.append(tbl.attrs, attributes))
 }
 
 // ---------------------------------------------------------------------------
@@ -121,15 +144,24 @@ fn td(el: Element(msg)) -> Element(msg) {
   html.td([], [el])
 }
 
-pub fn build(t: Table(msg)) -> Element(msg) {
+pub fn build(tbl: Table(msg)) -> Element(msg) {
   let classes =
     [
       Some("table"),
-      case t.zebra { True -> Some("table-zebra") False -> None },
-      case t.pin_rows { True -> Some("table-pin-rows") False -> None },
-      case t.pin_cols { True -> Some("table-pin-cols") False -> None },
-      t.size,
-      case style.to_class_string(t.styles) {
+      case tbl.zebra {
+        True -> Some("table-zebra")
+        False -> None
+      },
+      case tbl.pin_rows {
+        True -> Some("table-pin-rows")
+        False -> None
+      },
+      case tbl.pin_cols {
+        True -> Some("table-pin-cols")
+        False -> None
+      },
+      tbl.size,
+      case style.to_class_string(tbl.styles) {
         "" -> None
         s -> Some(s)
       },
@@ -138,14 +170,13 @@ pub fn build(t: Table(msg)) -> Element(msg) {
     |> list.filter(fn(c) { c != "" })
     |> string.join(" ")
 
-  let header =
-    html.thead([], [html.tr([], list.map(t.columns, th))])
+  let header = html.thead([], [html.tr([], list.map(tbl.columns, th))])
 
   let body =
     html.tbody(
       [],
-      list.map(t.rows, fn(row) { html.tr([], list.map(row, td)) }),
+      list.map(tbl.rows, fn(row) { html.tr([], list.map(row, td)) }),
     )
 
-  html.table([attribute.class(classes), ..t.attrs], [header, body])
+  html.table([attribute.class(classes), ..tbl.attrs], [header, body])
 }

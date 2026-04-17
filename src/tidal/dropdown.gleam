@@ -6,12 +6,10 @@
 /// import tidal/menu
 ///
 /// dropdown.new()
-/// |> dropdown.trigger(
-///   button.new() |> button.label("Options") |> button.ghost |> button.build,
-/// )
-/// |> dropdown.content([
+/// |> dropdown.trigger(element: button.new() |> button.label(text: "Options") |> button.ghost |> button.build)
+/// |> dropdown.content(elements: [
 ///   menu.new()
-///   |> menu.items([
+///   |> menu.items(elements: [
 ///     menu.item_link("Edit", "/edit"),
 ///     menu.item_link("Delete", "/delete"),
 ///   ])
@@ -21,7 +19,9 @@
 /// |> dropdown.align_end
 /// |> dropdown.build
 /// ```
-
+///
+/// See also:
+/// - DaisyUI dropdown docs: https://daisyui.com/components/dropdown/
 import gleam/list
 import gleam/option.{type Option, None, Some}
 import gleam/string
@@ -51,6 +51,23 @@ pub opaque type Dropdown(msg) {
 // Builder
 // ---------------------------------------------------------------------------
 
+/// Creates a new `Dropdown` builder with all options at their defaults.
+///
+/// Chain builder functions to configure the dropdown, then call `build`:
+///
+/// ```gleam
+/// import tidal/dropdown
+///
+/// dropdown.new()
+/// |> dropdown.trigger(element: trigger_btn)
+/// |> dropdown.content(elements: [menu_el])
+/// |> dropdown.bottom
+/// |> dropdown.align_end
+/// |> dropdown.build
+/// ```
+///
+/// See also:
+/// - DaisyUI dropdown docs: https://daisyui.com/components/dropdown/
 pub fn new() -> Dropdown(msg) {
   Dropdown(
     trigger: None,
@@ -65,65 +82,103 @@ pub fn new() -> Dropdown(msg) {
 }
 
 /// Sets the trigger element (the element that opens the dropdown).
-pub fn trigger(d: Dropdown(msg), el: Element(msg)) -> Dropdown(msg) {
-  Dropdown(..d, trigger: Some(el))
+pub fn trigger(
+  dropdown: Dropdown(msg),
+  element element: Element(msg),
+) -> Dropdown(msg) {
+  Dropdown(..dropdown, trigger: Some(element))
 }
 
 /// Sets the dropdown content. May be called multiple times — content accumulates.
-pub fn content(d: Dropdown(msg), els: List(Element(msg))) -> Dropdown(msg) {
-  Dropdown(..d, content: list.append(d.content, els))
+pub fn content(
+  dropdown: Dropdown(msg),
+  elements elements: List(Element(msg)),
+) -> Dropdown(msg) {
+  Dropdown(..dropdown, content: list.append(dropdown.content, elements))
 }
 
 /// Places dropdown above the trigger — `dropdown-top`.
-pub fn top(d: Dropdown(msg)) -> Dropdown(msg) { Dropdown(..d, placement: Some("dropdown-top")) }
+pub fn top(dropdown: Dropdown(msg)) -> Dropdown(msg) {
+  Dropdown(..dropdown, placement: Some("dropdown-top"))
+}
+
 /// Places dropdown below the trigger — `dropdown-bottom`.
-pub fn bottom(d: Dropdown(msg)) -> Dropdown(msg) { Dropdown(..d, placement: Some("dropdown-bottom")) }
+pub fn bottom(dropdown: Dropdown(msg)) -> Dropdown(msg) {
+  Dropdown(..dropdown, placement: Some("dropdown-bottom"))
+}
+
 /// Places dropdown to the left — `dropdown-left`.
-pub fn left(d: Dropdown(msg)) -> Dropdown(msg) { Dropdown(..d, placement: Some("dropdown-left")) }
+pub fn left(dropdown: Dropdown(msg)) -> Dropdown(msg) {
+  Dropdown(..dropdown, placement: Some("dropdown-left"))
+}
+
 /// Places dropdown to the right — `dropdown-right`.
-pub fn right(d: Dropdown(msg)) -> Dropdown(msg) { Dropdown(..d, placement: Some("dropdown-right")) }
+pub fn right(dropdown: Dropdown(msg)) -> Dropdown(msg) {
+  Dropdown(..dropdown, placement: Some("dropdown-right"))
+}
 
 /// Aligns dropdown to the start — `dropdown-start`.
-pub fn align_start(d: Dropdown(msg)) -> Dropdown(msg) { Dropdown(..d, alignment: Some("dropdown-start")) }
+pub fn align_start(dropdown: Dropdown(msg)) -> Dropdown(msg) {
+  Dropdown(..dropdown, alignment: Some("dropdown-start"))
+}
+
 /// Aligns dropdown to the end — `dropdown-end`.
-pub fn align_end(d: Dropdown(msg)) -> Dropdown(msg) { Dropdown(..d, alignment: Some("dropdown-end")) }
+pub fn align_end(dropdown: Dropdown(msg)) -> Dropdown(msg) {
+  Dropdown(..dropdown, alignment: Some("dropdown-end"))
+}
+
 /// Centers the dropdown — `dropdown-center`.
-pub fn align_center(d: Dropdown(msg)) -> Dropdown(msg) { Dropdown(..d, alignment: Some("dropdown-center")) }
+pub fn align_center(dropdown: Dropdown(msg)) -> Dropdown(msg) {
+  Dropdown(..dropdown, alignment: Some("dropdown-center"))
+}
 
 /// Opens the dropdown on hover instead of click.
-pub fn hover(d: Dropdown(msg)) -> Dropdown(msg) { Dropdown(..d, hover: True) }
+pub fn hover(dropdown: Dropdown(msg)) -> Dropdown(msg) {
+  Dropdown(..dropdown, hover: True)
+}
 
 /// Forces the dropdown open — `dropdown-open`.
-pub fn force_open(d: Dropdown(msg)) -> Dropdown(msg) { Dropdown(..d, force: Some("dropdown-open")) }
+pub fn force_open(dropdown: Dropdown(msg)) -> Dropdown(msg) {
+  Dropdown(..dropdown, force: Some("dropdown-open"))
+}
+
 /// Forces the dropdown closed — `dropdown-close`.
-pub fn force_close(d: Dropdown(msg)) -> Dropdown(msg) { Dropdown(..d, force: Some("dropdown-close")) }
+pub fn force_close(dropdown: Dropdown(msg)) -> Dropdown(msg) {
+  Dropdown(..dropdown, force: Some("dropdown-close"))
+}
 
 /// Appends presentation styles. May be called multiple times.
-pub fn style(d: Dropdown(msg), s: List(Style)) -> Dropdown(msg) {
-  Dropdown(..d, styles: list.append(d.styles, s))
+pub fn style(
+  dropdown: Dropdown(msg),
+  styles styles: List(Style),
+) -> Dropdown(msg) {
+  Dropdown(..dropdown, styles: list.append(dropdown.styles, styles))
 }
 
 /// Appends HTML attributes. May be called multiple times.
 pub fn attrs(
-  d: Dropdown(msg),
-  a: List(attribute.Attribute(msg)),
+  dropdown: Dropdown(msg),
+  attributes attributes: List(attribute.Attribute(msg)),
 ) -> Dropdown(msg) {
-  Dropdown(..d, attrs: list.append(d.attrs, a))
+  Dropdown(..dropdown, attrs: list.append(dropdown.attrs, attributes))
 }
 
 // ---------------------------------------------------------------------------
 // Build
 // ---------------------------------------------------------------------------
 
-pub fn build(d: Dropdown(msg)) -> Element(msg) {
+pub fn build(dropdown: Dropdown(msg)) -> Element(msg) {
   let classes =
     [
       Some("dropdown"),
-      d.placement,
-      d.alignment,
-      case d.hover { True -> Some("dropdown-hover") False -> None },
-      d.force,
-      case style.to_class_string(d.styles) {
+      dropdown.placement,
+      dropdown.alignment,
+      case dropdown.hover {
+        True -> Some("dropdown-hover")
+        False -> None
+      },
+      dropdown.force,
+      case style.to_class_string(dropdown.styles) {
         "" -> None
         s -> Some(s)
       },
@@ -132,23 +187,20 @@ pub fn build(d: Dropdown(msg)) -> Element(msg) {
     |> list.filter(fn(c) { c != "" })
     |> string.join(" ")
 
-  let trigger_el = case d.trigger {
+  let trigger_el = case dropdown.trigger {
     None -> []
     Some(el) -> [el]
   }
 
-  let content_el = case d.content {
+  let content_el = case dropdown.content {
     [] -> []
     els -> [
-      html.div(
-        [attribute.class("dropdown-content z-10")],
-        els,
-      ),
+      html.div([attribute.class("dropdown-content z-10")], els),
     ]
   }
 
   html.div(
-    [attribute.class(classes), ..d.attrs],
+    [attribute.class(classes), ..dropdown.attrs],
     list.append(trigger_el, content_el),
   )
 }

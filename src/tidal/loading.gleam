@@ -7,10 +7,12 @@
 /// loading.new()
 /// |> loading.spinner
 /// |> loading.primary
-/// |> loading.size(size.Lg)
+/// |> loading.size(size: size.Lg)
 /// |> loading.build
 /// ```
-
+///
+/// See also:
+/// - DaisyUI loading docs: https://daisyui.com/components/loading/
 import gleam/list
 import gleam/option.{type Option, None, Some}
 import gleam/string
@@ -39,43 +41,105 @@ pub opaque type Loading(msg) {
   )
 }
 
+/// Creates a new `Loading` builder with spinner style by default.
+///
+/// Chain builder functions to configure the indicator, then call `build`:
+///
+/// ```gleam
+/// import tidal/loading
+/// import tidal/size
+///
+/// loading.new()
+/// |> loading.spinner
+/// |> loading.primary
+/// |> loading.size(size: size.Lg)
+/// |> loading.build
+/// ```
+///
+/// See also:
+/// - DaisyUI loading docs: https://daisyui.com/components/loading/
 pub fn new() -> Loading(msg) {
   Loading(style_: Spinner, color: None, size: None, styles: [], attrs: [])
 }
 
 /// Rotating spinner animation (default).
-pub fn spinner(l: Loading(msg)) -> Loading(msg) { Loading(..l, style_: Spinner) }
-/// Animated dots.
-pub fn dots(l: Loading(msg)) -> Loading(msg) { Loading(..l, style_: Dots) }
-/// Ring animation.
-pub fn ring(l: Loading(msg)) -> Loading(msg) { Loading(..l, style_: Ring) }
-/// Ball animation.
-pub fn ball(l: Loading(msg)) -> Loading(msg) { Loading(..l, style_: Ball) }
-/// Vertical bars animation.
-pub fn bars(l: Loading(msg)) -> Loading(msg) { Loading(..l, style_: Bars) }
-/// Infinity symbol animation.
-pub fn infinity(l: Loading(msg)) -> Loading(msg) { Loading(..l, style_: Infinity) }
+pub fn spinner(loading: Loading(msg)) -> Loading(msg) {
+  Loading(..loading, style_: Spinner)
+}
 
-pub fn primary(l: Loading(msg)) -> Loading(msg) { Loading(..l, color: Some("text-primary")) }
-pub fn secondary(l: Loading(msg)) -> Loading(msg) { Loading(..l, color: Some("text-secondary")) }
-pub fn accent(l: Loading(msg)) -> Loading(msg) { Loading(..l, color: Some("text-accent")) }
-pub fn neutral(l: Loading(msg)) -> Loading(msg) { Loading(..l, color: Some("text-neutral")) }
-pub fn info(l: Loading(msg)) -> Loading(msg) { Loading(..l, color: Some("text-info")) }
-pub fn success(l: Loading(msg)) -> Loading(msg) { Loading(..l, color: Some("text-success")) }
-pub fn warning(l: Loading(msg)) -> Loading(msg) { Loading(..l, color: Some("text-warning")) }
-pub fn error(l: Loading(msg)) -> Loading(msg) { Loading(..l, color: Some("text-error")) }
+/// Animated dots.
+pub fn dots(loading: Loading(msg)) -> Loading(msg) {
+  Loading(..loading, style_: Dots)
+}
+
+/// Ring animation.
+pub fn ring(loading: Loading(msg)) -> Loading(msg) {
+  Loading(..loading, style_: Ring)
+}
+
+/// Ball animation.
+pub fn ball(loading: Loading(msg)) -> Loading(msg) {
+  Loading(..loading, style_: Ball)
+}
+
+/// Vertical bars animation.
+pub fn bars(loading: Loading(msg)) -> Loading(msg) {
+  Loading(..loading, style_: Bars)
+}
+
+/// Infinity symbol animation.
+pub fn infinity(loading: Loading(msg)) -> Loading(msg) {
+  Loading(..loading, style_: Infinity)
+}
+
+pub fn primary(loading: Loading(msg)) -> Loading(msg) {
+  Loading(..loading, color: Some("text-primary"))
+}
+
+pub fn secondary(loading: Loading(msg)) -> Loading(msg) {
+  Loading(..loading, color: Some("text-secondary"))
+}
+
+pub fn accent(loading: Loading(msg)) -> Loading(msg) {
+  Loading(..loading, color: Some("text-accent"))
+}
+
+pub fn neutral(loading: Loading(msg)) -> Loading(msg) {
+  Loading(..loading, color: Some("text-neutral"))
+}
+
+pub fn info(loading: Loading(msg)) -> Loading(msg) {
+  Loading(..loading, color: Some("text-info"))
+}
+
+pub fn success(loading: Loading(msg)) -> Loading(msg) {
+  Loading(..loading, color: Some("text-success"))
+}
+
+pub fn warning(loading: Loading(msg)) -> Loading(msg) {
+  Loading(..loading, color: Some("text-warning"))
+}
+
+pub fn error(loading: Loading(msg)) -> Loading(msg) {
+  Loading(..loading, color: Some("text-error"))
+}
 
 /// Sets the loading indicator size.
-pub fn size(l: Loading(msg), s: Size) -> Loading(msg) { Loading(..l, size: Some(s)) }
+pub fn size(loading: Loading(msg), size size: Size) -> Loading(msg) {
+  Loading(..loading, size: Some(size))
+}
 
 /// Appends Tailwind utility styles.
-pub fn style(l: Loading(msg), s: List(Style)) -> Loading(msg) {
-  Loading(..l, styles: list.append(l.styles, s))
+pub fn style(loading: Loading(msg), styles styles: List(Style)) -> Loading(msg) {
+  Loading(..loading, styles: list.append(loading.styles, styles))
 }
 
 /// Appends HTML attributes.
-pub fn attrs(l: Loading(msg), a: List(Attribute(msg))) -> Loading(msg) {
-  Loading(..l, attrs: list.append(l.attrs, a))
+pub fn attrs(
+  loading: Loading(msg),
+  attributes attributes: List(Attribute(msg)),
+) -> Loading(msg) {
+  Loading(..loading, attrs: list.append(loading.attrs, attributes))
 }
 
 fn style_class(s: LoadingStyle) -> String {
@@ -99,17 +163,20 @@ fn size_class(s: Size) -> String {
   }
 }
 
-pub fn build(l: Loading(msg)) -> Element(msg) {
+pub fn build(loading: Loading(msg)) -> Element(msg) {
   let classes =
     [
       Some("loading"),
-      Some(style_class(l.style_)),
-      l.color,
-      option.map(l.size, size_class),
-      case style.to_class_string(l.styles) { "" -> None s -> Some(s) },
+      Some(style_class(loading.style_)),
+      loading.color,
+      option.map(loading.size, size_class),
+      case style.to_class_string(loading.styles) {
+        "" -> None
+        s -> Some(s)
+      },
     ]
     |> list.filter_map(fn(x) { option.to_result(x, Nil) })
     |> list.filter(fn(c) { c != "" })
     |> string.join(" ")
-  html.span([attribute.class(classes), ..l.attrs], [])
+  html.span([attribute.class(classes), ..loading.attrs], [])
 }

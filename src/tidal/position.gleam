@@ -7,7 +7,6 @@
 /// my_component
 /// |> component.style([style.position(position.Absolute)])
 /// ```
-
 pub type Position {
   Static
   Relative

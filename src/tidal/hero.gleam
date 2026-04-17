@@ -6,14 +6,16 @@
 ///
 /// hero.new()
 /// |> hero.min_h_screen
-/// |> hero.content([
+/// |> hero.content(elements: [
 ///   html.div([attribute.class("text-center")], [
 ///     html.h1([attribute.class("text-5xl font-bold")], [html.text("Hello")]),
 ///   ]),
 /// ])
 /// |> hero.build
 /// ```
-
+///
+/// See also:
+/// - DaisyUI hero docs: https://daisyui.com/components/hero/
 import gleam/list
 import gleam/option.{type Option, None, Some}
 import lustre/attribute.{type Attribute}
@@ -32,54 +34,93 @@ pub opaque type Hero(msg) {
   )
 }
 
-/// Create a new hero section — renders `<div class="hero">`.
+/// Creates a new `Hero` section — renders `<div class="hero">`.
+///
+/// Chain builder functions to configure the hero, then call `build`:
+///
+/// ```gleam
+/// import tidal/hero
+///
+/// hero.new()
+/// |> hero.min_h_screen
+/// |> hero.content(elements: [title_el, cta_btn])
+/// |> hero.build
+/// ```
+///
+/// See also:
+/// - DaisyUI hero docs: https://daisyui.com/components/hero/
 pub fn new() -> Hero(msg) {
-  Hero(bg_image: None, overlay: False, min_h_screen: False, styles: [], attrs: [], content: [])
+  Hero(
+    bg_image: None,
+    overlay: False,
+    min_h_screen: False,
+    styles: [],
+    attrs: [],
+    content: [],
+  )
 }
 
 /// Sets a background image URL — `style="background-image: url(…)"`.
-pub fn bg_image(h: Hero(msg), url: String) -> Hero(msg) {
-  Hero(..h, bg_image: Some(url))
+pub fn bg_image(hero: Hero(msg), url url: String) -> Hero(msg) {
+  Hero(..hero, bg_image: Some(url))
 }
 
 /// Adds a dark overlay over the background image — `hero-overlay`.
-pub fn overlay(h: Hero(msg)) -> Hero(msg) { Hero(..h, overlay: True) }
+pub fn overlay(hero: Hero(msg)) -> Hero(msg) {
+  Hero(..hero, overlay: True)
+}
 
 /// Makes the hero fill the full viewport height — `min-h-screen`.
-pub fn min_h_screen(h: Hero(msg)) -> Hero(msg) { Hero(..h, min_h_screen: True) }
+pub fn min_h_screen(hero: Hero(msg)) -> Hero(msg) {
+  Hero(..hero, min_h_screen: True)
+}
 
-/// Sets the main hero content — wraps `els` in `<div class="hero-content">`.
-pub fn content(h: Hero(msg), els: List(Element(msg))) -> Hero(msg) {
-  let wrapped = html.div([attribute.class("hero-content")], els)
-  Hero(..h, content: list.append(h.content, [wrapped]))
+/// Sets the main hero content — wraps `elements` in `<div class="hero-content">`.
+pub fn content(
+  hero: Hero(msg),
+  elements elements: List(Element(msg)),
+) -> Hero(msg) {
+  let wrapped = html.div([attribute.class("hero-content")], elements)
+  Hero(..hero, content: list.append(hero.content, [wrapped]))
 }
 
 /// Appends Tailwind utility styles.
-pub fn style(h: Hero(msg), s: List(Style)) -> Hero(msg) {
-  Hero(..h, styles: list.append(h.styles, s))
+pub fn style(hero: Hero(msg), styles styles: List(Style)) -> Hero(msg) {
+  Hero(..hero, styles: list.append(hero.styles, styles))
 }
 
 /// Appends HTML attributes.
-pub fn attrs(h: Hero(msg), a: List(Attribute(msg))) -> Hero(msg) {
-  Hero(..h, attrs: list.append(h.attrs, a))
+pub fn attrs(
+  hero: Hero(msg),
+  attributes attributes: List(Attribute(msg)),
+) -> Hero(msg) {
+  Hero(..hero, attrs: list.append(hero.attrs, attributes))
 }
 
-pub fn build(h: Hero(msg)) -> Element(msg) {
-  let bg_attr = case h.bg_image {
-    Some(url) -> [attribute.attribute("style", "background-image: url(" <> url <> ");")]
+pub fn build(hero: Hero(msg)) -> Element(msg) {
+  let bg_attr = case hero.bg_image {
+    Some(url) -> [
+      attribute.attribute("style", "background-image: url(" <> url <> ");"),
+    ]
     None -> []
   }
-  let overlay_el = case h.overlay {
+  let overlay_el = case hero.overlay {
     True -> [html.div([attribute.class("hero-overlay")], [])]
     False -> []
   }
-  let extra_class = to_class_string(h.styles)
+  let extra_class = to_class_string(hero.styles)
   let class =
     "hero"
-    <> case h.min_h_screen { True -> " min-h-screen" False -> "" }
-    <> case extra_class { "" -> "" c -> " " <> c }
+    <> case hero.min_h_screen {
+      True -> " min-h-screen"
+      False -> ""
+    }
+    <> case extra_class {
+      "" -> ""
+      c -> " " <> c
+    }
   html.div(
-    [attribute.class(class), ..list.append(bg_attr, h.attrs)],
-    list.append(overlay_el, h.content),
+    [attribute.class(class), ..list.append(bg_attr, hero.attrs)],
+    list.append(overlay_el, hero.content),
   )
 }

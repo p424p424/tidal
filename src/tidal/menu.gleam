@@ -4,7 +4,7 @@
 /// import tidal/menu
 ///
 /// menu.new()
-/// |> menu.items([
+/// |> menu.items(entries: [
 ///   menu.item("Dashboard", UserNavigated("/"))
 ///   |> menu.item_icon(home_icon),
 ///   menu.title("Account"),
@@ -15,7 +15,9 @@
 /// ])
 /// |> menu.build
 /// ```
-
+///
+/// See also:
+/// - DaisyUI menu docs: https://daisyui.com/components/menu/
 import gleam/list
 import gleam/option.{type Option, None, Some}
 import gleam/string
@@ -32,7 +34,12 @@ import tidal/style.{type Style}
 
 pub opaque type MenuItem(msg) {
   Item(label: String, on_click: msg, active: Bool, icon: Option(Element(msg)))
-  ItemLink(label: String, href: String, active: Bool, icon: Option(Element(msg)))
+  ItemLink(
+    label: String,
+    href: String,
+    active: Bool,
+    icon: Option(Element(msg)),
+  )
   ItemDisabled(label: String)
   Title(label: String)
   Submenu(label: String, items: List(MenuItem(msg)))
@@ -97,30 +104,53 @@ pub opaque type Menu(msg) {
   )
 }
 
-/// Create a new menu — `<ul class="menu">`.
+/// Creates a new `Menu` container — `<ul class="menu">`.
+///
+/// Chain builder functions to configure the menu, then call `build`:
+///
+/// ```gleam
+/// import tidal/menu
+///
+/// menu.new()
+/// |> menu.items(entries: [
+///   menu.item_link("Home", "/"),
+///   menu.item_link("About", "/about"),
+/// ])
+/// |> menu.build
+/// ```
+///
+/// See also:
+/// - DaisyUI menu docs: https://daisyui.com/components/menu/
 pub fn new() -> Menu(msg) {
   Menu(items: [], size: None, horizontal: False, styles: [], attrs: [])
 }
 
 /// Appends menu items.
-pub fn items(m: Menu(msg), is: List(MenuItem(msg))) -> Menu(msg) {
-  Menu(..m, items: list.append(m.items, is))
+pub fn items(menu: Menu(msg), entries entries: List(MenuItem(msg))) -> Menu(msg) {
+  Menu(..menu, items: list.append(menu.items, entries))
 }
 
 /// Horizontal layout — `menu-horizontal`.
-pub fn horizontal(m: Menu(msg)) -> Menu(msg) { Menu(..m, horizontal: True) }
+pub fn horizontal(menu: Menu(msg)) -> Menu(msg) {
+  Menu(..menu, horizontal: True)
+}
 
 /// Menu item size.
-pub fn size(m: Menu(msg), s: Size) -> Menu(msg) { Menu(..m, size: Some(s)) }
+pub fn size(menu: Menu(msg), size size: Size) -> Menu(msg) {
+  Menu(..menu, size: Some(size))
+}
 
 /// Appends Tailwind utility styles.
-pub fn style(m: Menu(msg), s: List(Style)) -> Menu(msg) {
-  Menu(..m, styles: list.append(m.styles, s))
+pub fn style(menu: Menu(msg), styles styles: List(Style)) -> Menu(msg) {
+  Menu(..menu, styles: list.append(menu.styles, styles))
 }
 
 /// Appends HTML attributes.
-pub fn attrs(m: Menu(msg), a: List(attribute.Attribute(msg))) -> Menu(msg) {
-  Menu(..m, attrs: list.append(m.attrs, a))
+pub fn attrs(
+  menu: Menu(msg),
+  attributes attributes: List(attribute.Attribute(msg)),
+) -> Menu(msg) {
+  Menu(..menu, attrs: list.append(menu.attrs, attributes))
 }
 
 // ---------------------------------------------------------------------------
@@ -137,7 +167,10 @@ fn size_class(s: Size) -> String {
   }
 }
 
-fn icon_children(icon: Option(Element(msg)), label: String) -> List(Element(msg)) {
+fn icon_children(
+  icon: Option(Element(msg)),
+  label: String,
+) -> List(Element(msg)) {
   case icon {
     None -> [element.text(label)]
     Some(el) -> [el, element.text(label)]
@@ -147,19 +180,33 @@ fn icon_children(icon: Option(Element(msg)), label: String) -> List(Element(msg)
 fn item_el(mi: MenuItem(msg)) -> Element(msg) {
   case mi {
     Item(label, msg, active, icon) -> {
-      let cls = case active { True -> "active" False -> "" }
-      html.li(
-        [],
-        [html.button([event.on_click(msg), attribute.class(cls)], icon_children(icon, label))],
-      )
+      let cls = case active {
+        True -> "active"
+        False -> ""
+      }
+      html.li([], [
+        html.button(
+          [event.on_click(msg), attribute.class(cls)],
+          icon_children(icon, label),
+        ),
+      ])
     }
     ItemDisabled(label) ->
       html.li([attribute.class("menu-disabled")], [element.text(label)])
     ItemLink(label, href, active, icon) -> {
-      let cls = case active { True -> "active" False -> "" }
-      html.li([], [html.a([attribute.href(href), attribute.class(cls)], icon_children(icon, label))])
+      let cls = case active {
+        True -> "active"
+        False -> ""
+      }
+      html.li([], [
+        html.a(
+          [attribute.href(href), attribute.class(cls)],
+          icon_children(icon, label),
+        ),
+      ])
     }
-    Title(label) -> html.li([attribute.class("menu-title")], [element.text(label)])
+    Title(label) ->
+      html.li([attribute.class("menu-title")], [element.text(label)])
     Submenu(label, sub_items) ->
       html.li([], [
         html.details([], [
@@ -171,16 +218,25 @@ fn item_el(mi: MenuItem(msg)) -> Element(msg) {
   }
 }
 
-pub fn build(m: Menu(msg)) -> Element(msg) {
+pub fn build(menu: Menu(msg)) -> Element(msg) {
   let classes =
     [
       Some("menu"),
-      case m.horizontal { True -> Some("menu-horizontal") False -> None },
-      option.map(m.size, size_class),
-      case style.to_class_string(m.styles) { "" -> None s -> Some(s) },
+      case menu.horizontal {
+        True -> Some("menu-horizontal")
+        False -> None
+      },
+      option.map(menu.size, size_class),
+      case style.to_class_string(menu.styles) {
+        "" -> None
+        s -> Some(s)
+      },
     ]
     |> option.values
     |> list.filter(fn(c) { c != "" })
     |> string.join(" ")
-  html.ul([attribute.class(classes), ..m.attrs], list.map(m.items, item_el))
+  html.ul(
+    [attribute.class(classes), ..menu.attrs],
+    list.map(menu.items, item_el),
+  )
 }

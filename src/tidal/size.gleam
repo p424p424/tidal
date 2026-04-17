@@ -10,7 +10,6 @@
 /// |> button.size(size.Lg)
 /// |> button.build
 /// ```
-
 pub type Size {
   Xs
   Sm

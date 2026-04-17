@@ -8,7 +8,7 @@
 ///
 /// // Labelled section break
 /// divider.new()
-/// |> divider.label("OR")
+/// |> divider.label(text: "OR")
 /// |> divider.primary
 /// |> divider.build
 ///
@@ -17,7 +17,9 @@
 /// |> divider.horizontal
 /// |> divider.build
 /// ```
-
+///
+/// See also:
+/// - DaisyUI divider docs: https://daisyui.com/components/divider/
 import gleam/list
 import gleam/option.{type Option, None, Some}
 import gleam/string
@@ -37,59 +39,117 @@ pub opaque type Divider(msg) {
   )
 }
 
-/// Create a new divider. Default is a horizontal line (vertical in the DOM sense — a full-width `<hr>`-style rule).
+/// Creates a new `Divider` — default is a horizontal line (full-width rule).
+///
+/// Chain builder functions to configure the divider, then call `build`:
+///
+/// ```gleam
+/// import tidal/divider
+///
+/// divider.new()
+/// |> divider.label(text: "OR")
+/// |> divider.primary
+/// |> divider.build
+/// ```
+///
+/// See also:
+/// - DaisyUI divider docs: https://daisyui.com/components/divider/
 pub fn new() -> Divider(msg) {
-  Divider(label: None, horizontal: False, color: None, align: None, styles: [], attrs: [])
+  Divider(
+    label: None,
+    horizontal: False,
+    color: None,
+    align: None,
+    styles: [],
+    attrs: [],
+  )
 }
 
 /// Adds a text label centred in the divider line.
-pub fn label(d: Divider(msg), text: String) -> Divider(msg) {
-  Divider(..d, label: Some(text))
+pub fn label(divider: Divider(msg), text text: String) -> Divider(msg) {
+  Divider(..divider, label: Some(text))
 }
 
 /// Switches to a vertical divider (for use inside a horizontal flex row) — adds `divider-horizontal`.
-pub fn horizontal(d: Divider(msg)) -> Divider(msg) {
-  Divider(..d, horizontal: True)
+pub fn horizontal(divider: Divider(msg)) -> Divider(msg) {
+  Divider(..divider, horizontal: True)
 }
 
-pub fn primary(d: Divider(msg)) -> Divider(msg) { Divider(..d, color: Some("divider-primary")) }
-pub fn secondary(d: Divider(msg)) -> Divider(msg) { Divider(..d, color: Some("divider-secondary")) }
-pub fn accent(d: Divider(msg)) -> Divider(msg) { Divider(..d, color: Some("divider-accent")) }
-pub fn neutral(d: Divider(msg)) -> Divider(msg) { Divider(..d, color: Some("divider-neutral")) }
-pub fn info(d: Divider(msg)) -> Divider(msg) { Divider(..d, color: Some("divider-info")) }
-pub fn success(d: Divider(msg)) -> Divider(msg) { Divider(..d, color: Some("divider-success")) }
-pub fn warning(d: Divider(msg)) -> Divider(msg) { Divider(..d, color: Some("divider-warning")) }
-pub fn error(d: Divider(msg)) -> Divider(msg) { Divider(..d, color: Some("divider-error")) }
+pub fn primary(divider: Divider(msg)) -> Divider(msg) {
+  Divider(..divider, color: Some("divider-primary"))
+}
+
+pub fn secondary(divider: Divider(msg)) -> Divider(msg) {
+  Divider(..divider, color: Some("divider-secondary"))
+}
+
+pub fn accent(divider: Divider(msg)) -> Divider(msg) {
+  Divider(..divider, color: Some("divider-accent"))
+}
+
+pub fn neutral(divider: Divider(msg)) -> Divider(msg) {
+  Divider(..divider, color: Some("divider-neutral"))
+}
+
+pub fn info(divider: Divider(msg)) -> Divider(msg) {
+  Divider(..divider, color: Some("divider-info"))
+}
+
+pub fn success(divider: Divider(msg)) -> Divider(msg) {
+  Divider(..divider, color: Some("divider-success"))
+}
+
+pub fn warning(divider: Divider(msg)) -> Divider(msg) {
+  Divider(..divider, color: Some("divider-warning"))
+}
+
+pub fn error(divider: Divider(msg)) -> Divider(msg) {
+  Divider(..divider, color: Some("divider-error"))
+}
 
 /// Positions the label text at the start of the divider.
-pub fn align_start(d: Divider(msg)) -> Divider(msg) { Divider(..d, align: Some("divider-start")) }
+pub fn align_start(divider: Divider(msg)) -> Divider(msg) {
+  Divider(..divider, align: Some("divider-start"))
+}
+
 /// Positions the label text at the end of the divider.
-pub fn align_end(d: Divider(msg)) -> Divider(msg) { Divider(..d, align: Some("divider-end")) }
+pub fn align_end(divider: Divider(msg)) -> Divider(msg) {
+  Divider(..divider, align: Some("divider-end"))
+}
 
 /// Appends Tailwind utility styles.
-pub fn style(d: Divider(msg), s: List(Style)) -> Divider(msg) {
-  Divider(..d, styles: list.append(d.styles, s))
+pub fn style(divider: Divider(msg), styles styles: List(Style)) -> Divider(msg) {
+  Divider(..divider, styles: list.append(divider.styles, styles))
 }
 
 /// Appends HTML attributes.
-pub fn attrs(d: Divider(msg), a: List(attribute.Attribute(msg))) -> Divider(msg) {
-  Divider(..d, attrs: list.append(d.attrs, a))
+pub fn attrs(
+  divider: Divider(msg),
+  attributes attributes: List(attribute.Attribute(msg)),
+) -> Divider(msg) {
+  Divider(..divider, attrs: list.append(divider.attrs, attributes))
 }
 
-pub fn build(d: Divider(msg)) -> Element(msg) {
+pub fn build(divider: Divider(msg)) -> Element(msg) {
   let classes =
     [
       Some("divider"),
-      case d.horizontal { True -> Some("divider-horizontal") False -> None },
-      d.color,
-      d.align,
-      case style.to_class_string(d.styles) { "" -> None s -> Some(s) },
+      case divider.horizontal {
+        True -> Some("divider-horizontal")
+        False -> None
+      },
+      divider.color,
+      divider.align,
+      case style.to_class_string(divider.styles) {
+        "" -> None
+        s -> Some(s)
+      },
     ]
     |> list.filter_map(fn(x) { option.to_result(x, Nil) })
     |> string.join(" ")
-  let content = case d.label {
+  let content = case divider.label {
     None -> []
     Some(t) -> [element.text(t)]
   }
-  html.div([attribute.class(classes), ..d.attrs], content)
+  html.div([attribute.class(classes), ..divider.attrs], content)
 }

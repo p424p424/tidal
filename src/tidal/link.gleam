@@ -5,12 +5,14 @@
 /// import lustre/attribute
 ///
 /// link.new()
-/// |> link.label("Learn more")
+/// |> link.label(text: "Learn more")
 /// |> link.primary
-/// |> link.attrs([attribute.href("/docs")])
+/// |> link.attrs(attributes: [attribute.href("/docs")])
 /// |> link.build
 /// ```
-
+///
+/// See also:
+/// - DaisyUI link docs: https://daisyui.com/components/link/
 import gleam/list
 import gleam/option.{type Option, None, Some}
 import gleam/string
@@ -29,70 +31,128 @@ pub opaque type Link(msg) {
   )
 }
 
-/// Create a new link. Use `label(t)` for text or `children(els)` for custom content.
+/// Creates a new `Link` builder. Use `label(text:)` for text or `children(elements:)` for custom content.
+///
+/// Chain builder functions to configure the link, then call `build`:
+///
+/// ```gleam
+/// import tidal/link
+/// import lustre/attribute
+///
+/// link.new()
+/// |> link.label(text: "Learn more")
+/// |> link.primary
+/// |> link.attrs(attributes: [attribute.href("/docs")])
+/// |> link.build
+/// ```
+///
+/// See also:
+/// - DaisyUI link docs: https://daisyui.com/components/link/
 pub fn new() -> Link(msg) {
-  Link(label: "", color: None, hover_only: False, custom_children: [], attrs: [])
+  Link(
+    label: "",
+    color: None,
+    hover_only: False,
+    custom_children: [],
+    attrs: [],
+  )
 }
 
 /// Sets the link text.
-pub fn label(l: Link(msg), text: String) -> Link(msg) { Link(..l, label: text) }
+pub fn label(lnk: Link(msg), text text: String) -> Link(msg) {
+  Link(..lnk, label: text)
+}
 
 /// Show underline only on hover — `link-hover`.
-pub fn hover(l: Link(msg)) -> Link(msg) { Link(..l, hover_only: True) }
+pub fn hover(lnk: Link(msg)) -> Link(msg) {
+  Link(..lnk, hover_only: True)
+}
 
-pub fn neutral(l: Link(msg)) -> Link(msg) { Link(..l, color: Some("link-neutral")) }
-pub fn primary(l: Link(msg)) -> Link(msg) { Link(..l, color: Some("link-primary")) }
-pub fn secondary(l: Link(msg)) -> Link(msg) { Link(..l, color: Some("link-secondary")) }
-pub fn accent(l: Link(msg)) -> Link(msg) { Link(..l, color: Some("link-accent")) }
-pub fn info(l: Link(msg)) -> Link(msg) { Link(..l, color: Some("link-info")) }
-pub fn success(l: Link(msg)) -> Link(msg) { Link(..l, color: Some("link-success")) }
-pub fn warning(l: Link(msg)) -> Link(msg) { Link(..l, color: Some("link-warning")) }
-pub fn error(l: Link(msg)) -> Link(msg) { Link(..l, color: Some("link-error")) }
+pub fn neutral(lnk: Link(msg)) -> Link(msg) {
+  Link(..lnk, color: Some("link-neutral"))
+}
 
-/// Sets the destination URL — shorthand for `attrs([attribute.href(url)])`.
-pub fn href(l: Link(msg), url: String) -> Link(msg) {
-  Link(..l, attrs: list.append(l.attrs, [attribute.href(url)]))
+pub fn primary(lnk: Link(msg)) -> Link(msg) {
+  Link(..lnk, color: Some("link-primary"))
+}
+
+pub fn secondary(lnk: Link(msg)) -> Link(msg) {
+  Link(..lnk, color: Some("link-secondary"))
+}
+
+pub fn accent(lnk: Link(msg)) -> Link(msg) {
+  Link(..lnk, color: Some("link-accent"))
+}
+
+pub fn info(lnk: Link(msg)) -> Link(msg) {
+  Link(..lnk, color: Some("link-info"))
+}
+
+pub fn success(lnk: Link(msg)) -> Link(msg) {
+  Link(..lnk, color: Some("link-success"))
+}
+
+pub fn warning(lnk: Link(msg)) -> Link(msg) {
+  Link(..lnk, color: Some("link-warning"))
+}
+
+pub fn error(lnk: Link(msg)) -> Link(msg) {
+  Link(..lnk, color: Some("link-error"))
+}
+
+/// Sets the destination URL — shorthand for `attrs(attributes: [attribute.href(url)])`.
+pub fn href(lnk: Link(msg), url url: String) -> Link(msg) {
+  Link(..lnk, attrs: list.append(lnk.attrs, [attribute.href(url)]))
 }
 
 /// Custom link content (icon + text, etc.) — replaces `label` when set.
-pub fn children(l: Link(msg), els: List(Element(msg))) -> Link(msg) {
-  Link(..l, custom_children: list.append(l.custom_children, els))
+pub fn children(
+  lnk: Link(msg),
+  elements elements: List(Element(msg)),
+) -> Link(msg) {
+  Link(..lnk, custom_children: list.append(lnk.custom_children, elements))
 }
 
 /// Appends HTML attributes (e.g. `attribute.href("/about")`).
-pub fn attrs(l: Link(msg), a: List(Attribute(msg))) -> Link(msg) {
-  Link(..l, attrs: list.append(l.attrs, a))
+pub fn attrs(
+  lnk: Link(msg),
+  attributes attributes: List(Attribute(msg)),
+) -> Link(msg) {
+  Link(..lnk, attrs: list.append(lnk.attrs, attributes))
 }
 
-pub fn on_click(l: Link(msg), msg: msg) -> Link(msg) {
-  Link(..l, attrs: list.append(l.attrs, [event.on_click(msg)]))
+pub fn on_click(lnk: Link(msg), msg: msg) -> Link(msg) {
+  Link(..lnk, attrs: list.append(lnk.attrs, [event.on_click(msg)]))
 }
 
-pub fn on_mouse_enter(l: Link(msg), msg: msg) -> Link(msg) {
-  Link(..l, attrs: list.append(l.attrs, [event.on_mouse_enter(msg)]))
+pub fn on_mouse_enter(lnk: Link(msg), msg: msg) -> Link(msg) {
+  Link(..lnk, attrs: list.append(lnk.attrs, [event.on_mouse_enter(msg)]))
 }
 
-pub fn on_mouse_leave(l: Link(msg), msg: msg) -> Link(msg) {
-  Link(..l, attrs: list.append(l.attrs, [event.on_mouse_leave(msg)]))
+pub fn on_mouse_leave(lnk: Link(msg), msg: msg) -> Link(msg) {
+  Link(..lnk, attrs: list.append(lnk.attrs, [event.on_mouse_leave(msg)]))
 }
 
-pub fn on_focus(l: Link(msg), msg: msg) -> Link(msg) {
-  Link(..l, attrs: list.append(l.attrs, [event.on_focus(msg)]))
+pub fn on_focus(lnk: Link(msg), msg: msg) -> Link(msg) {
+  Link(..lnk, attrs: list.append(lnk.attrs, [event.on_focus(msg)]))
 }
 
-pub fn on_blur(l: Link(msg), msg: msg) -> Link(msg) {
-  Link(..l, attrs: list.append(l.attrs, [event.on_blur(msg)]))
+pub fn on_blur(lnk: Link(msg), msg: msg) -> Link(msg) {
+  Link(..lnk, attrs: list.append(lnk.attrs, [event.on_blur(msg)]))
 }
 
-pub fn build(l: Link(msg)) -> Element(msg) {
-  let hover_class = case l.hover_only { True -> Some("link-hover") False -> None }
+pub fn build(lnk: Link(msg)) -> Element(msg) {
+  let hover_class = case lnk.hover_only {
+    True -> Some("link-hover")
+    False -> None
+  }
   let class =
-    [Some("link"), hover_class, l.color]
+    [Some("link"), hover_class, lnk.color]
     |> list.filter_map(fn(x) { option.to_result(x, Nil) })
     |> string.join(" ")
-  let inner = case l.custom_children {
-    [_, ..] -> l.custom_children
-    [] -> [html.text(l.label)]
+  let inner = case lnk.custom_children {
+    [_, ..] -> lnk.custom_children
+    [] -> [html.text(lnk.label)]
   }
-  html.a([attribute.class(class), ..l.attrs], inner)
+  html.a([attribute.class(class), ..lnk.attrs], inner)
 }

@@ -4,15 +4,17 @@
 /// import tidal/steps
 ///
 /// steps.new()
-/// |> steps.items([
-///   steps.step("Register")   |> steps.step_primary |> steps.step_build,
-///   steps.step("Choose plan")|> steps.step_primary |> steps.step_build,
-///   steps.step("Purchase")   |> steps.step_build,
-///   steps.step("Receive")    |> steps.step_build,
+/// |> steps.items(elements: [
+///   steps.step("Register")    |> steps.step_primary |> steps.step_build,
+///   steps.step("Choose plan") |> steps.step_primary |> steps.step_build,
+///   steps.step("Purchase")    |> steps.step_build,
+///   steps.step("Receive")     |> steps.step_build,
 /// ])
 /// |> steps.build
 /// ```
-
+///
+/// See also:
+/// - DaisyUI steps docs: https://daisyui.com/components/steps/
 import gleam/list
 import gleam/option.{type Option, None, Some}
 import gleam/string
@@ -25,34 +27,70 @@ pub opaque type Step(msg) {
   Step(label: String, color: Option(String), attrs: List(Attribute(msg)))
 }
 
+/// Creates a new step with the given label text.
+///
+/// ```gleam
+/// steps.step("Register") |> steps.step_primary |> steps.step_build
+/// ```
 pub fn step(label: String) -> Step(msg) {
   Step(label: label, color: None, attrs: [])
 }
 
-pub fn step_neutral(s: Step(msg)) -> Step(msg) { Step(..s, color: Some("step-neutral")) }
-pub fn step_primary(s: Step(msg)) -> Step(msg) { Step(..s, color: Some("step-primary")) }
-pub fn step_secondary(s: Step(msg)) -> Step(msg) { Step(..s, color: Some("step-secondary")) }
-pub fn step_accent(s: Step(msg)) -> Step(msg) { Step(..s, color: Some("step-accent")) }
-pub fn step_info(s: Step(msg)) -> Step(msg) { Step(..s, color: Some("step-info")) }
-pub fn step_success(s: Step(msg)) -> Step(msg) { Step(..s, color: Some("step-success")) }
-pub fn step_warning(s: Step(msg)) -> Step(msg) { Step(..s, color: Some("step-warning")) }
-pub fn step_error(s: Step(msg)) -> Step(msg) { Step(..s, color: Some("step-error")) }
+pub fn step_neutral(step: Step(msg)) -> Step(msg) {
+  Step(..step, color: Some("step-neutral"))
+}
+
+pub fn step_primary(step: Step(msg)) -> Step(msg) {
+  Step(..step, color: Some("step-primary"))
+}
+
+pub fn step_secondary(step: Step(msg)) -> Step(msg) {
+  Step(..step, color: Some("step-secondary"))
+}
+
+pub fn step_accent(step: Step(msg)) -> Step(msg) {
+  Step(..step, color: Some("step-accent"))
+}
+
+pub fn step_info(step: Step(msg)) -> Step(msg) {
+  Step(..step, color: Some("step-info"))
+}
+
+pub fn step_success(step: Step(msg)) -> Step(msg) {
+  Step(..step, color: Some("step-success"))
+}
+
+pub fn step_warning(step: Step(msg)) -> Step(msg) {
+  Step(..step, color: Some("step-warning"))
+}
+
+pub fn step_error(step: Step(msg)) -> Step(msg) {
+  Step(..step, color: Some("step-error"))
+}
 
 /// Custom icon/content via `data-content` attribute (e.g. `"✓"`, `"★"`).
-pub fn step_icon(s: Step(msg), content: String) -> Step(msg) {
-  Step(..s, attrs: list.append(s.attrs, [attribute.attribute("data-content", content)]))
+pub fn step_icon(step: Step(msg), content content: String) -> Step(msg) {
+  Step(
+    ..step,
+    attrs: list.append(step.attrs, [
+      attribute.attribute("data-content", content),
+    ]),
+  )
 }
 
-pub fn step_attrs(s: Step(msg), a: List(Attribute(msg))) -> Step(msg) {
-  Step(..s, attrs: list.append(s.attrs, a))
+pub fn step_attrs(
+  step: Step(msg),
+  attributes attributes: List(Attribute(msg)),
+) -> Step(msg) {
+  Step(..step, attrs: list.append(step.attrs, attributes))
 }
 
-pub fn step_build(s: Step(msg)) -> Element(msg) {
+pub fn step_build(step: Step(msg)) -> Element(msg) {
   let class =
-    [Some("step"), s.color]
+    [Some("step"), step.color]
     |> list.filter_map(fn(x) { option.to_result(x, Nil) })
     |> string.join(" ")
-  html.li([attribute.class(class), ..s.attrs], [html.text(s.label)])
+  html.li([attribute.class(class), ..step.attrs], [html.text(step.label)])
 }
 
 pub opaque type Steps(msg) {
@@ -64,33 +102,61 @@ pub opaque type Steps(msg) {
   )
 }
 
+/// Creates a new `Steps` container — `<ul class="steps">`.
+///
+/// Chain builder functions to configure the steps, then call `build`:
+///
+/// ```gleam
+/// import tidal/steps
+///
+/// steps.new()
+/// |> steps.items(elements: [
+///   steps.step("Register") |> steps.step_primary |> steps.step_build,
+///   steps.step("Purchase") |> steps.step_build,
+/// ])
+/// |> steps.build
+/// ```
+///
+/// See also:
+/// - DaisyUI steps docs: https://daisyui.com/components/steps/
 pub fn new() -> Steps(msg) {
   Steps(direction: None, styles: [], attrs: [], items: [])
 }
 
-pub fn vertical(s: Steps(msg)) -> Steps(msg) { Steps(..s, direction: Some("steps-vertical")) }
-pub fn horizontal(s: Steps(msg)) -> Steps(msg) { Steps(..s, direction: Some("steps-horizontal")) }
-
-pub fn style(s: Steps(msg), st: List(Style)) -> Steps(msg) {
-  Steps(..s, styles: list.append(s.styles, st))
+pub fn vertical(steps: Steps(msg)) -> Steps(msg) {
+  Steps(..steps, direction: Some("steps-vertical"))
 }
 
-pub fn attrs(s: Steps(msg), a: List(Attribute(msg))) -> Steps(msg) {
-  Steps(..s, attrs: list.append(s.attrs, a))
+pub fn horizontal(steps: Steps(msg)) -> Steps(msg) {
+  Steps(..steps, direction: Some("steps-horizontal"))
 }
 
-pub fn items(s: Steps(msg), is: List(Element(msg))) -> Steps(msg) {
-  Steps(..s, items: list.append(s.items, is))
+pub fn style(steps: Steps(msg), styles styles: List(Style)) -> Steps(msg) {
+  Steps(..steps, styles: list.append(steps.styles, styles))
 }
 
-pub fn build(s: Steps(msg)) -> Element(msg) {
+pub fn attrs(
+  steps: Steps(msg),
+  attributes attributes: List(Attribute(msg)),
+) -> Steps(msg) {
+  Steps(..steps, attrs: list.append(steps.attrs, attributes))
+}
+
+pub fn items(
+  steps: Steps(msg),
+  elements elements: List(Element(msg)),
+) -> Steps(msg) {
+  Steps(..steps, items: list.append(steps.items, elements))
+}
+
+pub fn build(steps: Steps(msg)) -> Element(msg) {
   let base =
-    [Some("steps"), s.direction]
+    [Some("steps"), steps.direction]
     |> list.filter_map(fn(x) { option.to_result(x, Nil) })
     |> string.join(" ")
-  let class = case to_class_string(s.styles) {
+  let class = case to_class_string(steps.styles) {
     "" -> base
     extra -> base <> " " <> extra
   }
-  html.ul([attribute.class(class), ..s.attrs], s.items)
+  html.ul([attribute.class(class), ..steps.attrs], steps.items)
 }

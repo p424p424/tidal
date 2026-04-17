@@ -4,27 +4,29 @@
 /// import tidal/pagination
 ///
 /// pagination.new()
-/// |> pagination.current_page(3)
-/// |> pagination.total_pages(10)
+/// |> pagination.current_page(to: 3)
+/// |> pagination.total_pages(to: 10)
 /// |> pagination.show_prev
 /// |> pagination.show_next
 /// |> pagination.on_page(UserChangedPage)
 /// |> pagination.build
 /// ```
 ///
-/// For large page counts, use `window/2` to limit how many page buttons are shown:
+/// For large page counts, use `window` to limit how many page buttons are shown:
 ///
 /// ```gleam
 /// pagination.new()
-/// |> pagination.current_page(5)
-/// |> pagination.total_pages(50)
-/// |> pagination.window(5)
+/// |> pagination.current_page(to: 5)
+/// |> pagination.total_pages(to: 50)
+/// |> pagination.window(size: 5)
 /// |> pagination.show_prev
 /// |> pagination.show_next
 /// |> pagination.on_page(UserChangedPage)
 /// |> pagination.build
 /// ```
-
+///
+/// See also:
+/// - DaisyUI pagination docs: https://daisyui.com/components/pagination/
 import gleam/int
 import gleam/list
 import gleam/option.{type Option, None, Some}
@@ -57,6 +59,24 @@ pub opaque type Pagination(msg) {
 // Builder
 // ---------------------------------------------------------------------------
 
+/// Creates a new `Pagination` builder with defaults (page 1 of 1, window 7).
+///
+/// Chain builder functions to configure the pagination, then call `build`:
+///
+/// ```gleam
+/// import tidal/pagination
+///
+/// pagination.new()
+/// |> pagination.current_page(to: model.page)
+/// |> pagination.total_pages(to: model.total_pages)
+/// |> pagination.show_prev
+/// |> pagination.show_next
+/// |> pagination.on_page(UserChangedPage)
+/// |> pagination.build
+/// ```
+///
+/// See also:
+/// - DaisyUI pagination docs: https://daisyui.com/components/pagination/
 pub fn new() -> Pagination(msg) {
   Pagination(
     current: 1,
@@ -72,52 +92,64 @@ pub fn new() -> Pagination(msg) {
 }
 
 /// Sets the currently active page (1-based).
-pub fn current_page(p: Pagination(msg), n: Int) -> Pagination(msg) {
-  Pagination(..p, current: n)
+pub fn current_page(
+  pagination: Pagination(msg),
+  to page: Int,
+) -> Pagination(msg) {
+  Pagination(..pagination, current: page)
 }
 
 /// Sets the total number of pages.
-pub fn total_pages(p: Pagination(msg), n: Int) -> Pagination(msg) {
-  Pagination(..p, total: n)
+pub fn total_pages(
+  pagination: Pagination(msg),
+  to total: Int,
+) -> Pagination(msg) {
+  Pagination(..pagination, total: total)
 }
 
 /// Sets the maximum number of page buttons shown (default 7). Surrounding pages
 /// are collapsed when the total exceeds this.
-pub fn window(p: Pagination(msg), n: Int) -> Pagination(msg) {
-  Pagination(..p, window: n)
+pub fn window(pagination: Pagination(msg), size size: Int) -> Pagination(msg) {
+  Pagination(..pagination, window: size)
 }
 
 /// Includes a "«" previous button.
-pub fn show_prev(p: Pagination(msg)) -> Pagination(msg) {
-  Pagination(..p, show_prev: True)
+pub fn show_prev(pagination: Pagination(msg)) -> Pagination(msg) {
+  Pagination(..pagination, show_prev: True)
 }
 
 /// Includes a "»" next button.
-pub fn show_next(p: Pagination(msg)) -> Pagination(msg) {
-  Pagination(..p, show_next: True)
+pub fn show_next(pagination: Pagination(msg)) -> Pagination(msg) {
+  Pagination(..pagination, show_next: True)
 }
 
 /// Sets the size of all page buttons.
-pub fn size(p: Pagination(msg), s: Size) -> Pagination(msg) {
-  Pagination(..p, size: Some(s))
+pub fn size(pagination: Pagination(msg), size size: Size) -> Pagination(msg) {
+  Pagination(..pagination, size: Some(size))
 }
 
 /// Registers a callback receiving the selected page number.
-pub fn on_page(p: Pagination(msg), msg: fn(Int) -> msg) -> Pagination(msg) {
-  Pagination(..p, on_page: Some(msg))
+pub fn on_page(
+  pagination: Pagination(msg),
+  handler handler: fn(Int) -> msg,
+) -> Pagination(msg) {
+  Pagination(..pagination, on_page: Some(handler))
 }
 
 /// Appends presentation styles. May be called multiple times.
-pub fn style(p: Pagination(msg), s: List(Style)) -> Pagination(msg) {
-  Pagination(..p, styles: list.append(p.styles, s))
+pub fn style(
+  pagination: Pagination(msg),
+  styles styles: List(Style),
+) -> Pagination(msg) {
+  Pagination(..pagination, styles: list.append(pagination.styles, styles))
 }
 
 /// Appends HTML attributes. May be called multiple times.
 pub fn attrs(
-  p: Pagination(msg),
-  a: List(attribute.Attribute(msg)),
+  pagination: Pagination(msg),
+  attributes attributes: List(attribute.Attribute(msg)),
 ) -> Pagination(msg) {
-  Pagination(..p, attrs: list.append(p.attrs, a))
+  Pagination(..pagination, attrs: list.append(pagination.attrs, attributes))
 }
 
 // ---------------------------------------------------------------------------
@@ -163,7 +195,6 @@ fn ellipsis(sz: Option(Size)) -> Element(msg) {
   ])
 }
 
-/// Computes visible page numbers around the current page within the window.
 fn int_range(from: Int, to: Int) -> List(Int) {
   case from > to {
     True -> []
@@ -179,59 +210,104 @@ fn visible_pages(current: Int, total: Int, win: Int) -> List(Int) {
   int_range(start, last)
 }
 
-pub fn build(p: Pagination(msg)) -> Element(msg) {
-  let cls = case style.to_class_string(p.styles) {
+pub fn build(pagination: Pagination(msg)) -> Element(msg) {
+  let cls = case style.to_class_string(pagination.styles) {
     "" -> "join"
     s -> "join " <> s
   }
 
-  let pages = visible_pages(p.current, p.total, p.window)
+  let pages =
+    visible_pages(pagination.current, pagination.total, pagination.window)
   let first_page = case pages {
     [f, ..] -> f
     [] -> 1
   }
   let last_page = case list.last(pages) {
     Ok(l) -> l
-    Error(_) -> p.total
+    Error(_) -> pagination.total
   }
 
-  let prev_btn = case p.show_prev {
+  let prev_btn = case pagination.show_prev {
     False -> []
-    True -> [page_btn("«", int.max(1, p.current - 1), False, p.current == 1, p.on_page, p.size)]
+    True -> [
+      page_btn(
+        "«",
+        int.max(1, pagination.current - 1),
+        False,
+        pagination.current == 1,
+        pagination.on_page,
+        pagination.size,
+      ),
+    ]
   }
 
   let leading_ellipsis = case first_page > 1 {
     False -> []
     True ->
       list.flatten([
-        [page_btn("1", 1, False, False, p.on_page, p.size)],
-        case first_page > 2 { True -> [ellipsis(p.size)] False -> [] },
+        [page_btn("1", 1, False, False, pagination.on_page, pagination.size)],
+        case first_page > 2 {
+          True -> [ellipsis(pagination.size)]
+          False -> []
+        },
       ])
   }
 
   let page_btns =
     list.map(pages, fn(n) {
-      page_btn(int.to_string(n), n, n == p.current, False, p.on_page, p.size)
+      page_btn(
+        int.to_string(n),
+        n,
+        n == pagination.current,
+        False,
+        pagination.on_page,
+        pagination.size,
+      )
     })
 
-  let trailing_ellipsis = case last_page < p.total {
+  let trailing_ellipsis = case last_page < pagination.total {
     False -> []
     True ->
       list.flatten([
-        case last_page < p.total - 1 { True -> [ellipsis(p.size)] False -> [] },
-        [page_btn(int.to_string(p.total), p.total, False, False, p.on_page, p.size)],
+        case last_page < pagination.total - 1 {
+          True -> [ellipsis(pagination.size)]
+          False -> []
+        },
+        [
+          page_btn(
+            int.to_string(pagination.total),
+            pagination.total,
+            False,
+            False,
+            pagination.on_page,
+            pagination.size,
+          ),
+        ],
       ])
   }
 
-  let next_btn = case p.show_next {
+  let next_btn = case pagination.show_next {
     False -> []
     True -> [
-      page_btn("»", int.min(p.total, p.current + 1), False, p.current == p.total, p.on_page, p.size),
+      page_btn(
+        "»",
+        int.min(pagination.total, pagination.current + 1),
+        False,
+        pagination.current == pagination.total,
+        pagination.on_page,
+        pagination.size,
+      ),
     ]
   }
 
   html.div(
-    [attribute.class(cls), ..p.attrs],
-    list.flatten([prev_btn, leading_ellipsis, page_btns, trailing_ellipsis, next_btn]),
+    [attribute.class(cls), ..pagination.attrs],
+    list.flatten([
+      prev_btn,
+      leading_ellipsis,
+      page_btns,
+      trailing_ellipsis,
+      next_btn,
+    ]),
   )
 }

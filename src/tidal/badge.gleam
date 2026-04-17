@@ -5,12 +5,11 @@
 /// import tidal/size
 ///
 /// badge.new()
-/// |> badge.label("New")
+/// |> badge.label(text: "New")
 /// |> badge.primary
-/// |> badge.size(size.Sm)
+/// |> badge.size(size: size.Sm)
 /// |> badge.build
 /// ```
-
 import gleam/list
 import gleam/option.{type Option, None, Some}
 import gleam/string
@@ -31,42 +30,107 @@ pub opaque type Badge(msg) {
   )
 }
 
+/// Creates a new `Badge` builder with all options at their defaults.
+///
+/// Chain builder functions to configure the badge, then call `build`:
+///
+/// ```gleam
+/// import tidal/badge
+/// import tidal/size
+///
+/// badge.new()
+/// |> badge.label(text: "New")
+/// |> badge.primary
+/// |> badge.size(size: size.Sm)
+/// |> badge.build
+/// ```
+///
+/// See also:
+/// - DaisyUI badge docs: https://daisyui.com/components/badge/
 pub fn new() -> Badge(msg) {
-  Badge(label: "", color: None, style_variant: None, size: None, styles: [], attrs: [])
+  Badge(
+    label: "",
+    color: None,
+    style_variant: None,
+    size: None,
+    styles: [],
+    attrs: [],
+  )
 }
 
 /// Badge text content.
-pub fn label(b: Badge(msg), t: String) -> Badge(msg) { Badge(..b, label: t) }
+pub fn label(badge: Badge(msg), text text: String) -> Badge(msg) {
+  Badge(..badge, label: text)
+}
 
-pub fn primary(b: Badge(msg)) -> Badge(msg) { Badge(..b, color: Some("badge-primary")) }
-pub fn secondary(b: Badge(msg)) -> Badge(msg) { Badge(..b, color: Some("badge-secondary")) }
-pub fn accent(b: Badge(msg)) -> Badge(msg) { Badge(..b, color: Some("badge-accent")) }
-pub fn neutral(b: Badge(msg)) -> Badge(msg) { Badge(..b, color: Some("badge-neutral")) }
-pub fn info(b: Badge(msg)) -> Badge(msg) { Badge(..b, color: Some("badge-info")) }
-pub fn success(b: Badge(msg)) -> Badge(msg) { Badge(..b, color: Some("badge-success")) }
-pub fn warning(b: Badge(msg)) -> Badge(msg) { Badge(..b, color: Some("badge-warning")) }
-pub fn error(b: Badge(msg)) -> Badge(msg) { Badge(..b, color: Some("badge-error")) }
+pub fn primary(badge: Badge(msg)) -> Badge(msg) {
+  Badge(..badge, color: Some("badge-primary"))
+}
+
+pub fn secondary(badge: Badge(msg)) -> Badge(msg) {
+  Badge(..badge, color: Some("badge-secondary"))
+}
+
+pub fn accent(badge: Badge(msg)) -> Badge(msg) {
+  Badge(..badge, color: Some("badge-accent"))
+}
+
+pub fn neutral(badge: Badge(msg)) -> Badge(msg) {
+  Badge(..badge, color: Some("badge-neutral"))
+}
+
+pub fn info(badge: Badge(msg)) -> Badge(msg) {
+  Badge(..badge, color: Some("badge-info"))
+}
+
+pub fn success(badge: Badge(msg)) -> Badge(msg) {
+  Badge(..badge, color: Some("badge-success"))
+}
+
+pub fn warning(badge: Badge(msg)) -> Badge(msg) {
+  Badge(..badge, color: Some("badge-warning"))
+}
+
+pub fn error(badge: Badge(msg)) -> Badge(msg) {
+  Badge(..badge, color: Some("badge-error"))
+}
 
 /// Outlined border, no fill.
-pub fn outline(b: Badge(msg)) -> Badge(msg) { Badge(..b, style_variant: Some("badge-outline")) }
+pub fn outline(badge: Badge(msg)) -> Badge(msg) {
+  Badge(..badge, style_variant: Some("badge-outline"))
+}
+
 /// Dashed border.
-pub fn dash(b: Badge(msg)) -> Badge(msg) { Badge(..b, style_variant: Some("badge-dash")) }
+pub fn dash(badge: Badge(msg)) -> Badge(msg) {
+  Badge(..badge, style_variant: Some("badge-dash"))
+}
+
 /// Soft/muted fill.
-pub fn soft(b: Badge(msg)) -> Badge(msg) { Badge(..b, style_variant: Some("badge-soft")) }
+pub fn soft(badge: Badge(msg)) -> Badge(msg) {
+  Badge(..badge, style_variant: Some("badge-soft"))
+}
+
 /// Minimal ghost style.
-pub fn ghost(b: Badge(msg)) -> Badge(msg) { Badge(..b, style_variant: Some("badge-ghost")) }
+pub fn ghost(badge: Badge(msg)) -> Badge(msg) {
+  Badge(..badge, style_variant: Some("badge-ghost"))
+}
 
 /// Sets the badge size.
-pub fn size(b: Badge(msg), s: Size) -> Badge(msg) { Badge(..b, size: Some(s)) }
+pub fn size(badge: Badge(msg), size size: Size) -> Badge(msg) {
+  Badge(..badge, size: Some(size))
+}
 
 /// Appends Tailwind utility styles.
-pub fn style(b: Badge(msg), s: List(Style)) -> Badge(msg) {
-  Badge(..b, styles: list.append(b.styles, s))
+pub fn style(badge: Badge(msg), styles styles: List(Style)) -> Badge(msg) {
+  Badge(..badge, styles: list.append(badge.styles, styles))
 }
 
 /// Appends HTML attributes.
-pub fn attrs(b: Badge(msg), a: List(Attribute(msg))) -> Badge(msg) {
-  Badge(..b, attrs: list.append(b.attrs, a))
+pub fn attrs(
+  badge: Badge(msg),
+  attributes attributes: List(Attribute(msg)),
+) -> Badge(msg) {
+  Badge(..badge, attrs: list.append(badge.attrs, attributes))
 }
 
 fn size_class(s: Size) -> String {
@@ -79,17 +143,22 @@ fn size_class(s: Size) -> String {
   }
 }
 
-pub fn build(b: Badge(msg)) -> Element(msg) {
+pub fn build(badge: Badge(msg)) -> Element(msg) {
   let classes =
     [
       Some("badge"),
-      b.color,
-      b.style_variant,
-      option.map(b.size, size_class),
-      case style.to_class_string(b.styles) { "" -> None s -> Some(s) },
+      badge.color,
+      badge.style_variant,
+      option.map(badge.size, size_class),
+      case style.to_class_string(badge.styles) {
+        "" -> None
+        s -> Some(s)
+      },
     ]
     |> list.filter_map(fn(x) { option.to_result(x, Nil) })
     |> list.filter(fn(c) { c != "" })
     |> string.join(" ")
-  html.span([attribute.class(classes), ..b.attrs], [element.text(b.label)])
+  html.span([attribute.class(classes), ..badge.attrs], [
+    element.text(badge.label),
+  ])
 }

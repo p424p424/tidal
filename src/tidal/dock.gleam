@@ -6,14 +6,16 @@
 /// import tidal/dock
 ///
 /// dock.new()
-/// |> dock.items([
+/// |> dock.items(entries: [
 ///   dock.dock_item(home_icon, "Home", UserClickedHome) |> dock.dock_active,
 ///   dock.dock_item(search_icon, "Search", UserClickedSearch),
 ///   dock.dock_item(profile_icon, "Profile", UserClickedProfile),
 /// ])
 /// |> dock.build
 /// ```
-
+///
+/// See also:
+/// - DaisyUI dock docs: https://daisyui.com/components/dock/
 import gleam/list
 import gleam/option.{type Option, None, Some}
 import gleam/string
@@ -42,42 +44,65 @@ pub opaque type Dock(msg) {
 // ---------------------------------------------------------------------------
 
 /// Creates a dock item with an icon, label, and click message.
-pub fn dock_item(icon: Element(msg), label: String, on_click: msg) -> DockItem(msg) {
+pub fn dock_item(
+  icon: Element(msg),
+  label: String,
+  on_click: msg,
+) -> DockItem(msg) {
   DockItem(icon: icon, label: label, on_click: on_click, active: False)
 }
 
 /// Marks this dock item as the active/current item — `dock-active`.
-pub fn dock_active(d: DockItem(msg)) -> DockItem(msg) {
-  DockItem(..d, active: True)
+pub fn dock_active(dock_item: DockItem(msg)) -> DockItem(msg) {
+  DockItem(..dock_item, active: True)
 }
 
 // ---------------------------------------------------------------------------
 // Dock container
 // ---------------------------------------------------------------------------
 
-/// Create a new dock — `<div class="dock">`.
+/// Creates a new `Dock` — `<div class="dock">`.
+///
+/// Chain builder functions to configure the dock, then call `build`:
+///
+/// ```gleam
+/// import tidal/dock
+///
+/// dock.new()
+/// |> dock.items(entries: [
+///   dock.dock_item(home_icon, "Home", UserClickedHome) |> dock.dock_active,
+///   dock.dock_item(search_icon, "Search", UserClickedSearch),
+/// ])
+/// |> dock.build
+/// ```
+///
+/// See also:
+/// - DaisyUI dock docs: https://daisyui.com/components/dock/
 pub fn new() -> Dock(msg) {
   Dock(size: None, styles: [], attrs: [], items: [])
 }
 
 /// Sets the dock size — `dock-xs` … `dock-xl`.
-pub fn size(d: Dock(msg), s: Size) -> Dock(msg) {
-  Dock(..d, size: Some(s))
+pub fn size(dock: Dock(msg), size size: Size) -> Dock(msg) {
+  Dock(..dock, size: Some(size))
 }
 
 /// Appends dock items. May be called multiple times — items accumulate.
-pub fn items(d: Dock(msg), is: List(DockItem(msg))) -> Dock(msg) {
-  Dock(..d, items: list.append(d.items, is))
+pub fn items(dock: Dock(msg), entries entries: List(DockItem(msg))) -> Dock(msg) {
+  Dock(..dock, items: list.append(dock.items, entries))
 }
 
 /// Appends Tailwind utility styles.
-pub fn style(d: Dock(msg), s: List(Style)) -> Dock(msg) {
-  Dock(..d, styles: list.append(d.styles, s))
+pub fn style(dock: Dock(msg), styles styles: List(Style)) -> Dock(msg) {
+  Dock(..dock, styles: list.append(dock.styles, styles))
 }
 
 /// Appends HTML attributes.
-pub fn attrs(d: Dock(msg), a: List(Attribute(msg))) -> Dock(msg) {
-  Dock(..d, attrs: list.append(d.attrs, a))
+pub fn attrs(
+  dock: Dock(msg),
+  attributes attributes: List(Attribute(msg)),
+) -> Dock(msg) {
+  Dock(..dock, attrs: list.append(dock.attrs, attributes))
 }
 
 // ---------------------------------------------------------------------------
@@ -95,26 +120,35 @@ fn size_class(s: Size) -> String {
 }
 
 fn item_el(di: DockItem(msg)) -> Element(msg) {
-  let cls = case di.active { True -> "dock-active" False -> "" }
+  let cls = case di.active {
+    True -> "dock-active"
+    False -> ""
+  }
   let btn_attrs = case cls {
     "" -> [event.on_click(di.on_click)]
     c -> [attribute.class(c), event.on_click(di.on_click)]
   }
-  html.button(
-    btn_attrs,
-    [di.icon, html.span([attribute.class("dock-label")], [html.text(di.label)])],
-  )
+  html.button(btn_attrs, [
+    di.icon,
+    html.span([attribute.class("dock-label")], [html.text(di.label)]),
+  ])
 }
 
-pub fn build(d: Dock(msg)) -> Element(msg) {
+pub fn build(dock: Dock(msg)) -> Element(msg) {
   let classes =
     [
       Some("dock"),
-      option.map(d.size, size_class),
-      case style.to_class_string(d.styles) { "" -> None s -> Some(s) },
+      option.map(dock.size, size_class),
+      case style.to_class_string(dock.styles) {
+        "" -> None
+        s -> Some(s)
+      },
     ]
     |> option.values
     |> list.filter(fn(c) { c != "" })
     |> string.join(" ")
-  html.div([attribute.class(classes), ..d.attrs], list.map(d.items, item_el))
+  html.div(
+    [attribute.class(classes), ..dock.attrs],
+    list.map(dock.items, item_el),
+  )
 }

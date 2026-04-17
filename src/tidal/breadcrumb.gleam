@@ -4,12 +4,14 @@
 /// import tidal/breadcrumb
 ///
 /// breadcrumb.new()
-/// |> breadcrumb.crumb_link("Home", "/")
-/// |> breadcrumb.crumb_link("Docs", "/docs")
-/// |> breadcrumb.crumb("Components")
+/// |> breadcrumb.crumb_link(label: "Home", href: "/")
+/// |> breadcrumb.crumb_link(label: "Docs", href: "/docs")
+/// |> breadcrumb.crumb(label: "Components")
 /// |> breadcrumb.build
 /// ```
-
+///
+/// See also:
+/// - DaisyUI breadcrumbs docs: https://daisyui.com/components/breadcrumbs/
 import gleam/list
 import lustre/attribute
 import lustre/element.{type Element}
@@ -30,34 +32,72 @@ pub opaque type Breadcrumb(msg) {
   )
 }
 
-/// Create a new breadcrumb trail.
+/// Creates a new `Breadcrumb` trail builder.
+///
+/// Chain builder functions to add crumbs, then call `build`:
+///
+/// ```gleam
+/// import tidal/breadcrumb
+///
+/// breadcrumb.new()
+/// |> breadcrumb.crumb_link(label: "Home", href: "/")
+/// |> breadcrumb.crumb_link(label: "Docs", href: "/docs")
+/// |> breadcrumb.crumb(label: "Components")
+/// |> breadcrumb.build
+/// ```
+///
+/// See also:
+/// - DaisyUI breadcrumbs docs: https://daisyui.com/components/breadcrumbs/
 pub fn new() -> Breadcrumb(msg) {
   Breadcrumb(items: [], styles: [], attrs: [])
 }
 
 /// Plain text crumb — current page (not a link).
-pub fn crumb(b: Breadcrumb(msg), label: String) -> Breadcrumb(msg) {
-  Breadcrumb(..b, items: list.append(b.items, [Crumb(label)]))
+pub fn crumb(
+  breadcrumb: Breadcrumb(msg),
+  label label: String,
+) -> Breadcrumb(msg) {
+  Breadcrumb(..breadcrumb, items: list.append(breadcrumb.items, [Crumb(label)]))
 }
 
 /// Linked crumb — renders as `<a href>`.
-pub fn crumb_link(b: Breadcrumb(msg), label: String, href: String) -> Breadcrumb(msg) {
-  Breadcrumb(..b, items: list.append(b.items, [CrumbLink(label, href)]))
+pub fn crumb_link(
+  breadcrumb: Breadcrumb(msg),
+  label label: String,
+  href href: String,
+) -> Breadcrumb(msg) {
+  Breadcrumb(
+    ..breadcrumb,
+    items: list.append(breadcrumb.items, [CrumbLink(label, href)]),
+  )
 }
 
 /// Crumb with a leading icon element.
-pub fn crumb_icon(b: Breadcrumb(msg), label: String, icon: Element(msg)) -> Breadcrumb(msg) {
-  Breadcrumb(..b, items: list.append(b.items, [CrumbIcon(label, icon)]))
+pub fn crumb_icon(
+  breadcrumb: Breadcrumb(msg),
+  label label: String,
+  icon icon: Element(msg),
+) -> Breadcrumb(msg) {
+  Breadcrumb(
+    ..breadcrumb,
+    items: list.append(breadcrumb.items, [CrumbIcon(label, icon)]),
+  )
 }
 
 /// Appends Tailwind utility styles.
-pub fn style(b: Breadcrumb(msg), s: List(Style)) -> Breadcrumb(msg) {
-  Breadcrumb(..b, styles: list.append(b.styles, s))
+pub fn style(
+  breadcrumb: Breadcrumb(msg),
+  styles styles: List(Style),
+) -> Breadcrumb(msg) {
+  Breadcrumb(..breadcrumb, styles: list.append(breadcrumb.styles, styles))
 }
 
 /// Appends HTML attributes.
-pub fn attrs(b: Breadcrumb(msg), a: List(attribute.Attribute(msg))) -> Breadcrumb(msg) {
-  Breadcrumb(..b, attrs: list.append(b.attrs, a))
+pub fn attrs(
+  breadcrumb: Breadcrumb(msg),
+  attributes attributes: List(attribute.Attribute(msg)),
+) -> Breadcrumb(msg) {
+  Breadcrumb(..breadcrumb, attrs: list.append(breadcrumb.attrs, attributes))
 }
 
 fn item_el(bc: BreadcrumbItem(msg)) -> Element(msg) {
@@ -72,13 +112,12 @@ fn item_el(bc: BreadcrumbItem(msg)) -> Element(msg) {
   }
 }
 
-pub fn build(b: Breadcrumb(msg)) -> Element(msg) {
-  let cls = case style.to_class_string(b.styles) {
+pub fn build(breadcrumb: Breadcrumb(msg)) -> Element(msg) {
+  let cls = case style.to_class_string(breadcrumb.styles) {
     "" -> "breadcrumbs"
     s -> "breadcrumbs " <> s
   }
-  html.div(
-    [attribute.class(cls), ..b.attrs],
-    [html.ul([], list.map(b.items, item_el))],
-  )
+  html.div([attribute.class(cls), ..breadcrumb.attrs], [
+    html.ul([], list.map(breadcrumb.items, item_el)),
+  ])
 }

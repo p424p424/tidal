@@ -5,13 +5,12 @@
 /// import tidal/align
 ///
 /// grid.new()
-/// |> grid.cols(3)
-/// |> grid.gap(4)
-/// |> grid.align(align.Start)
-/// |> grid.children([card1, card2, card3])
+/// |> grid.cols(count: 3)
+/// |> grid.gap(amount: 4)
+/// |> grid.align(alignment: align.Start)
+/// |> grid.children(elements: [card1, card2, card3])
 /// |> grid.build
 /// ```
-
 import gleam/int
 import gleam/list
 import gleam/option.{type Option, None, Some}
@@ -36,6 +35,24 @@ pub opaque type Grid(msg) {
   )
 }
 
+/// Creates a new `Grid` builder — a `<div class="grid">`.
+///
+/// Chain builder functions to configure the grid, then call `build`:
+///
+/// ```gleam
+/// import tidal/grid
+/// import tidal/align
+///
+/// grid.new()
+/// |> grid.cols(count: 3)
+/// |> grid.gap(amount: 4)
+/// |> grid.align(alignment: align.Start)
+/// |> grid.children(elements: [card1, card2, card3])
+/// |> grid.build
+/// ```
+///
+/// See also:
+/// - Tailwind grid docs: https://tailwindcss.com/docs/grid-template-columns
 pub fn new() -> Grid(msg) {
   Grid(
     cols: None,
@@ -50,64 +67,80 @@ pub fn new() -> Grid(msg) {
 }
 
 /// Number of equal columns (`grid-cols-{n}`).
-pub fn cols(g: Grid(msg), n: Int) -> Grid(msg) { Grid(..g, cols: Some(n)) }
+pub fn cols(grid: Grid(msg), count count: Int) -> Grid(msg) {
+  Grid(..grid, cols: Some(count))
+}
 
 /// Number of equal rows (`grid-rows-{n}`).
-pub fn rows(g: Grid(msg), n: Int) -> Grid(msg) { Grid(..g, rows: Some(n)) }
+pub fn rows(grid: Grid(msg), count count: Int) -> Grid(msg) {
+  Grid(..grid, rows: Some(count))
+}
 
 /// Uniform gap between cells.
-pub fn gap(g: Grid(msg), n: Int) -> Grid(msg) {
-  Grid(..g, gap: Some("gap-" <> int.to_string(n)))
+pub fn gap(grid: Grid(msg), amount amount: Int) -> Grid(msg) {
+  Grid(..grid, gap: Some("gap-" <> int.to_string(amount)))
 }
 
 /// Column gap only.
-pub fn gap_x(g: Grid(msg), n: Int) -> Grid(msg) {
-  Grid(..g, gap: Some("gap-x-" <> int.to_string(n)))
+pub fn gap_x(grid: Grid(msg), amount amount: Int) -> Grid(msg) {
+  Grid(..grid, gap: Some("gap-x-" <> int.to_string(amount)))
 }
 
 /// Row gap only.
-pub fn gap_y(g: Grid(msg), n: Int) -> Grid(msg) {
-  Grid(..g, gap: Some("gap-y-" <> int.to_string(n)))
+pub fn gap_y(grid: Grid(msg), amount amount: Int) -> Grid(msg) {
+  Grid(..grid, gap: Some("gap-y-" <> int.to_string(amount)))
 }
 
 /// Set `align-items` for all cells.
-pub fn align(g: Grid(msg), a: Align) -> Grid(msg) {
-  Grid(..g, align: Some(align.to_class(a)))
+pub fn align(grid: Grid(msg), alignment alignment: Align) -> Grid(msg) {
+  Grid(..grid, align: Some(align.to_class(alignment)))
 }
 
 /// Set `justify-content`.
-pub fn justify(g: Grid(msg), j: Justify) -> Grid(msg) {
-  Grid(..g, justify: Some(justify.to_class(j)))
+pub fn justify(
+  grid: Grid(msg),
+  justification justification: Justify,
+) -> Grid(msg) {
+  Grid(..grid, justify: Some(justify.to_class(justification)))
 }
 
 /// Appends Tailwind utility styles. Use for custom grid template values.
-pub fn style(g: Grid(msg), s: List(Style)) -> Grid(msg) {
-  Grid(..g, styles: list.append(g.styles, s))
+pub fn style(grid: Grid(msg), styles styles: List(Style)) -> Grid(msg) {
+  Grid(..grid, styles: list.append(grid.styles, styles))
 }
 
 /// Appends HTML attributes. May be called multiple times.
-pub fn attrs(g: Grid(msg), a: List(Attribute(msg))) -> Grid(msg) {
-  Grid(..g, attrs: list.append(g.attrs, a))
+pub fn attrs(
+  grid: Grid(msg),
+  attributes attributes: List(Attribute(msg)),
+) -> Grid(msg) {
+  Grid(..grid, attrs: list.append(grid.attrs, attributes))
 }
 
 /// Sets child elements. May be called multiple times — children accumulate.
-pub fn children(g: Grid(msg), c: List(Element(msg))) -> Grid(msg) {
-  Grid(..g, children: list.append(g.children, c))
+pub fn children(
+  grid: Grid(msg),
+  elements elements: List(Element(msg)),
+) -> Grid(msg) {
+  Grid(..grid, children: list.append(grid.children, elements))
 }
 
-pub fn build(g: Grid(msg)) -> Element(msg) {
+pub fn build(grid: Grid(msg)) -> Element(msg) {
   let parts =
     [
       Some("grid"),
-      option.map(g.cols, fn(n) { "grid-cols-" <> int.to_string(n) }),
-      option.map(g.rows, fn(n) { "grid-rows-" <> int.to_string(n) }),
-      g.gap,
-      g.align,
-      g.justify,
-      case style.to_class_string(g.styles) { "" -> None s -> Some(s) },
+      option.map(grid.cols, fn(n) { "grid-cols-" <> int.to_string(n) }),
+      option.map(grid.rows, fn(n) { "grid-rows-" <> int.to_string(n) }),
+      grid.gap,
+      grid.align,
+      grid.justify,
+      case style.to_class_string(grid.styles) {
+        "" -> None
+        s -> Some(s)
+      },
     ]
     |> list.filter_map(fn(x) { option.to_result(x, Nil) })
     |> list.filter(fn(s) { s != "" })
   let cls = string.join(parts, " ")
-  html.div([attribute.class(cls), ..g.attrs], g.children)
+  html.div([attribute.class(cls), ..grid.attrs], grid.children)
 }

@@ -4,12 +4,12 @@
 /// import tidal/collapse
 ///
 /// collapse.new()
-/// |> collapse.title("What is Tidal?")
-/// |> collapse.body([
+/// |> collapse.title(text: "What is Tidal?")
+/// |> collapse.body(elements: [
 ///   text.new("Tidal is a Gleam UI package built on DaisyUI and Lustre.")
 ///   |> text.build,
 /// ])
-/// |> collapse.open(model.faq_open)
+/// |> collapse.open(to: model.faq_open)
 /// |> collapse.build
 /// ```
 ///
@@ -18,12 +18,14 @@
 ///
 /// ```gleam
 /// collapse.new()
-/// |> collapse.accordion("faq")
-/// |> collapse.title("Question 1")
-/// |> collapse.body([answer_1])
+/// |> collapse.accordion(name: "faq")
+/// |> collapse.title(text: "Question 1")
+/// |> collapse.body(elements: [answer_1])
 /// |> collapse.build
 /// ```
-
+///
+/// See also:
+/// - DaisyUI collapse docs: https://daisyui.com/components/collapse/
 import gleam/list
 import gleam/option.{type Option, None, Some}
 import gleam/string
@@ -59,7 +61,22 @@ pub opaque type Collapse(msg) {
 // Builder
 // ---------------------------------------------------------------------------
 
-/// Create a new collapse — `<div class="collapse">`.
+/// Creates a new `Collapse` — `<div class="collapse">`.
+///
+/// Chain builder functions to configure the collapse, then call `build`:
+///
+/// ```gleam
+/// import tidal/collapse
+///
+/// collapse.new()
+/// |> collapse.title(text: "What is Tidal?")
+/// |> collapse.body(elements: [answer_el])
+/// |> collapse.open(to: model.faq_open)
+/// |> collapse.build
+/// ```
+///
+/// See also:
+/// - DaisyUI collapse docs: https://daisyui.com/components/collapse/
 pub fn new() -> Collapse(msg) {
   Collapse(
     title: "",
@@ -74,49 +91,63 @@ pub fn new() -> Collapse(msg) {
 }
 
 /// Sets the clickable title / trigger text.
-pub fn title(c: Collapse(msg), text: String) -> Collapse(msg) {
-  Collapse(..c, title: text)
+pub fn title(collapse: Collapse(msg), text text: String) -> Collapse(msg) {
+  Collapse(..collapse, title: text)
 }
 
 /// Sets the body content. May be called multiple times — content accumulates.
-pub fn body(c: Collapse(msg), els: List(Element(msg))) -> Collapse(msg) {
-  Collapse(..c, body: list.append(c.body, els))
+pub fn body(
+  collapse: Collapse(msg),
+  elements elements: List(Element(msg)),
+) -> Collapse(msg) {
+  Collapse(..collapse, body: list.append(collapse.body, elements))
 }
 
 /// Shows an arrow indicator on the title (`collapse-arrow`).
-pub fn arrow(c: Collapse(msg)) -> Collapse(msg) {
-  Collapse(..c, style_: Arrow)
+pub fn arrow(collapse: Collapse(msg)) -> Collapse(msg) {
+  Collapse(..collapse, style_: Arrow)
 }
 
 /// Shows a plus/minus indicator on the title (`collapse-plus`).
-pub fn plus(c: Collapse(msg)) -> Collapse(msg) {
-  Collapse(..c, style_: Plus)
+pub fn plus(collapse: Collapse(msg)) -> Collapse(msg) {
+  Collapse(..collapse, style_: Plus)
 }
 
 /// Controls the checkbox open/closed state (standard toggle approach).
-pub fn open(c: Collapse(msg), is_open: Bool) -> Collapse(msg) {
-  Collapse(..c, open: is_open)
+pub fn open(collapse: Collapse(msg), to is_open: Bool) -> Collapse(msg) {
+  Collapse(..collapse, open: is_open)
 }
 
 /// Permanently expand via `collapse-open` CSS class (no checkbox needed).
-pub fn force_open(c: Collapse(msg)) -> Collapse(msg) { Collapse(..c, force: Some("collapse-open")) }
+pub fn force_open(collapse: Collapse(msg)) -> Collapse(msg) {
+  Collapse(..collapse, force: Some("collapse-open"))
+}
+
 /// Permanently collapse via `collapse-close` CSS class (no checkbox needed).
-pub fn force_close(c: Collapse(msg)) -> Collapse(msg) { Collapse(..c, force: Some("collapse-close")) }
+pub fn force_close(collapse: Collapse(msg)) -> Collapse(msg) {
+  Collapse(..collapse, force: Some("collapse-close"))
+}
 
 /// Groups this collapse into a radio-button accordion with the given name.
 /// Only one collapse in the group will be open at a time.
-pub fn accordion(c: Collapse(msg), name: String) -> Collapse(msg) {
-  Collapse(..c, accordion: Some(name))
+pub fn accordion(collapse: Collapse(msg), name name: String) -> Collapse(msg) {
+  Collapse(..collapse, accordion: Some(name))
 }
 
 /// Appends presentation styles. May be called multiple times.
-pub fn style(c: Collapse(msg), s: List(Style)) -> Collapse(msg) {
-  Collapse(..c, styles: list.append(c.styles, s))
+pub fn style(
+  collapse: Collapse(msg),
+  styles styles: List(Style),
+) -> Collapse(msg) {
+  Collapse(..collapse, styles: list.append(collapse.styles, styles))
 }
 
 /// Appends HTML attributes. May be called multiple times.
-pub fn attrs(c: Collapse(msg), a: List(attribute.Attribute(msg))) -> Collapse(msg) {
-  Collapse(..c, attrs: list.append(c.attrs, a))
+pub fn attrs(
+  collapse: Collapse(msg),
+  attributes attributes: List(attribute.Attribute(msg)),
+) -> Collapse(msg) {
+  Collapse(..collapse, attrs: list.append(collapse.attrs, attributes))
 }
 
 // ---------------------------------------------------------------------------
@@ -131,13 +162,19 @@ fn style_class(s: CollapseStyle) -> String {
   }
 }
 
-pub fn build(c: Collapse(msg)) -> Element(msg) {
+pub fn build(collapse: Collapse(msg)) -> Element(msg) {
   let classes =
     [
       Some("collapse"),
-      case style_class(c.style_) { "" -> None s -> Some(s) },
-      c.force,
-      case style.to_class_string(c.styles) { "" -> None s -> Some(s) },
+      case style_class(collapse.style_) {
+        "" -> None
+        s -> Some(s)
+      },
+      collapse.force,
+      case style.to_class_string(collapse.styles) {
+        "" -> None
+        s -> Some(s)
+      },
     ]
     |> option.values
     |> list.filter(fn(cl) { cl != "" })
@@ -145,30 +182,37 @@ pub fn build(c: Collapse(msg)) -> Element(msg) {
 
   let title_el =
     html.div([attribute.class("collapse-title font-semibold")], [
-      element.text(c.title),
+      element.text(collapse.title),
     ])
 
-  let body_el =
-    html.div([attribute.class("collapse-content")], c.body)
+  let body_el = html.div([attribute.class("collapse-content")], collapse.body)
 
-  case c.accordion {
+  case collapse.accordion {
     Some(name) -> {
       let input =
         html.input([
           attribute.type_("radio"),
           attribute.name(name),
-          attribute.checked(c.open),
+          attribute.checked(collapse.open),
         ])
-      html.div([attribute.class(classes), ..c.attrs], [input, title_el, body_el])
+      html.div([attribute.class(classes), ..collapse.attrs], [
+        input,
+        title_el,
+        body_el,
+      ])
     }
     None -> {
-      let checked_attr = case c.open {
+      let checked_attr = case collapse.open {
         True -> [attribute.checked(True)]
         False -> []
       }
       let input =
         html.input(list.append([attribute.type_("checkbox")], checked_attr))
-      html.div([attribute.class(classes), ..c.attrs], [input, title_el, body_el])
+      html.div([attribute.class(classes), ..collapse.attrs], [
+        input,
+        title_el,
+        body_el,
+      ])
     }
   }
 }
